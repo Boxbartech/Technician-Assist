@@ -1,0 +1,2502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Boxbar Report">
+<title>Boxbar Field Report</title>
+<style>
+:root {
+  --pink: #E91E8C;
+  --pink-light: rgba(233,30,140,0.12);
+  --pink-border: rgba(233,30,140,0.3);
+  --bg: #1c1c1e;
+  --card: #2a2a2c;
+  --card2: #323234;
+  --text: #f0ede8;
+  --muted: #8a8a8e;
+  --border: #3a3a3c;
+  --radius: 13px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html {
+  background: #1c1c1e;
+  color-scheme: dark;
+}
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 15px;
+  padding-bottom: 3rem;
+  min-height: 100vh;
+}
+header {
+  background: var(--pink);
+  padding: 12px 14px 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.header-left h1 { color: #fff; font-size: 16px; font-weight: 700; letter-spacing: -0.3px; }
+.header-left p { color: rgba(255,255,255,0.75); font-size: 11px; margin-top: 2px; }
+.header-left { flex: 1; min-width: 0; }
+.header-logo { width: 38px; height: 38px; background: rgba(255,255,255,0.18); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+.section-label { font-size: 11px; font-weight: 700; letter-spacing: 0.7px; text-transform: uppercase; color: var(--muted); padding: 18px 16px 6px; }
+.group { background: var(--card); border-radius: var(--radius); margin: 0 12px; overflow: hidden; border: 0.5px solid var(--border); }
+.field-row { display: flex; align-items: center; min-height: 44px; padding: 0 14px; border-bottom: 0.5px solid var(--border); gap: 8px; }
+.field-row:last-child { border-bottom: none; }
+.field-label { font-size: 14px; color: var(--text); min-width: 108px; flex-shrink: 0; }
+.field-input { flex: 1; border: none; outline: none; font-size: 14px; font-family: inherit; color: var(--text); background: transparent; text-align: right; min-width: 0; }
+.field-input::placeholder { color: #c0c0c0; }
+.field-input[type="number"] { -moz-appearance: textfield; }
+.field-input[type="number"]::-webkit-outer-spin-button,
+.field-input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
+.field-unit { font-size: 13px; color: var(--muted); flex-shrink: 0; margin-left: 2px; }
+.date-row { gap: 6px; padding: 0 14px; }
+.date-row .field-label { min-width: 108px; flex: none; }
+.date-row .field-input { text-align: right; flex: 1; min-width: 0; color-scheme: dark; max-width: 130px; margin-left: auto; }
+.today-btn { background: var(--pink-light); color: var(--pink); border: 1px solid var(--pink-border); border-radius: 20px; padding: 5px 11px; font-size: 12px; font-weight: 600; font-family: inherit; cursor: pointer; flex-shrink: 0; }
+.today-btn:active { opacity: 0.7; }
+.select-wrap { flex: 1; display: flex; align-items: center; justify-content: flex-end; gap: 3px; min-width: 0; }
+.field-select { flex: 1; border: none; outline: none; font-size: 14px; font-family: inherit; color: var(--text); background: transparent; text-align: right; -webkit-appearance: none; appearance: none; cursor: pointer; min-width: 0; max-width: 160px; }
+.select-caret { color: #555; font-size: 14px; pointer-events: none; flex-shrink: 0; }
+.pill-row { min-height: 50px; padding: 7px 14px; align-items: center; }
+.pill-group { flex: 1; display: flex; justify-content: flex-end; gap: 5px; flex-wrap: wrap; }
+.pill { padding: 5px 10px; border-radius: 20px; border: 1px solid var(--border); font-size: 12px; font-weight: 500; color: var(--muted); cursor: pointer; background: var(--card2); white-space: nowrap; transition: all 0.12s; font-family: inherit; }
+.pill.active { background: var(--pink); color: #fff; border-color: var(--pink); }
+
+/* LOCATION */
+.location-wrap { margin: 12px 12px 0; }
+.loc-header { background: var(--pink); border-radius: var(--radius) var(--radius) 0 0; padding: 10px 14px; display: flex; align-items: center; gap: 8px; }
+.loc-num { color: rgba(255,255,255,0.72); font-size: 11px; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase; flex-shrink: 0; }
+.loc-name-input { flex: 1; background: transparent; border: none; outline: none; font-size: 15px; font-weight: 600; font-family: inherit; color: #fff; min-width: 0; }
+.loc-name-input::placeholder { color: rgba(255,255,255,0.4); font-weight: 400; }
+.remove-loc-btn { background: rgba(255,255,255,0.18); border: none; border-radius: 6px; color: #fff; font-size: 15px; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; font-family: inherit; }
+
+.loc-details { background: var(--card); border: 0.5px solid var(--border); border-top: none; }
+.loc-details .field-row:last-child { border-bottom: 0.5px solid var(--border); }
+
+/* MACHINES */
+.machines-wrap { background: #222224; border: 0.5px solid var(--border); border-top: none; }
+.machines-label { padding: 10px 14px 4px; font-size: 11px; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase; color: var(--muted); }
+.machine-card { background: var(--card); margin: 0 10px 10px; border-radius: 10px; border: 0.5px solid var(--border); overflow: hidden; }
+.machine-top { background: var(--card2); padding: 8px 12px; display: flex; align-items: center; justify-content: space-between; border-bottom: 0.5px solid var(--border); }
+.machine-badge { background: var(--pink-light); color: var(--pink); border-radius: 12px; padding: 2px 9px; font-size: 12px; font-weight: 700; }
+.remove-machine-btn { background: none; border: none; color: #ccc; font-size: 18px; cursor: pointer; display: flex; align-items: center; font-family: inherit; padding: 2px 4px; }
+.remove-machine-btn:active { color: var(--pink); }
+.machine-fields .field-row { padding: 0 12px; min-height: 40px; }
+.machine-fields .field-label { font-size: 13.5px; min-width: 120px; }
+.machine-fields .field-input { font-size: 13.5px; }
+.machines-footer { padding: 0 10px 10px; }
+.add-machine-btn { width: 100%; padding: 9px; background: var(--card); border: 1.5px dashed var(--pink-border); border-radius: 8px; color: var(--pink); font-size: 13px; font-weight: 600; font-family: inherit; cursor: pointer; }
+.add-machine-btn:active { opacity: 0.7; }
+
+/* LOC NOTES */
+.loc-notes-wrap { background: var(--card); border: 0.5px solid var(--border); border-top: none; border-radius: 0 0 var(--radius) var(--radius); overflow: hidden; }
+.loc-notes-lbl { padding: 8px 14px 0; font-size: 11px; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase; color: var(--muted); }
+.notes-area { width: 100%; border: none; outline: none; font-size: 14px; font-family: inherit; color: var(--text); background: transparent; resize: none; padding: 8px 14px 10px; min-height: 68px; line-height: 1.5; }
+.notes-area::placeholder { color: #c0c0c0; }
+
+.add-location-btn { display: block; margin: 12px 12px 0; width: calc(100% - 24px); padding: 13px; background: var(--card); border: 1.5px dashed var(--pink-border); border-radius: var(--radius); color: var(--pink); font-size: 15px; font-weight: 600; font-family: inherit; cursor: pointer; text-align: center; }
+.add-location-btn:active { opacity: 0.7; }
+
+/* ACTIONS */
+.actions-area { margin: 16px 12px 0; display: flex; flex-direction: column; gap: 8px; }
+.btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.action-btn { padding: 13px; border-radius: var(--radius); font-size: 14px; font-weight: 600; font-family: inherit; cursor: pointer; border: none; text-align: center; transition: opacity 0.12s, transform 0.1s; }
+.action-btn:active { opacity: 0.8; transform: scale(0.97); }
+.btn-ghost { background: var(--card); border: 0.5px solid var(--border); color: var(--text); }
+.btn-clear { background: rgba(192,57,43,0.15); border: 0.5px solid rgba(192,57,43,0.3); color: #e57373; }
+.btn-copy { background: var(--pink); color: #fff; font-size: 15px; padding: 15px; }
+
+/* MODALS */
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 200; align-items: flex-end; justify-content: center; }
+.modal-overlay.open { display: flex; }
+.modal-sheet { background: var(--card2); border-radius: 20px 20px 0 0; padding: 20px 16px 32px; width: 100%; max-width: 480px; }
+.modal-sheet h3 { font-size: 17px; font-weight: 700; margin-bottom: 6px; }
+.modal-sheet p { font-size: 14px; color: var(--muted); margin-bottom: 20px; line-height: 1.5; }
+.modal-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.preview-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 300; flex-direction: column; }
+.preview-overlay.open { display: flex; }
+.preview-sheet { background: var(--card); flex: 1; margin-top: 50px; border-radius: 20px 20px 0 0; display: flex; flex-direction: column; overflow: hidden; }
+.preview-top { padding: 14px 16px; border-bottom: 0.5px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+.preview-top h3 { font-size: 16px; font-weight: 700; }
+.close-btn { width: 30px; height: 30px; background: var(--card2); border: none; border-radius: 50%; font-size: 16px; color: var(--muted); cursor: pointer; display: flex; align-items: center; justify-content: center; font-family: inherit; }
+.preview-scroll { flex: 1; overflow-y: auto; padding: 14px 16px; }
+.preview-text { font-family: 'SF Mono','Menlo','Courier New',monospace; font-size: 12.5px; line-height: 1.75; white-space: pre-wrap; color: var(--text); word-break: break-word; }
+.preview-foot { padding: 12px 16px 24px; border-top: 0.5px solid var(--border); }
+/* PAGES */
+.page { display: none; }
+.page.active { display: block; }
+
+/* HOMEPAGE */
+#homePage { min-height: 100vh; display: none; flex-direction: column; background: var(--bg); }
+#homePage.active { display: flex; }
+.home-logo-area {
+  flex: 0 0 auto;
+  min-height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 52px 24px 36px;
+}
+.home-nav { padding: 28px 16px 0; flex: 1; }
+.home-section-label { font-size: 11px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+.nav-btn {
+  width: 100%;
+  background: var(--card);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0 16px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  cursor: pointer;
+  font-family: inherit;
+  color: var(--text);
+  transition: opacity 0.12s;
+  text-align: left;
+}
+.nav-btn:active { opacity: 0.7; }
+.nav-btn-left { display: flex; align-items: center; gap: 12px; }
+.nav-btn-icon {
+  width: 34px; height: 34px;
+  background: var(--pink-light);
+  border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 17px;
+  flex-shrink: 0;
+}
+.nav-btn-label { font-size: 15px; font-weight: 600; }
+.nav-btn-chevron { color: var(--muted); font-size: 18px; }
+.nav-btn.placeholder {
+  opacity: 0.35;
+  pointer-events: none;
+  border-style: dashed;
+}
+
+/* REPORT PAGE */
+#reportPage { display: none; }
+#reportPage.active { display: block; }
+/* GAS PAGE */
+#gasPage { display: none; }
+#gasPage.active { display: block; }
+/* TROUBLESHOOT PAGES */
+#troubleshootPage { display: none; }
+#troubleshootPage.active { display: block; }
+#tsL2Page { display: none; }
+#tsL2Page.active { display: block; }
+#tsL3Page { display: none; }
+#tsL3Page.active { display: block; }
+#tsHtPage { display: none; }
+#tsHtPage.active { display: block; }
+.ts-tag { padding:6px 12px;border-radius:20px;border:1px solid var(--border);background:var(--card);color:var(--muted);font-size:12px;font-weight:500;font-family:inherit;cursor:pointer;white-space:nowrap;transition:all 0.12s; }
+.ts-tag.active { background:var(--pink);color:#fff;border-color:var(--pink); }
+.ts-tag:active { opacity:0.7; }
+.ts-symptom-card { background:var(--card);border:0.5px solid var(--border);border-radius:var(--radius);margin-bottom:8px;overflow:hidden;cursor:pointer; }
+.ts-symptom-card:active { opacity:0.7; }
+.ts-symptom-header { display:flex;align-items:center;padding:13px 14px;gap:12px; }
+.ts-num { background:var(--pink-light);color:var(--pink);border-radius:8px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0; }
+.ts-symptom-title { font-size:15px;font-weight:600;color:var(--text);flex:1; }
+.ts-chevron { color:var(--muted);font-size:18px; }
+.ts-step-card { background:var(--card);border:0.5px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:10px; }
+.ts-step-hdr { display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border-bottom:0.5px solid var(--border); }
+.ts-step-num { background:var(--pink);color:white;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;margin-top:1px; }
+.ts-step-title { font-size:14px;font-weight:600;color:var(--text);flex:1;line-height:1.4; }
+.ts-step-body { padding:10px 14px;font-size:13.5px;color:var(--muted);line-height:1.65; }
+.ts-fixes { background:var(--card2);border:0.5px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:10px; }
+.ts-fixes-lbl { padding:8px 14px 4px;font-size:11px;font-weight:700;letter-spacing:0.6px;text-transform:uppercase;color:var(--muted);border-bottom:0.5px solid var(--border); }
+.ts-fix-row { display:flex;align-items:flex-start;gap:10px;padding:11px 14px;border-bottom:0.5px solid var(--border);cursor:pointer;transition:background 0.1s; }
+.ts-fix-row:last-child { border-bottom:none; }
+.ts-fix-row:active { background:var(--card); }
+.ts-fix-code { font-size:11px;font-weight:700;color:var(--pink);min-width:38px;padding-top:2px;flex-shrink:0; }
+.ts-fix-label { font-size:13.5px;color:var(--text);flex:1;line-height:1.4; }
+.ts-fix-arr { color:var(--muted);font-size:16px;flex-shrink:0; }
+.ts-alert { background:rgba(233,30,140,0.1);border:0.5px solid var(--pink-border);border-radius:var(--radius);padding:11px 14px;margin-bottom:10px;font-size:13px;color:var(--text);line-height:1.55; }
+.ts-escalate { background:rgba(255,69,58,0.1);border:0.5px solid rgba(255,69,58,0.3);border-radius:var(--radius);padding:11px 14px;margin-bottom:10px;font-size:13px;color:#ff6b5e;line-height:1.55;font-weight:500; }
+.ts-linked-btn { background:var(--card);border:1px solid var(--pink-border);border-radius:8px;padding:10px 14px;color:var(--pink);font-size:13.5px;font-weight:600;font-family:inherit;cursor:pointer;width:100%;text-align:left;display:flex;align-items:center;justify-content:space-between;margin-bottom:6px; }
+.ts-linked-btn:active { opacity:0.7; }
+.ts-section-lbl { font-size:11px;font-weight:700;letter-spacing:0.7px;text-transform:uppercase;color:var(--muted);padding:14px 14px 6px; }
+.ts-no-result { text-align:center;padding:40px 20px;color:var(--muted);font-size:14px;line-height:1.6; }
+/* MANUAL PAGES */
+#manualPage { display: none; }
+#manualPage.active { display: block; }
+#componentPage { display: none; }
+#componentPage.active { display: block; }
+.manual-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 14px;
+  min-height: 46px;
+  border-bottom: 0.5px solid var(--border);
+  cursor: pointer;
+  transition: background 0.1s;
+}
+.manual-row:last-child, .manual-row.last { border-bottom: none; }
+.manual-row:active { background: var(--card2); }
+.manual-row-label { font-size: 15px; color: var(--text); }
+.manual-row-chevron { color: var(--muted); font-size: 18px; }
+/* BACK BUTTON */
+.back-btn { background: rgba(255,255,255,0.18); border: none; border-radius: 8px; color: #fff; font-size: 13px; font-weight: 600; font-family: inherit; padding: 6px 11px; cursor: pointer; white-space: nowrap; }
+.back-btn:active { opacity: 0.7; }
+.header-logo-small { width: 30px; height: 30px; flex-shrink: 0; }
+
+.home-big-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 64px;
+  padding: 0 20px;
+  background: var(--card);
+  border: 0.5px solid var(--border);
+  border-radius: 50px;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: center;
+  transition: opacity 0.12s, transform 0.1s;
+}
+.home-big-btn:active { opacity: 0.7; transform: scale(0.985); }
+.home-big-btn--dim { opacity: 0.4; cursor: default; }
+.home-big-icon { display: none; }
+.home-big-label { font-size: 15px; font-weight: 600; color: var(--text); line-height: 1.3; }
+.home-big-arr { display: none; }
+
+/* keep old nav styles but hide home-logo-area */
+.home-logo-area { display: none; }
+
+.toast { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(70px); background: #111; color: #fff; padding: 10px 20px; border-radius: 100px; font-size: 14px; font-weight: 500; z-index: 999; transition: transform 0.28s cubic-bezier(0.34,1.56,0.64,1); white-space: nowrap; }
+.toast.show { transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════ HOME PAGE ═══════════════════════════════ -->
+<div id="homePage" class="active">
+
+<header style="position:relative">
+  <svg width="34" height="34" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0">
+    <rect x="23" y="5" width="63" height="90" fill="white"/>
+    <rect x="23" y="5" width="63" height="10.8" fill="#E91E8C"/>
+    <rect x="23" y="84.2" width="63" height="10.8" fill="#E91E8C"/>
+    <rect x="23" y="15.8" width="14.8" height="17.1" fill="#E91E8C"/>
+    <rect x="23" y="67.1" width="14.8" height="17.1" fill="#E91E8C"/>
+    <rect x="37.8" y="32.9" width="18.4" height="34.2" fill="#E91E8C"/>
+    <polygon points="63.5,15.8 86,15.8 86,32.9 71.4,32.9 71.4,25.7" fill="#E91E8C"/>
+    <polygon points="71.4,32.9 86,32.9 86,50 63.5,50 71.4,41.5" fill="#E91E8C"/>
+    <polygon points="63.5,50 86,50 86,67.1 71.4,67.1 71.4,58.5" fill="#E91E8C"/>
+    <polygon points="71.4,67.1 86,67.1 86,84.2 63.5,84.2 71.4,76" fill="#E91E8C"/>
+  </svg>
+  <div class="header-left">
+    <h1>Boxbar Technician Assist</h1>
+    <p style="opacity:0.7;font-size:10px;letter-spacing:0.3px">Early beta</p>
+  </div>
+</header>
+
+<div style="padding:16px 16px;display:flex;flex-direction:column;gap:16px">
+
+  <button class="home-big-btn" onclick="goToReport()">
+    <span class="home-big-icon">📋</span>
+    <span class="home-big-label">Create a Pre Event Report</span>
+    <span class="home-big-arr">›</span>
+  </button>
+
+  <button class="home-big-btn" onclick="window.open('https://docs.google.com/forms/d/1yUYoy1ZTbTkZizhUfhLOwfCS0SXDNd0CMCpe0nP-Mkg/edit?usp=forms_home&ths=true','_blank')">
+    <span class="home-big-icon">📄</span>
+    <span class="home-big-label">Post Event Report</span>
+    <span class="home-big-arr">›</span>
+  </button>
+
+  <button class="home-big-btn" onclick="goToGas()">
+    <span class="home-big-icon">🍺</span>
+    <span class="home-big-label">PSI Calculator</span>
+    <span class="home-big-arr">›</span>
+  </button>
+
+  <button class="home-big-btn" onclick="goToTroubleshoot()">
+    <span class="home-big-icon">🔧</span>
+    <span class="home-big-label">Troubleshoot</span>
+    <span class="home-big-arr">›</span>
+  </button>
+
+  <button class="home-big-btn" onclick="goToManual()">
+    <span class="home-big-icon">📖</span>
+    <span class="home-big-label">Technicians Manual</span>
+    <span class="home-big-arr">›</span>
+  </button>
+
+</div>
+</div>
+
+<!-- ══════════════════════════════ REPORT PAGE ══════════════════════════════ -->
+<div id="reportPage">
+
+<header>
+  <svg class="header-logo-small" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <rect x="23" y="5" width="63" height="90" fill="white"/>
+    <rect x="23" y="5" width="63" height="10.8" fill="#E91E8C"/>
+    <rect x="23" y="84.2" width="63" height="10.8" fill="#E91E8C"/>
+    <rect x="23" y="15.8" width="14.8" height="17.1" fill="#E91E8C"/>
+    <rect x="23" y="67.1" width="14.8" height="17.1" fill="#E91E8C"/>
+    <rect x="37.8" y="32.9" width="18.4" height="34.2" fill="#E91E8C"/>
+    <polygon points="63.5,15.8 86,15.8 86,32.9 71.4,32.9 71.4,25.7" fill="#E91E8C"/>
+    <polygon points="71.4,32.9 86,32.9 86,50 63.5,50 71.4,41.5" fill="#E91E8C"/>
+    <polygon points="63.5,50 86,50 86,67.1 71.4,67.1 71.4,58.5" fill="#E91E8C"/>
+    <polygon points="71.4,67.1 86,67.1 86,84.2 63.5,84.2 71.4,76" fill="#E91E8C"/>
+  </svg>
+  <div class="header-left">
+    <h1>Pre Event Report</h1>
+    <p>Complete on arrival</p>
+  </div>
+  <button class="back-btn" onclick="goHome()">‹ Home</button>
+</header>
+
+<!-- TAB BAR -->
+<div style="margin:10px 12px 0;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none">
+  <div id="tabBar" style="display:flex;gap:6px;padding-bottom:2px;min-width:max-content">
+    <!-- tabs rendered by JS -->
+  </div>
+</div>
+
+<!-- ── EVENT TAB ── -->
+<div id="tabEvent">
+  <div class="section-label">Event Details</div>
+  <div class="group">
+    <div class="field-row">
+      <span class="field-label">Event</span>
+      <input class="field-input" id="eventName" type="text" placeholder="Event name" oninput="renderTabBar()">
+    </div>
+    <div class="field-row">
+      <span class="field-label">Venue</span>
+      <input class="field-input" id="venue" type="text" placeholder="Venue name">
+    </div>
+    <div class="field-row date-row">
+      <span class="field-label">Date</span>
+      <button class="today-btn" onclick="setToday()">Today</button>
+      <input class="field-input" id="eventDate" type="date">
+    </div>
+    <div class="field-row">
+      <span class="field-label">Arrival time</span>
+      <input class="field-input" id="arrivalTime" type="time" placeholder="HH:MM">
+    </div>
+  </div>
+
+  <div class="section-label">Event Notes</div>
+  <div class="group">
+    <textarea class="notes-area" id="eventNotes" placeholder="General event notes, observations, anything to flag…"></textarea>
+  </div>
+
+  <div class="actions-area">
+    <div class="btn-row">
+      <button class="action-btn btn-ghost" onclick="showEventPreview()">👁 Preview</button>
+      <button class="action-btn btn-clear" onclick="openClear()">🗑 Clear all</button>
+    </div>
+    <button class="action-btn btn-copy" onclick="copyEventReport()">📋 Copy Event to Clipboard</button>
+  </div>
+</div>
+
+<!-- ── LOCATION TABS (rendered by JS) ── -->
+<div id="locationTabContent" style="display:none"></div>
+
+<!-- CLEAR MODAL -->
+<div class="modal-overlay" id="clearModal" onclick="if(event.target===this)closeClear()">
+  <div class="modal-sheet">
+    <h3>Clear everything?</h3>
+    <p>This resets all event details and locations. It cannot be undone.</p>
+    <div class="modal-btns">
+      <button class="action-btn btn-ghost" onclick="closeClear()">Cancel</button>
+      <button class="action-btn btn-clear" onclick="clearAll()">Yes, clear</button>
+    </div>
+  </div>
+</div>
+
+<!-- PREVIEW MODAL -->
+<div class="preview-overlay" id="previewModal" onclick="if(event.target===this)closePreview()">
+  <div class="preview-sheet">
+    <div class="preview-top">
+      <h3>Report Preview</h3>
+      <button class="close-btn" onclick="closePreview()">✕</button>
+    </div>
+    <div class="preview-scroll">
+      <div class="preview-text" id="previewText"></div>
+    </div>
+    <div class="preview-foot">
+      <button class="action-btn btn-copy" id="previewCopyBtn" style="width:100%">📋 Copy</button>
+    </div>
+  </div>
+</div>
+
+</div><!-- /reportPage -->
+
+<!-- ══════════════════════════════ PSI CALCULATOR PAGE ══════════════════════════════ -->
+<div id="gasPage">
+<header>
+  <svg class="header-logo-small" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <rect x="23" y="5" width="63" height="90" fill="white"/>
+    <rect x="23" y="5" width="63" height="10.8" fill="#E91E8C"/>
+    <rect x="23" y="84.2" width="63" height="10.8" fill="#E91E8C"/>
+    <rect x="23" y="15.8" width="14.8" height="17.1" fill="#E91E8C"/>
+    <rect x="23" y="67.1" width="14.8" height="17.1" fill="#E91E8C"/>
+    <rect x="37.8" y="32.9" width="18.4" height="34.2" fill="#E91E8C"/>
+    <polygon points="63.5,15.8 86,15.8 86,32.9 71.4,32.9 71.4,25.7" fill="#E91E8C"/>
+    <polygon points="71.4,32.9 86,32.9 86,50 63.5,50 71.4,41.5" fill="#E91E8C"/>
+    <polygon points="63.5,50 86,50 86,67.1 71.4,67.1 71.4,58.5" fill="#E91E8C"/>
+    <polygon points="71.4,67.1 86,67.1 86,84.2 63.5,84.2 71.4,76" fill="#E91E8C"/>
+  </svg>
+  <div class="header-left">
+    <h1>PSI Calculator</h1>
+    <p>Find the right pressure for your product</p>
+  </div>
+  <button class="back-btn" onclick="goHome()">‹ Home</button>
+</header>
+
+<!-- CALCULATOR -->
+<div class="section-label">Calculator</div>
+<div class="group">
+  <div class="field-row" style="position:relative;flex-direction:column;align-items:stretch;padding:10px 14px;gap:0">
+    <label style="font-size:11px;font-weight:700;letter-spacing:0.6px;text-transform:uppercase;color:var(--muted);margin-bottom:6px">Product</label>
+    <input id="calcProductInput" type="text" placeholder="Type to search product…" autocomplete="off" oninput="calcProductSearch(this.value)" onfocus="calcProductSearch(this.value)" style="width:100%;background:var(--card2);border:0.5px solid var(--border);border-radius:8px;padding:10px 12px;font-size:14px;font-family:inherit;color:var(--text);outline:none;">
+    <div id="calcDropdown" style="display:none;position:absolute;top:100%;left:14px;right:14px;background:var(--card2);border:0.5px solid var(--border);border-radius:8px;z-index:50;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,0.4)"></div>
+  </div>
+  <div class="field-row">
+    <span class="field-label">Gas type</span>
+    <div class="select-wrap">
+      <select id="calcGas" class="field-select" onchange="runCalc()">
+        <option value="">Select…</option>
+        <option value="CO2">CO2</option>
+        <option value="60/40">60/40 Mixed</option>
+        <option value="70/30">70/30 Mixed</option>
+      </select>
+      <span class="select-caret">›</span>
+    </div>
+  </div>
+  <div class="field-row">
+    <span class="field-label">Temperature</span>
+    <div class="select-wrap">
+      <select id="calcTemp" class="field-select" onchange="runCalc()">
+        <option value="">Select…</option>
+        <option value="0">2°C</option>
+        <option value="1">5°C</option>
+        <option value="2">8°C</option>
+        <option value="3">11°C</option>
+        <option value="4">14°C</option>
+        <option value="5">17°C</option>
+        <option value="6">20°C</option>
+        <option value="7">23°C</option>
+      </select>
+      <span class="select-caret">›</span>
+    </div>
+  </div>
+</div>
+
+<!-- RESULT -->
+<div id="calcResult" style="display:none;margin:10px 12px 0">
+  <div style="background:var(--pink);border-radius:var(--radius);padding:20px;text-align:center">
+    <div style="color:rgba(255,255,255,0.75);font-size:11px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;margin-bottom:6px">Recommended PSI</div>
+    <div id="calcPSIValue" style="color:#fff;font-size:52px;font-weight:700;line-height:1;letter-spacing:-2px">—</div>
+    <div id="calcPSILabel" style="color:rgba(255,255,255,0.75);font-size:13px;margin-top:8px"></div>
+  </div>
+</div>
+<div id="calcWarn" style="display:none;margin:8px 12px 0;background:rgba(255,69,58,0.12);border:0.5px solid rgba(255,69,58,0.3);border-radius:var(--radius);padding:10px 14px">
+  <p style="color:#ff453a;font-size:13px;font-weight:600">⚠️ Above recommended range — check your line setup</p>
+</div>
+<div id="calcNoData" style="display:none;margin:8px 12px 0;background:var(--card);border:0.5px solid var(--border);border-radius:var(--radius);padding:14px;text-align:center;color:var(--muted);font-size:14px">No data available for this combination</div>
+
+<!-- GUIDANCE NOTE -->
+<div style="margin:10px 12px 0;background:var(--card);border:0.5px solid var(--border);border-radius:var(--radius);padding:12px 14px">
+  <p style="font-size:12px;color:var(--muted);line-height:1.65">⚠️ <strong style="color:var(--text)">PSI values are guidance only.</strong></p>
+</div>
+
+<!-- BROWSE CHART BUTTON -->
+<div style="margin:10px 12px 32px">
+  <button onclick="toggleChart()" id="chartToggleBtn" style="width:100%;padding:13px;background:var(--card);border:0.5px solid var(--border);border-radius:var(--radius);color:var(--text);font-size:14px;font-weight:600;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:space-between">
+    <span>📊 Browse Full Chart</span>
+    <span id="chartToggleArrow" style="color:var(--muted);font-size:16px;transition:transform 0.2s">›</span>
+  </button>
+
+  <div id="chartPanel" style="display:none;margin-top:8px">
+    <div style="position:relative;margin-bottom:8px">
+      <input id="gasSearch" type="search" placeholder="Search product…" oninput="filterGas(this.value)" style="width:100%;background:var(--card);border:0.5px solid var(--border);border-radius:var(--radius);padding:11px 14px 11px 38px;font-size:15px;font-family:inherit;color:var(--text);outline:none;">
+      <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:16px;pointer-events:none">🔍</span>
+    </div>
+    <div style="background:var(--card);border:0.5px solid var(--border);border-radius:var(--radius);overflow:hidden">
+      <div style="display:grid;grid-template-columns:1fr 52px 52px 52px 52px 52px 52px 52px 52px;background:var(--card2);border-bottom:0.5px solid var(--border)">
+        <div style="padding:8px 12px;font-size:11px;font-weight:700;letter-spacing:0.6px;text-transform:uppercase;color:var(--muted)">Product / Gas</div>
+        <div style="padding:8px 4px;font-size:11px;font-weight:700;text-align:center;color:var(--pink)">2°</div>
+        <div style="padding:8px 4px;font-size:11px;font-weight:700;text-align:center;color:var(--pink)">5°</div>
+        <div style="padding:8px 4px;font-size:11px;font-weight:700;text-align:center;color:var(--pink)">8°</div>
+        <div style="padding:8px 4px;font-size:11px;font-weight:700;text-align:center;color:var(--pink)">11°</div>
+        <div style="padding:8px 4px;font-size:11px;font-weight:700;text-align:center;color:var(--pink)">14°</div>
+        <div style="padding:8px 4px;font-size:11px;font-weight:700;text-align:center;color:var(--pink)">17°</div>
+        <div style="padding:8px 4px;font-size:11px;font-weight:700;text-align:center;color:var(--pink)">20°</div>
+        <div style="padding:8px 4px;font-size:11px;font-weight:700;text-align:center;color:var(--pink)">23°</div>
+      </div>
+      <div id="gasRows"></div>
+      <div id="gasNoResult" style="display:none;padding:24px;text-align:center;color:var(--muted);font-size:14px">No products found</div>
+    </div>
+    <p style="font-size:11px;color:var(--muted);line-height:1.6;text-align:center;margin-top:10px">Red values indicate pressures above recommended range.<br>Vols = volumes of CO₂. 60/40 = mixed gas blend.</p>
+  </div>
+</div>
+</div><!-- /gasPage -->
+
+<!-- ══════════════════════════════ MANUAL INDEX PAGE ══════════════════════════════ -->
+<div id="manualPage">
+<header>
+  <svg class="header-logo-small" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <rect x="23" y="5" width="63" height="90" fill="white"/>
+    <rect x="23" y="5" width="63" height="10.8" fill="#E91E8C"/>
+    <rect x="23" y="84.2" width="63" height="10.8" fill="#E91E8C"/>
+    <rect x="23" y="15.8" width="14.8" height="17.1" fill="#E91E8C"/>
+    <rect x="23" y="67.1" width="14.8" height="17.1" fill="#E91E8C"/>
+    <rect x="37.8" y="32.9" width="18.4" height="34.2" fill="#E91E8C"/>
+    <polygon points="63.5,15.8 86,15.8 86,32.9 71.4,32.9 71.4,25.7" fill="#E91E8C"/>
+    <polygon points="71.4,32.9 86,32.9 86,50 63.5,50 71.4,41.5" fill="#E91E8C"/>
+    <polygon points="63.5,50 86,50 86,67.1 71.4,67.1 71.4,58.5" fill="#E91E8C"/>
+    <polygon points="71.4,67.1 86,67.1 86,84.2 63.5,84.2 71.4,76" fill="#E91E8C"/>
+  </svg>
+  <div class="header-left">
+    <h1>Technicians Manual</h1>
+    <p>Field Operations Reference</p>
+  </div>
+  <button class="back-btn" onclick="goHome()">‹ Home</button>
+</header>
+
+<div class="section-label">1. The Beer System</div>
+<div class="group">
+  <div class="manual-row" onclick="goToComponent('gas')"><span class="manual-row-label">1.1 Gas</span><span class="manual-row-chevron">›</span></div>
+  <div class="manual-row" onclick="goToComponent('keg')"><span class="manual-row-label">1.2 Keg</span><span class="manual-row-chevron">›</span></div>
+  <div class="manual-row" onclick="goToComponent('coupler')"><span class="manual-row-label">1.3 Coupler</span><span class="manual-row-chevron">›</span></div>
+  <div class="manual-row" onclick="goToComponent('fob')"><span class="manual-row-label">1.4 Cellar Buoy / FOB Detector</span><span class="manual-row-chevron">›</span></div>
+  <div class="manual-row" onclick="goToComponent('cooler')"><span class="manual-row-label">1.5 Cooler</span><span class="manual-row-chevron">›</span></div>
+  <div class="manual-row" onclick="goToComponent('python')"><span class="manual-row-label">1.6 Python</span><span class="manual-row-chevron">›</span></div>
+  <div class="manual-row" onclick="goToComponent('beerlines')"><span class="manual-row-label">1.7 Beer Lines</span><span class="manual-row-chevron">›</span></div>
+  <div class="manual-row" onclick="goToComponent('restriction')"><span class="manual-row-label">1.8 Restriction</span><span class="manual-row-chevron">›</span></div>
+  <div class="manual-row" onclick="goToComponent('solenoid')"><span class="manual-row-label">1.9 Solenoid Valve</span><span class="manual-row-chevron">›</span></div>
+  <div class="manual-row last" onclick="goToComponent('actuator')"><span class="manual-row-label">1.10 Actuator</span><span class="manual-row-chevron">›</span></div>
+</div>
+
+<div class="section-label">2. Gas & Pressure</div>
+<div class="group">
+  <div class="manual-row last" onclick="goToComponent('gauges')"><span class="manual-row-label">Gas Mixes, Regulators & Equilibrium</span><span class="manual-row-chevron">›</span></div>
+</div>
+
+<div class="section-label">3. Electrical & Power</div>
+<div class="group">
+  <div class="manual-row" onclick="goToComponent('power3bank')"><span class="manual-row-label">3.1 3 Bank Bar Power</span><span class="manual-row-chevron">›</span></div>
+  <div class="manual-row" onclick="goToComponent('powercontainer')"><span class="manual-row-label">3.3 Container Bar Power</span><span class="manual-row-chevron">›</span></div>
+  <div class="manual-row last" onclick="goToComponent('greyswitch')"><span class="manual-row-label">3.4 Grey Switch / Black Box Power</span><span class="manual-row-chevron">›</span></div>
+</div>
+
+<div class="section-label">4. Internet & Connectivity</div>
+<div class="group">
+  <div class="manual-row last" onclick="goToComponent('internet')"><span class="manual-row-label">TP-Link, Hotspot & WiFi</span><span class="manual-row-chevron">›</span></div>
+</div>
+
+<div class="section-label">5. Software</div>
+<div class="group">
+  <div class="manual-row last" onclick="goToComponent('software')"><span class="manual-row-label">Setup, Menus & Configuration</span><span class="manual-row-chevron">›</span></div>
+</div>
+
+<div class="section-label">6. Payments</div>
+<div class="group">
+  <div class="manual-row last" onclick="goToComponent('payments')"><span class="manual-row-label">Viva & External Payment Devices</span><span class="manual-row-chevron">›</span></div>
+</div>
+
+<div style="height:32px"></div>
+</div><!-- /manualPage -->
+
+<!-- ══════════════════════════════ COMPONENT DETAIL PAGE ══════════════════════════════ -->
+<div id="componentPage">
+<header>
+  <svg class="header-logo-small" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <rect x="23" y="5" width="63" height="90" fill="white"/>
+    <rect x="23" y="5" width="63" height="10.8" fill="#E91E8C"/>
+    <rect x="23" y="84.2" width="63" height="10.8" fill="#E91E8C"/>
+    <rect x="23" y="15.8" width="14.8" height="17.1" fill="#E91E8C"/>
+    <rect x="23" y="67.1" width="14.8" height="17.1" fill="#E91E8C"/>
+    <rect x="37.8" y="32.9" width="18.4" height="34.2" fill="#E91E8C"/>
+    <polygon points="63.5,15.8 86,15.8 86,32.9 71.4,32.9 71.4,25.7" fill="#E91E8C"/>
+    <polygon points="71.4,32.9 86,32.9 86,50 63.5,50 71.4,41.5" fill="#E91E8C"/>
+    <polygon points="63.5,50 86,50 86,67.1 71.4,67.1 71.4,58.5" fill="#E91E8C"/>
+    <polygon points="71.4,67.1 86,67.1 86,84.2 63.5,84.2 71.4,76" fill="#E91E8C"/>
+  </svg>
+  <div class="header-left">
+    <h1 id="componentTitle">Component</h1>
+    <p>Technicians Manual</p>
+  </div>
+  <button class="back-btn" onclick="goToManual()">‹ Manual</button>
+</header>
+<div id="componentBody" style="padding:12px 12px 40px"></div>
+</div><!-- /componentPage -->
+
+<!-- ══════════════════════════ TROUBLESHOOT PAGE ══════════════════════════ -->
+<div id="troubleshootPage">
+<header>
+  <svg class="header-logo-small" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <rect x="23" y="5" width="63" height="90" fill="white"/>
+    <rect x="23" y="5" width="63" height="10.8" fill="#E91E8C"/>
+    <rect x="23" y="84.2" width="63" height="10.8" fill="#E91E8C"/>
+    <rect x="23" y="15.8" width="14.8" height="17.1" fill="#E91E8C"/>
+    <rect x="23" y="67.1" width="14.8" height="17.1" fill="#E91E8C"/>
+    <rect x="37.8" y="32.9" width="18.4" height="34.2" fill="#E91E8C"/>
+    <polygon points="63.5,15.8 86,15.8 86,32.9 71.4,32.9 71.4,25.7" fill="#E91E8C"/>
+    <polygon points="71.4,32.9 86,32.9 86,50 63.5,50 71.4,41.5" fill="#E91E8C"/>
+    <polygon points="63.5,50 86,50 86,67.1 71.4,67.1 71.4,58.5" fill="#E91E8C"/>
+    <polygon points="71.4,67.1 86,67.1 86,84.2 63.5,84.2 71.4,76" fill="#E91E8C"/>
+  </svg>
+  <div class="header-left">
+    <h1>Troubleshoot</h1>
+    <p>Field diagnostics</p>
+  </div>
+  <button class="back-btn" onclick="goHome()">‹ Home</button>
+</header>
+
+<!-- Search -->
+<div style="padding:12px 12px 6px">
+  <div style="position:relative">
+    <input id="tsSearch" type="search" placeholder="Search… foam, no pour, gas leak, payment…" oninput="tsSearchFilter(this.value)" autocomplete="off"
+      style="width:100%;background:var(--card);border:0.5px solid var(--border);border-radius:var(--radius);padding:12px 14px 12px 40px;font-size:15px;font-family:inherit;color:var(--text);outline:none;">
+    <span style="position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:17px;pointer-events:none">🔍</span>
+  </div>
+</div>
+
+<!-- L1 Category list -->
+<div id="tsL1List" style="padding:0 12px 32px"></div>
+</div><!-- /troubleshootPage -->
+
+<!-- ══════ L2 SUB-CATEGORY PAGE ══════ -->
+<div id="tsL2Page">
+<header>
+  <svg class="header-logo-small" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect x="23" y="5" width="63" height="90" fill="white"/><rect x="23" y="5" width="63" height="10.8" fill="#E91E8C"/><rect x="23" y="84.2" width="63" height="10.8" fill="#E91E8C"/><rect x="23" y="15.8" width="14.8" height="17.1" fill="#E91E8C"/><rect x="23" y="67.1" width="14.8" height="17.1" fill="#E91E8C"/><rect x="37.8" y="32.9" width="18.4" height="34.2" fill="#E91E8C"/><polygon points="63.5,15.8 86,15.8 86,32.9 71.4,32.9 71.4,25.7" fill="#E91E8C"/><polygon points="71.4,32.9 86,32.9 86,50 63.5,50 71.4,41.5" fill="#E91E8C"/><polygon points="63.5,50 86,50 86,67.1 71.4,67.1 71.4,58.5" fill="#E91E8C"/><polygon points="71.4,67.1 86,67.1 86,84.2 63.5,84.2 71.4,76" fill="#E91E8C"/></svg>
+  <div class="header-left"><h1 id="tsL2Title">Issues</h1><p id="tsL2Sub">Select a problem type</p></div>
+  <button class="back-btn" onclick="goToTroubleshoot()">‹ Back</button>
+</header>
+<div id="tsL2List" style="padding:0 12px 32px"></div>
+</div><!-- /tsL2Page -->
+
+<!-- ══════ L3 CAUSES PAGE ══════ -->
+<div id="tsL3Page">
+<header>
+  <svg class="header-logo-small" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect x="23" y="5" width="63" height="90" fill="white"/><rect x="23" y="5" width="63" height="10.8" fill="#E91E8C"/><rect x="23" y="84.2" width="63" height="10.8" fill="#E91E8C"/><rect x="23" y="15.8" width="14.8" height="17.1" fill="#E91E8C"/><rect x="23" y="67.1" width="14.8" height="17.1" fill="#E91E8C"/><rect x="37.8" y="32.9" width="18.4" height="34.2" fill="#E91E8C"/><polygon points="63.5,15.8 86,15.8 86,32.9 71.4,32.9 71.4,25.7" fill="#E91E8C"/><polygon points="71.4,32.9 86,32.9 86,50 63.5,50 71.4,41.5" fill="#E91E8C"/><polygon points="63.5,50 86,50 86,67.1 71.4,67.1 71.4,58.5" fill="#E91E8C"/><polygon points="71.4,67.1 86,67.1 86,84.2 63.5,84.2 71.4,76" fill="#E91E8C"/></svg>
+  <div class="header-left"><h1 id="tsL3Title">Possible Causes</h1><p>Tap the most likely cause</p></div>
+  <button class="back-btn" id="tsL3Back" onclick="">‹ Back</button>
+</header>
+<div id="tsL3Note" style="display:none;margin:10px 12px 0;background:rgba(233,30,140,0.1);border:0.5px solid var(--pink-border);border-radius:var(--radius);padding:10px 14px;font-size:13px;color:var(--text);line-height:1.55"></div>
+<div id="tsL3List" style="padding:8px 12px 32px"></div>
+</div><!-- /tsL3Page -->
+
+<!-- ══════ HT HOW-TO PAGE ══════ -->
+<div id="tsHtPage">
+<header>
+  <svg class="header-logo-small" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect x="23" y="5" width="63" height="90" fill="white"/><rect x="23" y="5" width="63" height="10.8" fill="#E91E8C"/><rect x="23" y="84.2" width="63" height="10.8" fill="#E91E8C"/><rect x="23" y="15.8" width="14.8" height="17.1" fill="#E91E8C"/><rect x="23" y="67.1" width="14.8" height="17.1" fill="#E91E8C"/><rect x="37.8" y="32.9" width="18.4" height="34.2" fill="#E91E8C"/><polygon points="63.5,15.8 86,15.8 86,32.9 71.4,32.9 71.4,25.7" fill="#E91E8C"/><polygon points="71.4,32.9 86,32.9 86,50 63.5,50 71.4,41.5" fill="#E91E8C"/><polygon points="63.5,50 86,50 86,67.1 71.4,67.1 71.4,58.5" fill="#E91E8C"/><polygon points="71.4,67.1 86,67.1 86,84.2 63.5,84.2 71.4,76" fill="#E91E8C"/></svg>
+  <div class="header-left"><h1 id="tsHtCode">HT-01</h1><p id="tsHtSubtitle">How to fix</p></div>
+  <button class="back-btn" id="tsHtBack" onclick="">‹ Back</button>
+</header>
+<div id="tsHtBody" style="padding:12px 12px 40px"></div>
+</div><!-- /tsHtPage -->
+
+<div class="toast" id="toast">Copied ✓</div>
+
+<script>
+function goToTroubleshoot() {
+  showPage('troubleshootPage');
+  document.getElementById('tsSearch').value = '';
+  tsRenderL1();
+}
+
+// Store cause data by index so onclick attrs don't need JSON
+let tsCauseStore = {};
+let tsCauseIdx = 0;
+function storeCause(cause, l2id, l1id) {
+  const key = 'c' + (tsCauseIdx++);
+  tsCauseStore[key] = { cause, l2id, l1id };
+  return key;
+}
+
+function tsSearchFilter(q) {
+  const lq = q.trim().toLowerCase();
+  if (!lq) { tsRenderL1(); return; }
+  const results = [];
+  tsTree.forEach(l1 => {
+    l1.children.forEach(l2 => {
+      l2.causes.forEach(c => {
+        if (c.label.toLowerCase().includes(lq) || l1.label.toLowerCase().includes(lq) || l2.label.toLowerCase().includes(lq)) {
+          results.push({ cause: c, l2id: l2.id, l1id: l1.id, l2label: l2.label, l1label: l1.label });
+        }
+      });
+    });
+  });
+  const el = document.getElementById('tsL1List');
+  if (!results.length) { el.innerHTML = '<div class="ts-no-result">No results found.<br>Try different keywords.</div>'; return; }
+  tsCauseStore = {}; tsCauseIdx = 0;
+  el.innerHTML = `<div class="ts-section-lbl" style="padding:10px 0 6px">Search results</div>` +
+    results.map(r => {
+      const key = storeCause(r.cause, r.l2id, r.l1id);
+      const htBadge = r.cause.hts && r.cause.hts.length ? r.cause.hts[0] : r.cause.escalate ? '↑' : '→';
+      return `<div class="ts-symptom-card" onclick="launchCause('${key}')">
+        <div class="ts-symptom-header">
+          <div class="ts-num" style="font-size:9px">${htBadge}</div>
+          <div style="flex:1;min-width:0">
+            <div class="ts-symptom-title">${r.cause.label}</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px">${r.l1label} › ${r.l2label}</div>
+          </div>
+          <span class="ts-chevron">›</span>
+        </div>
+      </div>`;
+    }).join('');
+}
+
+function launchCause(key) {
+  const d = tsCauseStore[key];
+  if (!d) return;
+  goToHt(d.cause.hts || [], d.cause.label, d.l2id, d.l1id, d.cause.escalate || false, d.cause.manual || '');
+}
+
+function tsRenderL1() {
+  document.getElementById('tsL1List').innerHTML = tsTree.map(l1 => `
+    <div class="ts-symptom-card" onclick="goToL2('${l1.id}')">
+      <div class="ts-symptom-header">
+        <div class="ts-num" style="font-size:18px;background:none;color:var(--text)">${l1.icon}</div>
+        <span class="ts-symptom-title">${l1.label}</span>
+        <span class="ts-chevron">›</span>
+      </div>
+    </div>`).join('');
+}
+
+function goToL2(l1id) {
+  const l1 = tsTree.find(x => x.id === l1id);
+  if (!l1) return;
+  document.getElementById('tsL2Title').textContent = l1.label;
+  document.getElementById('tsL2Sub').textContent = l1.sub || 'Select a problem type';
+  if (l1.children.length === 1) { goToL3(l1.children[0].id, l1id, true); return; }
+  const tipHtml = l1.tip ? `<div style="margin:0 0 8px;background:rgba(233,30,140,0.08);border:0.5px solid var(--pink-border);border-radius:var(--radius);padding:10px 14px;font-size:13px;color:var(--muted);line-height:1.55">💡 ${l1.tip}</div>` : '';
+  document.getElementById('tsL2List').innerHTML = tipHtml + l1.children.map(l2 => `
+    <div class="ts-symptom-card" style="margin-top:8px" onclick="goToL3('${l2.id}','${l1id}',false)">
+      <div class="ts-symptom-header">
+        <span class="ts-symptom-title">${l2.label}</span>
+        <span class="ts-chevron">›</span>
+      </div>
+    </div>`).join('');
+  showPage('tsL2Page');
+}
+
+function goToL3(l2id, l1id, skipL2) {
+  let l2 = null;
+  tsTree.forEach(l1 => l1.children.forEach(c => { if (c.id === l2id) l2 = c; }));
+  if (!l2) return;
+  document.getElementById('tsL3Title').textContent = l2.label;
+  const noteEl = document.getElementById('tsL3Note');
+  if (l2.note) { noteEl.innerHTML = l2.note; noteEl.style.display = 'block'; }
+  else { noteEl.style.display = 'none'; }
+  document.getElementById('tsL3Back').onclick = () => skipL2 ? goToTroubleshoot() : goToL2(l1id);
+
+  tsCauseStore = {}; tsCauseIdx = 0;
+  let html = l2.causes.map((c, i) => {
+    const key = storeCause(c, l2id, l1id);
+    const htBadges = c.hts && c.hts.length
+      ? c.hts.map(h => `<span style="background:var(--pink-light);color:var(--pink);border-radius:4px;padding:1px 6px;font-size:11px;font-weight:700;margin-right:3px">${h}</span>`).join('')
+      : c.escalate === true
+        ? `<span style="color:#ff6b5e;font-size:11px;font-weight:600">↑ Escalate</span>`
+        : `<span style="color:var(--muted);font-size:11px">→</span>`;
+    const manualBadge = c.manual ? `<span style="background:var(--card2);color:var(--muted);border-radius:4px;padding:1px 6px;font-size:11px;margin-left:3px">📖</span>` : '';
+    return `<div class="ts-symptom-card" onclick="launchCause('${key}')">
+      <div class="ts-symptom-header">
+        <div class="ts-num">${i+1}</div>
+        <div style="flex:1;min-width:0">
+          <div class="ts-symptom-title">${c.label}</div>
+          <div style="margin-top:4px">${htBadges}${manualBadge}</div>
+        </div>
+        <span class="ts-chevron">›</span>
+      </div>
+    </div>`;
+  }).join('');
+
+  if (l2.escalate && typeof l2.escalate === 'string') {
+    html += `<div class="ts-escalate" style="margin-top:12px"><strong>Still not fixed?</strong> Note the steps you have tried and let your manager know.<br><span style="font-size:12px;opacity:0.85">${l2.escalate}</span></div>`;
+  }
+
+  document.getElementById('tsL3List').innerHTML = html;
+  showPage('tsL3Page');
+}
+
+
+function goToHt(hts, causeLabel, l2id, l1id, escalate, manualId) {
+  manualId = manualId || '';
+  const backFn = () => goToL3(l2id, l1id);
+  document.getElementById('tsHtBack').onclick = backFn;
+
+  if (escalate) {
+    document.getElementById('tsHtCode').textContent = 'Escalate';
+    document.getElementById('tsHtSubtitle').textContent = causeLabel;
+    document.getElementById('tsHtBody').innerHTML =
+      `<div class="ts-escalate" style="margin-bottom:12px">⚠️ This issue requires Boxbar support. Do not attempt further diagnosis without guidance.</div>
+       <div class="ts-step-card"><div class="ts-step-hdr"><div class="ts-step-num">!</div><div class="ts-step-title">${causeLabel}</div></div><div class="ts-step-body">Contact Boxbar support with your machine Hexnode ID, M Number, or Kit Number as appropriate.</div></div>
+       ${supportFooter()}`;
+    showPage('tsHtPage');
+    return;
+  }
+
+  if (!hts || !hts.length) {
+    document.getElementById('tsHtCode').textContent = '—';
+    document.getElementById('tsHtSubtitle').textContent = causeLabel;
+    document.getElementById('tsHtBody').innerHTML =
+      `<div class="ts-alert">No specific how-to for this item — check the Technicians Manual or contact support.</div>${supportFooter()}`;
+    showPage('tsHtPage');
+    return;
+  }
+
+  if (hts.length > 1) {
+    document.getElementById('tsHtCode').textContent = causeLabel;
+    document.getElementById('tsHtSubtitle').textContent = 'Select the relevant fix';
+    document.getElementById('tsHtBody').innerHTML =
+      `<div class="ts-section-lbl" style="padding:8px 0 6px">Multiple fixes apply — choose one</div>` +
+      hts.map(ht => {
+        const htData = tsHowTo[ht];
+        return htData
+          ? `<button class="ts-linked-btn" style="margin-bottom:8px" onclick="showSingleHt('${ht}','${l2id}','${l1id||''}','${manualId}')"><span><strong>${ht}</strong> — ${htData.title}</span><span>›</span></button>`
+          : '';
+      }).join('') + supportFooter();
+    showPage('tsHtPage');
+    return;
+  }
+
+  showSingleHt(hts[0], l2id, l1id || '', manualId);
+}
+
+function showSingleHt(htCode, l2id, l1id, manualId) {
+  manualId = manualId || '';
+  const ht = tsHowTo[htCode];
+  if (!ht) return;
+  document.getElementById('tsHtCode').textContent = htCode;
+  document.getElementById('tsHtSubtitle').textContent = ht.title;
+  document.getElementById('tsHtBack').onclick = () => goToL3(l2id, l1id);
+
+  let html = '';
+  if (ht.warning) html += `<div class="ts-escalate" style="margin-bottom:10px">⚠️ ${ht.warning}</div>`;
+  if (ht.alert)   html += `<div class="ts-alert"    style="margin-bottom:10px">! ${ht.alert}</div>`;
+
+  if (ht.sections) {
+    ht.sections.forEach(sec => {
+      if (sec.heading) html += `<div class="ts-section-lbl" style="padding:10px 0 6px">${sec.heading}</div>`;
+      sec.steps.forEach((s, i) => {
+        html += `<div class="ts-step-card" style="margin-bottom:6px"><div class="ts-step-hdr"><div class="ts-step-num">${i+1}</div><div class="ts-step-title">${s}</div></div></div>`;
+      });
+    });
+  } else {
+    ht.steps.forEach((s, i) => {
+      html += `<div class="ts-step-card" style="margin-bottom:6px"><div class="ts-step-hdr"><div class="ts-step-num">${i+1}</div><div class="ts-step-title">${s}</div></div></div>`;
+    });
+  }
+
+  if (ht.notes) ht.notes.forEach(n => { html += `<div class="ts-alert" style="margin-top:6px">! ${n}</div>`; });
+
+  if (ht.related && ht.related.length) {
+    html += `<div class="ts-section-lbl" style="padding:10px 0 6px">Related fixes</div>`;
+    ht.related.forEach(r => {
+      const rd = tsHowTo[r];
+      if (rd) html += `<button class="ts-linked-btn" style="margin-bottom:6px" onclick="showSingleHt('${r}','${l2id}','${l1id}','${manualId||''}')"><span><strong>${r}</strong> — ${rd.title}</span><span>›</span></button>`;
+    });
+  }
+
+  if (manualId && componentData[manualId]) {
+    const manTitle = componentData[manualId].title;
+    html += `<div class="ts-section-lbl" style="padding:10px 0 6px">Related manual section</div>
+    <button class="ts-linked-btn" style="margin-bottom:6px;border-color:var(--border);color:var(--text)" onclick="goToComponent('${manualId}')">
+      <span>📖 ${manTitle}</span><span>›</span>
+    </button>`;
+  }
+
+  html += supportFooter();
+  document.getElementById('tsHtBody').innerHTML = html;
+  showPage('tsHtPage');
+}
+
+function supportFooter() {
+  return `<div style="margin-top:16px;padding:12px 0;text-align:center;border-top:0.5px solid var(--border)">
+    <span style="font-size:12px;color:var(--muted)">Need further help?</span><br>
+    <a href="tel:+443302295053" style="color:var(--pink);font-weight:600;font-size:13px;text-decoration:none">+44 330 229 5053</a>
+    <span style="color:var(--muted);font-size:12px"> · </span>
+    <a href="mailto:support@boxbar.live" style="color:var(--pink);font-size:13px;text-decoration:none">support@boxbar.live</a>
+  </div>`;
+}
+
+/* ══════════════════════════════════════════════════════
+   TROUBLESHOOT TREE DATA
+══════════════════════════════════════════════════════ */
+const tsTree = [
+  { id:'1', icon:'🚫', label:'Nothing Pouring',
+    tip:'To help rule out potential faults, consider how many taps or POS the issue is occurring on and find the common denominator.',
+    children:[
+    { id:'1A', label:'Neither Tap Pouring', causes:[
+      {label:'Is the FOB detector ball down? If the ball has dropped and is blocking flow, reset it.', hts:['HT-01'], manual:'fob'},
+      {label:'Is the coupler handle fully pushed down and locked onto the keg?', hts:['HT-02'], manual:'coupler'},
+      {label:'Is the keg empty?', hts:['HT-03'], manual:'keg'},
+      {label:'Is the gas bottle empty? Look at the bottle pressure gauge on the primary — near zero means empty.', hts:['HT-04'], manual:'gauges'},
+      {label:'Is the gas turned off at the bottle? The bottle valve should be open anticlockwise.', hts:['HT-05'], manual:'gas'},
+      {label:'Is the secondary regulator turned off? The small lever underneath should point down.', hts:['HT-06'], manual:'gauges'},
+      {label:'Is there a kink in the beer line? Trace the full run from coupler to machine.', hts:['HT-07'], manual:'beerlines'},
+      {label:'Could the line be frozen? If the cooler was left running after a line clean, water may have frozen.', hts:['HT-08'], manual:'beerlines'},
+      {label:'Is there a gas leak? Listen for hissing and check for frost on pipework. Turn gas off at the bottle if suspected.', hts:['HT-29'], manual:'gas'},
+    ], escalate:'Quote the Site and M Number — shown at the top of the Boxbar app home screen.'},
+  ]},
+
+  { id:'2', icon:'🍺', label:'Product Quality Issues',
+    tip:'Consider how many taps or POS the issue is on to find the common denominator — e.g. if it\'s one POS both taps, start with what they share: gas pressure or keg.',
+    children:[
+    { id:'2A', label:'Fobbing / Excessive Foam / Large Head', causes:[
+      {label:'Is the correct gas type connected for this product?', hts:['HT-09'], manual:'gas'},
+      {label:'Is the gas pressure set correctly for this product and temperature? Both too high and too low can cause fobbing.', hts:['HT-09','HT-10'], manual:'gauges'},
+      {label:'Is there a gas leak causing pressure instability? Turn off gas at bottle if suspected and see Section 5.', hts:['HT-29'], manual:'gas'},
+      {label:'Is the keg warm or has it been recently moved and agitated?', hts:['HT-11'], manual:'keg'},
+      {label:'Is the keg out of date? Check the best before on the top or side of the keg.', hts:['HT-12'], manual:'keg'},
+      {label:'Is the keg faulty? If a fresh in-date keg is still fobbing, the product itself may be the cause.', hts:['HT-03'], manual:'keg'},
+      {label:'Is the coupler seal loose or worn? A poor seal allows air into the line.', hts:['HT-13'], manual:'coupler'},
+      {label:'Are the beer lines dirty? When were they last cleaned?', hts:['HT-14','HT-15'], manual:'beerlines'},
+      {label:'Is there a kink in the beer line?', hts:['HT-07'], manual:'beerlines'},
+      {label:'Has the FOB lever been fully reset after the last keg change?', hts:['HT-01'], manual:'fob'},
+      {label:'Is the cooler too warm? Target temperature is 0.5°C.', hts:['HT-44'], manual:'cooler'},
+      {label:'Is any section of beer line exposed and uninsulated between cooler and machine?', hts:['HT-16'], manual:'python'},
+      {label:'Is the restriction too short? Beer arriving at the nozzle too fast will fob. Standard is 55cm.', hts:['HT-17'], manual:'python'},
+      {label:'Is the tap dangling too high above the cup when the platform is fully down?', hts:['HT-18'], manual:'actuator'},
+      {label:'Are the tap or nozzles dirty?', hts:['HT-19'], manual:'solenoid'},
+      {label:'Is there less than 3 inches of pipe between any two fittings in the line?', hts:['HT-23'], manual:'beerlines'},
+      {label:'Is there a product leak somewhere in the line on that tap\'s side? A leaking line reduces pressure and causes fobbing. See Section 4: Product Leaks.', hts:['HT-21','HT-22'], manual:'beerlines'},
+      {label:'Is the cooler water bath discoloured with product? This may indicate a split coil — see Section 7B.', hts:['HT-43'], manual:'cooler'},
+    ], escalate:'Quote the Kit Number — back right of the machine, or inside back wall left side for container bars.'},
+    { id:'2B', label:'Pouring Slowly', causes:[
+      {label:'Is the gas bottle getting low? Check the bottle pressure gauge on the primary.', hts:['HT-04'], manual:'gauges'},
+      {label:'Is the gas pressure set too low for this product and temperature?', hts:['HT-09'], manual:'gauges'},
+      {label:'Is the primary set too low? It must be at least 10 PSI above the secondary target.', hts:['HT-20'], manual:'gauges'},
+      {label:'Is the FOB ball down and restricting flow?', hts:['HT-01'], manual:'fob'},
+      {label:'Is there a kink in the line?', hts:['HT-07'], manual:'beerlines'},
+      {label:'Could the line be frozen?', hts:['HT-08'], manual:'beerlines'},
+      {label:'Are the nozzle or tap dirty?', hts:['HT-19'], manual:'solenoid'},
+      {label:'Is the restriction too long? More than 55cm will slow the pour excessively.', hts:['HT-17'], manual:'python'},
+      {label:'Is Pour Opt Time set correctly? This controls how long the machine continues pouring while the taps raise. If set too short the pour may appear to stop early.', hts:['HT-49'], manual:'software'},
+    ], escalate:'Quote the Site and Machine Number.'},
+    { id:'2C', label:'Beer Flat or Undercarbonated', causes:[
+      {label:'Is the gas pressure set too low? Too little pressure allows CO₂ to escape from the beer.', hts:['HT-09'], manual:'gauges'},
+      {label:'Is the gas bottle nearly empty?', hts:['HT-04'], manual:'gauges'},
+      {label:'Is there a gas leak? Turn off gas at the bottle if suspected and see Section 5.', hts:['HT-29'], manual:'gas'},
+      {label:'Is the keg out of date?', hts:['HT-12'], manual:'keg'},
+    ], escalate:'Quote the Site and Machine Number.'},
+    { id:'2D', label:'Underpouring — Drinks Not Filling Correctly', causes:[
+      {label:'Have the taps been calibrated recently? Calibration is the most common cause of underpouring and should be checked first.', hts:['HT-39'], manual:'software'},
+      {label:'Is the gas pressure correct and stable?', hts:['HT-09'], manual:'gauges'},
+      {label:'Is the PSI staying stable? If pressure keeps moving see Section 5F.', hts:['HT-06'], manual:'gauges'},
+      {label:'Are two drinks pouring simultaneously and one consistently short? A calibration offset may be needed.', hts:['HT-39'], manual:'software'},
+    ], escalate:'Quote the Site and Machine Number.'},
+    { id:'2E', label:'Beer Foaming When Changing Kegs', causes:[
+      {label:'Is the keg fresh and unbroached? A previously connected keg can fob on reconnection.', hts:['HT-03'], manual:'keg'},
+      {label:'Have you pulled through 2–3 pints to drain after connecting the new keg?', hts:['HT-03'], manual:'keg'},
+      {label:'Is there a non-return valve on the coupler? Without one, air enters the line during keg changes and more pull-throughs will be needed — typically 4–5 pints rather than 2–3.', hts:['HT-02'], manual:'coupler'},
+      {label:'Is the pressure set correctly for the product temperature?', hts:['HT-09'], manual:'gauges'},
+    ], escalate:'Quote the Site and Machine Number.'},
+    { id:'2F', label:'Beer Foaming After Machine Has Been Sat Idle', causes:[
+      {label:'Have the kegs warmed during the idle period?', hts:['HT-11','HT-09'], manual:'keg'},
+      {label:'Has the gas pressure drifted while idle?', hts:['HT-09'], manual:'gauges'},
+      {label:'Is Auto Purge configured and active? It automatically clears settled beer before the next pour.', hts:['HT-40'], manual:'software'},
+    ], escalate:'Quote the Site and Machine Number.'},
+  ]},
+
+  { id:'3', icon:'🍺', label:'Issue With One Tap Only', children:[
+    { id:'3A', label:'One Tap Not Pouring, Fobbing, Slow or Underpouring',
+      note:'If one tap has an issue and the other pours correctly, everything upstream is ruled out — gas, keg, FOB, cooler, and python are shared and fine. The fault is specific to that tap\'s side, from the solenoid downward.',
+      causes:[
+      {label:'Is the tap disabled in software? Check CS → Settings → Taps Enabled — should be set to Both.', hts:[], manual:'software'},
+      {label:'Is the solenoid on that side dirty or not opening correctly?', hts:['HT-35','HT-36','HT-37'], manual:'solenoid'},
+      {label:'Is the tap dangling too high above the cup? Too much distance between nozzle and cup causes fobbing on that tap only.', hts:['HT-18'], manual:'actuator'},
+      {label:'Are the tap or nozzle dirty on that side?', hts:['HT-19'], manual:'solenoid'},
+      {label:'Is the restriction on that tap too short or too long? Each tap has its own restriction set independently.', hts:['HT-17'], manual:'python'},
+      {label:'Is there a kinked or scored beer line on that tap\'s side? Trace from the solenoid back toward the python.', hts:['HT-07','HT-21'], manual:'beerlines'},
+      {label:'Is a fitting leaking or not holding on that tap\'s line?', hts:['HT-22','HT-23','HT-24'], manual:'beerlines'},
+      {label:'Has calibration been run on that tap specifically? Each tap is calibrated independently.', hts:['HT-39'], manual:'software'},
+    ]},
+  ]},
+
+  { id:'4', icon:'💧', label:'Product Leaks — Beer Lines & Fittings', children:[
+    { id:'4A', label:'Beer Line Leaking', causes:[
+      {label:'Is the line scored or damaged? Look for small cuts or kink marks on the pipe.', hts:['HT-21'], manual:'beerlines'},
+      {label:'Was the line cut straight? A diagonal cut prevents a proper seal inside the fitting.', hts:['HT-21'], manual:'beerlines'},
+      {label:'Is the line fully pushed into the fitting? It should not pull out without pressing the collet ring.', hts:['HT-22'], manual:'beerlines'},
+      {label:'Is the fitting dirty inside?', hts:['HT-23'], manual:'beerlines'},
+    ], escalate:'Quote the Site and Machine Number.'},
+    { id:'4B', label:'Fitting Leaking or Not Holding', causes:[
+      {label:'Is the line fully pushed into the fitting?', hts:['HT-22'], manual:'beerlines'},
+      {label:'Are the fitting teeth worn or damaged? Remove the outer grey collet ring to inspect.', hts:['HT-24'], manual:'beerlines'},
+      {label:'Is the fitting dirty?', hts:['HT-23'], manual:'beerlines'},
+      {label:'Is there at least 3 inches of pipe between this fitting and the next?', hts:['HT-23'], manual:'beerlines'},
+    ], escalate:'Quote the Site and Machine Number.'},
+    { id:'4C', label:'Solenoid Leaking', causes:[
+      {label:'Is the solenoid dirty — is the plunger movement restricted?', hts:['HT-35'], manual:'solenoid'},
+      {label:'Is the plunger expired? Dismantle and inspect the soft rubber end for a lump or swelling.', hts:['HT-36'], manual:'solenoid'},
+      {label:'Has the solenoid got a black rubber ring sealing the bottom from airflow?', hts:['HT-37'], manual:'solenoid'},
+      {label:'Does the solenoid need full replacement?', hts:['HT-37'], manual:'solenoid'},
+    ], escalate:'Quote the Site and Machine Number.'},
+  ]},
+
+  { id:'5', icon:'💨', label:'Gas Leaks',
+    tip:'Apply soapy water to all gas connections to pinpoint the exact leak location, then work through the relevant sub-section below.',
+    children:[
+    { id:'5A', label:'Gas Leaking at the Bottle Connection',
+      note:'⚠ If you can hear significant gas escaping, turn off the gas at the bottle immediately and ensure the area is ventilated before investigating.',
+      causes:[
+      {label:'Is the primary regulator spanner-tight on the bottle? Hand tight alone is not sufficient — it must be tightened with a gas spanner.', hts:['HT-26'], manual:'gauges'},
+      {label:'Is the bottle seal (rubber washer) intact? Detach the regulator and inspect the black ring on the gauge insert.', hts:['HT-27'], manual:'gauges'},
+      {label:'Is the bottle itself faulty — leaking from the valve rather than the connection? Remove from service and contact your gas supplier.', hts:[], escalate:true},
+    ]},
+    { id:'5B', label:'Gas Leaking at the Gauge / Regulator',
+      note:'⚠ If you can hear significant gas escaping, turn off the gas at the bottle immediately and ensure the area is ventilated before investigating.',
+      causes:[
+      {label:'Is the ring pull on the gauge fully retracted? No air should be able to escape past it.', hts:['HT-28'], manual:'gauges'},
+      {label:'Is the primary PSI set too high? Must not exceed 55 PSI.', hts:['HT-20'], manual:'gauges'},
+      {label:'Is there an unused gas line or port without a blanking plug? Any open-ended gas line or unused port near the gauge will leak continuously.', hts:['HT-25'], manual:'gas'},
+      {label:'Is the gauge seal worn — leaking from the gauge body or thread even after PSI reduction? Turn off gas and notify your manager with the Kit Number — the regulator needs replacing.', hts:['HT-28'], manual:'gauges'},
+    ]},
+    { id:'5C', label:'Gas Leaking at a Fitting or Pipe',
+      note:'⚠ If you can hear significant gas escaping, turn off the gas at the bottle immediately and ensure the area is ventilated before investigating.',
+      causes:[
+      {label:'Is the gas pipe scored, kinked, or cut at an angle where it enters the fitting?', hts:['HT-21'], manual:'gas'},
+      {label:'Is the gas pipe fully pushed into the fitting?', hts:['HT-22'], manual:'gas'},
+      {label:'Is the fitting dirty inside?', hts:['HT-23'], manual:'gas'},
+      {label:'Are the fitting teeth worn?', hts:['HT-24'], manual:'gas'},
+    ]},
+    { id:'5D', label:'Gas Leaking at an Unused Port — Missing Plug',
+      note:'⚠ If you can hear significant gas escaping, turn off the gas at the bottle immediately and ensure the area is ventilated before investigating.',
+      causes:[
+      {label:'Is there an open port on the gas manifold, regulator, or secondary with no pipe and no blanking plug? Every unused port must be capped.', hts:['HT-25'], manual:'gas'},
+    ]},
+    { id:'5E', label:'Gas Lines Freezing',
+      note:'⚠ If you can hear significant gas escaping, turn off the gas at the bottle immediately and ensure the area is ventilated before investigating.',
+      causes:[
+      {label:'Is there a gas leak at a fitting? Frost appears exactly at the point where high-pressure gas escapes — this identifies the leak location.', hts:['HT-29'], manual:'gas'},
+      {label:'Is the gauge freezing? This indicates a gauge or regulator seal issue.', hts:['HT-28'], manual:'gauges'},
+    ]},
+    { id:'5F', label:'PSI Not Staying Stable', causes:[
+      {label:'Is there a gas leak somewhere in the system? Even a small leak causes continuous pressure drop. Turn off gas at the bottle if suspected.', hts:['HT-29'], manual:'gas'},
+      {label:'Is the secondary locking nut tight? A loose nut lets the PSI screw creep with vibration or temperature change.', hts:['HT-06'], manual:'gauges'},
+      {label:'Is the primary set at least 10 PSI above the secondary target?', hts:['HT-20'], manual:'gauges'},
+      {label:'Is the ambient temperature where the bottles are stored fluctuating significantly?', hts:['HT-05'], manual:'gas'},
+      {label:'Is the gas bottle nearly empty?', hts:['HT-04'], manual:'gauges'},
+    ]},
+  ]},
+
+  { id:'6', icon:'🔄', label:'Drainage Issues', children:[
+    { id:'6A', label:'Not Draining', causes:[
+      {label:'Is the drain line blocked?', hts:['HT-30'], manual:'beerlines'},
+      {label:'Is the drain line kinked?', hts:['HT-07'], manual:'beerlines'},
+    ]},
+    { id:'6B', label:'Drain Connection Leaking', causes:[
+      {label:'Is the drain pipe fully pushed into the fitting?', hts:['HT-22'], manual:'beerlines'},
+      {label:'Is the fitting dirty?', hts:['HT-23'], manual:'beerlines'},
+      {label:'Are the fitting teeth worn?', hts:['HT-24'], manual:'beerlines'},
+      {label:'Is the drain line blocked, causing back-pressure forcing liquid out at the fitting?', hts:['HT-30'], manual:'beerlines'},
+      {label:'Is the drain line kinked?', hts:['HT-07'], manual:'beerlines'},
+    ]},
+  ]},
+
+  { id:'7', icon:'❄️', label:'Cooler Leaks & Water Bath Issues', children:[
+    { id:'7A', label:'Water Spraying or Leaking from Cooler', causes:[
+      {label:'Is the recirculation return pipe sitting above the water level? It should be submerged so water flows in, not sprays out.', hts:['HT-45'], manual:'cooler'},
+      {label:'Is the water bath overfilled? Drain to the correct level.', hts:['HT-44'], manual:'cooler'},
+    ], escalate:'Quote the Kit Number — back right of the machine, or inside back wall left side for container bars.'},
+    { id:'7B', label:'Suspected Split Coil — Product in Water Bath',
+      note:'A split coil means a crack has developed in the beer line coil inside the cooler, allowing product to leak into the water bath.',
+      causes:[
+      {label:'Is product coming out of the overflow pipe? There is a pipe hanging down at the back of the cooler from the top — if the cooler is filling with product this pipe will drip or run.', hts:['HT-50'], manual:'cooler'},
+      {label:'To confirm: disconnect all kegs. Connect a gas line at ~15 PSI to the input of the cooler coil and submerge the output in water — bubbles confirm the coil is split.', hts:['HT-50'], manual:'cooler'},
+      {label:'If split: fit a Y-piece on the output of the split coil line, joining it to the output of the second working tap. Both taps will run through the working coil while management arrange a replacement.', hts:['HT-50'], manual:'cooler'},
+      {label:'Notify your manager with the Kit Number so a replacement coil can be arranged.', hts:[], escalate:true},
+    ]},
+  ]},
+
+  { id:'8', icon:'⚙️', label:'Platform & Mechanical', children:[
+    { id:'8A', label:'Platform Not Moving or Not Moving Correctly', causes:[
+      {label:'Is anything physically obstructing the platform track? Look for python, wiring, screws, or debris.', hts:['HT-31'], manual:'actuator'},
+      {label:'Does the track need lubricating? Food-safe grease should be applied to the track and inside the actuator coil.', hts:['HT-31'], manual:'actuator'},
+      {label:'Are the actuator cables fully seated in the Wago connectors? Red to red, black to black.', hts:['HT-32'], manual:'actuator'},
+      {label:'Is the platform moving in the wrong direction? The actuator may be wired incorrectly.', hts:['HT-32'], manual:'actuator'},
+      {label:'Is the platform too tight or too loose on the track?', hts:['HT-34'], manual:'actuator'},
+      {label:'Is the platform stopping short of full travel? The up/down time settings may need adjusting.', hts:['HT-33'], manual:'actuator'},
+      {label:'Does the actuator need replacing?', hts:['HT-38'], manual:'actuator'},
+    ], escalate:'Quote the Site and M Number — shown at the top of the Boxbar app home screen.'},
+    { id:'8B', label:'Solenoid Not Opening or Closing Correctly', causes:[
+      {label:'Is the solenoid dirty?', hts:['HT-35'], manual:'solenoid'},
+      {label:'Is the plunger expired? Dismantle and look for a lump on the soft rubber end.', hts:['HT-36'], manual:'solenoid'},
+      {label:'Are the solenoid wiring connections secure at the Wago connector?', hts:['HT-32'], manual:'solenoid'},
+      {label:'Does the solenoid need full replacement?', hts:['HT-37'], manual:'solenoid'},
+    ], escalate:'Quote the Site and M Number — shown at the top of the Boxbar app home screen.'},
+  ]},
+
+  { id:'9', icon:'🌡️', label:'Cooler Not Cooling Correctly', children:[
+    { id:'9A', label:'Cooler Has No Power or Is Not Running', causes:[
+      {label:'Does the cooler have its own dedicated 16amp supply — not shared with the power bank on the same extension lead?', hts:['HT-44'], manual:'power3bank'},
+      {label:'Is there a green light on the cooler switch and a temperature showing on the display?', hts:['HT-44'], manual:'cooler'},
+    ], escalate:'Quote the Kit Number — back right of the machine, or inside back wall left side for container bars.'},
+    { id:'9B', label:'Cooler Running but Not Reaching Temperature', causes:[
+      {label:'Do the cooler vents have enough clear space around them for airflow? If the cooler is pushed against a wall or enclosed without a gap, it cannot expel heat and will struggle to reach temperature.', hts:[]},
+      {label:'Is the cooler temperature set correctly? Target is 0.5°C.', hts:['HT-44'], manual:'cooler'},
+      {label:'Has the cooler been running for at least 3 hours? The water bath needs this long to reach temperature.', hts:['HT-44'], manual:'cooler'},
+      {label:'Is the water bath dirty?', hts:['HT-43'], manual:'cooler'},
+      {label:'Is there ice available on site to bring the cooler temperature down temporarily?', hts:['HT-51'], manual:'cooler'},
+    ], escalate:'Quote the Kit Number — back right of the machine, or inside back wall left side for container bars.'},
+  ]},
+
+  { id:'10', icon:'📱', label:'Software & Payments', children:[
+    { id:'10A', label:'Machine Unresponsive or Screen Black', causes:[
+      {label:'Have you tried a power cycle? Unplug the POS from the power bank, wait 10 seconds, plug back in.', hts:['HT-46'], manual:'power3bank'},
+      {label:'Is the screen completely black with no response? Confirm the grey switch on the black box is on — the red indicator light should be visible. If the switch is on but screen is black, power cycle the machine.', hts:['HT-46'], manual:'greyswitch'},
+      {label:'Is the machine in kiosk mode? If other apps are visible on the home screen, activate kiosk mode via Hexnode.', hts:['HT-47'], manual:'software'},
+      {label:'Is the app on the correct event screen? If showing a previous event, it needs relinking.', hts:['HT-47'], manual:'software'},
+      {label:'Is there a software error on screen? Note the error message and the Hexnode ID and report to your manager.', hts:['HT-47'], manual:'software'},
+    ], escalate:'Quote the Hexnode ID — found in Maintenance → Machine Info — so the development team can identify the machine remotely.'},
+    { id:'10B', label:'Machine Not Connecting to Internet', causes:[
+      {label:'Is this machine on ethernet via TP-Link? Is there a green light on the port? No light = no signal. Try a different port or cable.', hts:['HT-41'], manual:'software'},
+      {label:'Is this machine connecting via hotspot? Is the middle machine\'s hotspot enabled and is the password correct?', hts:['HT-41'], manual:'software'},
+      {label:'Is this machine on WiFi? Is the correct network selected and is the signal strong enough?', hts:['HT-41'], manual:'software'},
+      {label:'Have you tried a power cycle?', hts:['HT-46'], manual:'power3bank'},
+    ], escalate:'Quote the Hexnode ID — found in Maintenance → Machine Info.'},
+    { id:'10C', label:'Payment Issues', causes:[
+      {label:'Does the machine have a stable internet connection? Payment issues are almost always connectivity-related — check Section 10B first.', hts:['HT-41'], manual:'software'},
+      {label:'Is the Viva app responding? Try restarting it.', hts:['HT-42'], manual:'software'},
+      {label:'Has the external payment device lost its link to the machine? Re-enter the POS IP address found in Maintenance → Machine Info.', hts:['HT-42'], manual:'software'},
+      {label:'Does the payment terminal need restarting?', hts:['HT-42'], manual:'software'},
+      {label:'Have you tried a full power cycle of the machine?', hts:['HT-46'], manual:'power3bank'},
+    ], escalate:'Quote the Hexnode ID — found in Maintenance → Machine Info.'},
+  ]},
+];
+
+const tsHowTo = {
+  'HT-01':{ title:'Reset the FOB Detector', steps:[
+    'Connect the fresh keg and confirm gas is on.',
+    'Push the lever at the bottom of the FOB up — this releases the float ball.',
+    'Press the button at the top — this draws beer into the chamber to float the ball.',
+    'Confirm beer flows normally before opening to service.',
+  ]},
+  'HT-02':{ title:'Attach or Reseat a Coupler', steps:[
+    'Align the coupler with the keg valve — the ears locate into the keg collar.',
+    'Twist the coupler clockwise to lock onto the keg.',
+    'Push the handle firmly all the way down until fully engaged.',
+    'Confirm no gas or product leaking from the connection.',
+    'To check for a non-return valve: unscrew the product line washer from the coupler. If you can see straight through, a non-return valve needs to be fitted to prevent air ingress during keg changes.',
+  ]},
+  'HT-03':{ title:'Change a Keg', warning:'Always use fresh, unbroached kegs. Never reconnect a previously used keg.', steps:[
+    'Lift the coupler handle, twist anticlockwise and remove.',
+    'Remove the empty keg.',
+    'Position the fresh keg upright.',
+    'Attach the coupler — twist clockwise, push handle fully down. See HT-02.',
+    'Reset the FOB detector. See HT-01.',
+  ], related:['HT-01','HT-02']},
+  'HT-04':{ title:'Replace a Gas Bottle', steps:[
+    'Turn off gas at the bottle valve — turn clockwise.',
+    'Loosen the primary regulator connection with the gas spanner — anticlockwise.',
+    'Remove the primary regulator from the empty bottle.',
+    'Move the empty bottle to a safe designated area.',
+    'Position the full bottle upright and secure it.',
+    'Check the bottle seal (rubber washer) is in place — see HT-27 if missing.',
+    'Attach the primary regulator — hand tight then gas spanner. 60/40 and 70/30: male fitting. CO₂: female fitting.',
+    'Open the bottle valve slowly anticlockwise — confirm no hissing.',
+    'Check the primary output pressure gauge reads correctly.',
+  ], related:['HT-27']},
+  'HT-05':{ title:'Turn On Gas at the Bottle', steps:[
+    'Locate the valve on top of the gas cylinder.',
+    'Turn anticlockwise to open — should turn smoothly without forcing.',
+    'Watch the bottle pressure gauge rise on the primary regulator.',
+    'Listen and check all connections for hissing — apply soapy water if suspected.',
+  ], notes:['Store gas bottles in a stable cool environment away from heat sources. Temperature fluctuations cause PSI drift.']},
+  'HT-06':{ title:'Check and Set Secondary Regulator', steps:[
+    'Locate the secondary regulator for the product in question.',
+    'The small lever underneath should point down — this means the valve is open. If pointing up, push it down.',
+    'Check the output pressure gauge and adjust the PSI screw to the correct value using the Boxbar PSI calculator.',
+    'Once set, tighten the locking nut behind the PSI screw to prevent creeping.',
+  ], notes:['The secondary can never output more than the primary is sending it. If it will not reach the target, check the primary output first.']},
+  'HT-07':{ title:'Fix a Kinked Line', steps:[
+    'Trace the full length of the line.',
+    'Locate the kink — usually visible as a sharp bend or white stress mark on the pipe.',
+    'Straighten gently — do not force.',
+    'Prop or reroute so it cannot kink again — secure with cable clips or insulation tape.',
+    'If the pipe has been kinked repeatedly at the same point, cut back past the damage and reinsert. See HT-21.',
+  ], related:['HT-21']},
+  'HT-08':{ title:'Defrost a Frozen Beer Line', warning:'A frozen line is caused by water left in the line from cleaning with the cooler still running. Always turn the cooler off before any line cleaning.', steps:[
+    'Turn off the cooler.',
+    'Allow the line to defrost at ambient temperature.',
+    'If on a time constraint, add lukewarm water to the cooler and unplug the frozen lines from the solenoid to encourage defrost.',
+    'Once defrosted, pull through an alcoholic product to flush any remaining ice.',
+    'Confirm normal flow before turning the cooler back on.',
+    'Turn the cooler back on.',
+  ]},
+  'HT-09':{ title:'Check and Set Correct Gas Pressure', steps:[
+    'Measure the product temperature — bleed a small amount from the FOB into a cup and use a thermometer.',
+    'Use the Boxbar PSI calculator with the product name, temperature, and gas type to find the guideline equilibrium PSI.',
+    'If current PSI is higher than the target — degas the keg first before reducing pressure. See HT-10.',
+    'If current PSI is lower — slowly increase the secondary to the target PSI.',
+    'Tighten the locking nut firmly on the secondary once set.',
+    'Wait 5–10 minutes for the system to stabilise, then run a test pour.',
+  ], notes:['Always set pressure against product temperature — not ambient room temperature.'], related:['HT-10']},
+  'HT-10':{ title:'Degas a Keg', alert:'Required when the keg is over-pressurised — current PSI is higher than the correct equilibrium for this product and temperature. Reducing pressure without degassing first will not fix the fobbing.', steps:[
+    'Lift the coupler handle.',
+    'Unscrew the gas line brass fitting from the coupler.',
+    'Push the coupler handle back down — gas releases from the open gas line port.',
+    'Allow excess pressure to vent — you will hear it hiss out.',
+    'Reattach the gas line with a spanner once vented.',
+    'Set secondary to the correct PSI. See HT-09.',
+  ], related:['HT-09']},
+  'HT-11':{ title:'Address a Warm Keg', steps:[
+    'Replace with a pre-chilled keg from a cool store if available.',
+    'Keep kegs out of direct sunlight and store in a cool shaded area.',
+    'If no chilled keg is available, surround with ice and wait — approximately 4.5 hours to chill from 20°C to 11°C.',
+  ], notes:['Product temperature determines the required PSI. The only correct fix for a warm keg is a cold keg.']},
+  'HT-12':{ title:'Check Keg Date and Replace', steps:[
+    'Find the best before date — stamped or printed on the top or side of the keg.',
+    'If past the best before date, remove from service.',
+    'Replace with a fresh keg. See HT-03.',
+    'Make the venue aware of any out-of-date stock.',
+  ], related:['HT-03']},
+  'HT-13':{ title:'Fix Coupler Seal', steps:[
+    'Lift the coupler handle and detach from the keg.',
+    'With the handle lifted, look at the underside — a black rubber ring should be fully retracted into the coupler body.',
+    'If the ring is not retracted: push the coupler handle down to compress it, then guide the ring back into its seat.',
+    'Lift the handle again to confirm the ring retracts correctly.',
+    'Reattach to the keg and confirm no leaking.',
+  ]},
+  'HT-14':{ title:'Line Clean — Cleaning Keg Method', warning:'Turn off the cooler before starting. Water left in lines will freeze if the cooler runs during cleaning.', steps:[
+    'Fill the cleaning keg with line cleaning solution.',
+    'Attach the coupler to the cleaning keg.',
+    'Pull through until line cleaner is visible at the taps.',
+    'Leave to soak for 20 minutes.',
+    'Fill the cleaning keg with clean water.',
+    'Pull through until only clean water comes from the taps — line cleaner is toxic, do not rush this step.',
+    'Attach the product keg and pull through until no water remains in the line.',
+    'Turn the cooler back on.',
+  ], notes:['Lines should be cleaned at minimum every 2 weeks, ideally weekly.']},
+  'HT-15':{ title:'Line Clean — Flojet Method', warning:'Turn off the cooler before starting.', steps:[
+    'Turn on the gas supply.',
+    'Submerge the Flojet line in line cleaning solution.',
+    'Pull through until line cleaner is visible at the taps.',
+    'Leave to soak for 20 minutes.',
+    'Submerge the line in clean water.',
+    'Pull through until only clean water comes from the taps — line cleaner is toxic.',
+    'Attach the product keg and pull through until no water remains.',
+    'Turn the cooler back on.',
+  ]},
+  'HT-16':{ title:'Insulate Exposed Beer Line', steps:[
+    'Identify any exposed section of line between the cooler and the machine.',
+    'Add insulation to the exposed line.',
+    'Cover all joins and connection points with insulation tape.',
+    'Confirm the full length from cooler outlet to machine inlet is covered.',
+  ], notes:['Any uninsulated section allows ambient temperature to warm beer in transit, causing foaming at the tap.']},
+  'HT-17':{ title:'Adjust Restriction Length', alert:'The restriction is the 3/16" coiled pipe between the solenoid and tap nozzle. Standard length is 55cm.', sections:[
+    { heading:'To increase restriction (reduce fobbing / slow the pour)', steps:[
+      'Add a longer section of 3/16" pipe between the solenoid outlet and the tap.',
+      'Coil the additional length downward in the same direction as the existing restriction.',
+      'Recalibrate the tap. See HT-39.',
+    ]},
+    { heading:'To decrease restriction (speed up a slow pour)', steps:[
+      'Remove some of the existing 3/16" restriction pipe.',
+      'Always leave at least 20cm of restriction — never remove entirely.',
+      'Recalibrate the tap. See HT-39.',
+    ]},
+  ], notes:['Always recalibrate after any restriction change. Pour time changes with flow rate.'], related:['HT-39']},
+  'HT-18':{ title:'Adjust Tap Height', steps:[
+    'Confirm cup holders and placeholders are in place.',
+    'Check the up/down time is enough for the taps to fully come down.',
+    'With the platform fully down, check how high the nozzle is above the cup bottom.',
+    'If too high: loosen platform screws and reposition into lower mounting holes on the actuator.',
+    'If the tap pipe itself is too short, it needs replacing with a longer one.',
+    'Run a test pour to confirm nozzle position.',
+  ]},
+  'HT-19':{ title:'Clean Tap and Nozzle', steps:[
+    'Raise the platform using Motion Control.',
+    'Remove the tap assembly from the platform.',
+    'Unscrew the nozzle from the end of the tap pipe.',
+    'If a Guinness creamer plate is fitted, remove it from the nozzle.',
+    'Soak all components in warm water until any buildup softens.',
+    'Wipe clean and rinse thoroughly.',
+    'Reassemble — creamer plate into nozzle, nozzle onto tap, tap onto platform.',
+    'Run a test pour to confirm flow.',
+  ], notes:['Do not use abrasive cleaners on nozzles.']},
+  'HT-20':{ title:'Adjust Primary Regulator', steps:[
+    'Locate the primary regulator adjustment screw.',
+    'Turn clockwise to increase output pressure, anticlockwise to decrease.',
+    'The primary must always be at least 10 PSI above the highest secondary output.',
+    'The primary must never exceed 55 PSI — this is the blow-off safety valve limit.',
+    'Confirm the output pressure gauge shows the new setting.',
+  ], notes:['Standard primary output for most Boxbar installs is 55 PSI.']},
+  'HT-21':{ title:'Cut Back and Reseat a Scored or Angled Line', steps:[
+    'Press the collet ring and pull the pipe from the fitting.',
+    'Inspect the end for scores, kink marks, or an angled cut.',
+    'Cut back past all damaged sections — use a sharp blade, cut clean and perpendicular. No part of the end should protrude further than another.',
+    'Wipe the cut end clean.',
+    'Push firmly into the fitting until fully seated — wet the pipe first if resistance is high.',
+    'Tug gently to confirm it is locked in.',
+  ]},
+  'HT-22':{ title:'Reseat a Line in a Fitting', steps:[
+    'Press the collet ring and pull the pipe out.',
+    'Inspect the pipe end — if scored or angled, see HT-21 before reinserting.',
+    'Clean the pipe end and inside the fitting with a dry cloth.',
+    'Wet the pipe with water to help guide it in.',
+    'Push firmly until fully seated.',
+    'Tug gently to confirm it is locked.',
+  ], related:['HT-21']},
+  'HT-23':{ title:'Clean or Replace a Fitting', sections:[
+    { heading:'To clean', steps:[
+      'Remove all pipes from the fitting.',
+      'Flush with clean water and wipe inside with a dry cloth.',
+      'Allow to dry before reinserting pipes.',
+    ]},
+    { heading:'To replace', steps:[
+      'Remove all pipes and unclip or unscrew the fitting from its mounting.',
+      'Fit the new fitting in the same position.',
+      'Reinsert all pipes — confirm each is fully seated.',
+    ]},
+  ], notes:['Minimum 3 inches (75mm) of pipe between any two fittings. Short sections cause turbulence and back-pressure.']},
+  'HT-24':{ title:'Check and Replace Fitting Teeth', steps:[
+    'Remove the outer grey collet ring from the fitting.',
+    'Inspect the small metal teeth inside — they should be sharp, even, and undeformed.',
+    'If worn, bent, or broken — replace the fitting.',
+    'If no spare fitting is available: remove the teeth from a spare fitting and swap them in.',
+    'Refit the collet ring and test — pipe should click in firmly and resist pulling.',
+  ]},
+  'HT-25':{ title:'Fit a Blanking Plug to an Unused Gas Port', alert:'Any unused port on the gas manifold, regulator, or secondary must have a blanking plug. An open port leaks gas continuously.', steps:[
+    'Identify the unused port — a push-fit port with no pipe and no plug.',
+    'Select the correct size blanking plug for the port bore.',
+    'Push the plug firmly in until it clicks and seats.',
+    'Tug to confirm it is secure.',
+    'Apply soapy water to confirm no hissing at that point.',
+  ]},
+  'HT-26':{ title:'Connect Gas Bottle Correctly', steps:[
+    'Confirm the correct fitting type — 60/40 and 70/30: male fitting. CO₂: female fitting.',
+    'Check the bottle seal is in place. See HT-27 if missing.',
+    'Align the primary regulator with the bottle valve connection — must be straight, not at an angle.',
+    'Tighten firmly with a gas spanner — hand tight alone is not sufficient for a gas connection.',
+    'Open the bottle valve slowly and listen for hissing.',
+    'Apply soapy water to confirm no leaking.',
+  ], related:['HT-27']},
+  'HT-27':{ title:'Replace Gas Bottle Seal', steps:[
+    'Turn off gas at the bottle valve and disconnect the primary regulator.',
+    'Locate the black rubber ring on the gauge insert — the part that goes into the bottle valve.',
+    'If the ring is cracked, deformed, or missing — it needs replacing.',
+    'To find a replacement: take a spare John Guest fitting and remove the outer collet ring — a rubber seal sits underneath that can be used as a replacement.',
+    'Push the replacement seal over the gauge insert.',
+    'Reconnect the primary regulator to the bottle. See HT-26.',
+  ], related:['HT-26']},
+  'HT-28':{ title:'Fix Gas Gauge Leak or Freeze', steps:[
+    'Ensure the ring pull on the gauge is fully retracted.',
+    'Slowly reduce the primary PSI by turning the adjustment screw anticlockwise until hissing slows or stops.',
+    'If the gauge is frozen: turn off gas at the bottle. Allow to defrost fully at ambient temperature.',
+    'Once defrosted, confirm the ring pull is retracted, then carefully turn gas back on.',
+    'If hissing continues after PSI reduction, replace the gauge.',
+  ], warning:'Do not operate the system with a leaking gauge. Turn off gas and escalate if the leak cannot be resolved by reducing PSI.'},
+  'HT-29':{ title:'Fix a Gas Fitting Leak', steps:[
+    'Turn off gas at the bottle.',
+    'Locate the leak — listen for hissing.',
+    'If frozen: allow to defrost first — frost appears around the leak point.',
+    'Ensure the pipe is fully seated in the fitting. If not: remove the pipe from the suspect fitting.',
+    'Inspect the pipe end for scores, kinks, or an angled cut. See HT-21 if it needs cutting back.',
+    'Clean inside the fitting and the pipe end.',
+    'Push the pipe back in until fully seated.',
+    'Turn gas back on slowly and apply soapy water to confirm the leak is resolved.',
+  ], related:['HT-21']},
+  'HT-30':{ title:'Clear a Blocked Drain Line', steps:[
+    'Remove the drain pipe from the fitting.',
+    'Create suction at the pipe end.',
+    'Allow the blockage and liquid to come out.',
+    'Flush with clean water once cleared.',
+    'Check the drain is not kinked — straighten and prop if needed.',
+  ]},
+  'HT-31':{ title:'Clear Platform Track Obstruction and Lubricate', sections:[
+    { heading:'To clear an obstruction', steps:[
+      'Raise the platform to full height using Motion Control.',
+      'Inspect the track on both sides — remove any python, wiring, screws, or debris.',
+      'Lower and raise to confirm smooth movement.',
+    ]},
+    { heading:'To lubricate', steps:[
+      'Apply food-safe grease to the full length of the track on both sides.',
+      'Apply a small amount to the inside of the actuator coil.',
+      'Raise and lower the platform several times to work the grease in.',
+    ]},
+  ], notes:['Only use food-safe grease — the dispense area is in contact with beverages.']},
+  'HT-32':{ title:'Fix Actuator or Solenoid Wiring', sections:[
+    { heading:'If cables are loose', steps:[
+      'Locate the Wago connectors where the wires connect to the grey box.',
+      'Push the wire further in until fully seated.',
+      'If it will not seat: cut back the insulation by 5mm to expose clean copper and reinsert.',
+    ]},
+    { heading:'If the platform moves in the wrong direction', steps:[
+      'Remove the red and black actuator wires from the Wago.',
+      'Swap their positions — red to black position, black to red position.',
+      'Test movement — it should now travel in the correct direction.',
+    ]},
+  ]},
+  'HT-33':{ title:'Adjust Platform Up / Down Time', steps:[
+    'Open the Maintenance menu — hidden button top-right of screen.',
+    'Locate Machine Down Time and Machine Up Time.',
+    'Standard values: Down 4000ms, Up 4300ms.',
+    'Increase the relevant value in 200ms increments.',
+    'Use Motion Control to test movement after each adjustment.',
+    'Stop when the platform reliably reaches full travel without straining.',
+  ]},
+  'HT-34':{ title:'Adjust Platform Tension on Track', sections:[
+    { heading:'If too tight — platform straining or slow', steps:[
+      'Locate the bolts securing the platform to the track runners.',
+      'Loosen slightly — quarter turn at a time, testing after each.',
+    ]},
+    { heading:'If too loose — platform rattling or misaligned', steps:[
+      'Tighten the same bolts slightly — quarter turn at a time, testing after each.',
+    ]},
+  ]},
+  'HT-35':{ title:'Clean a Solenoid', steps:[
+    'Disconnect the solenoid from the beer lines.',
+    'Unscrew the nut at the top of the solenoid body.',
+    'Disconnect the top half from the bolt and set aside — keep the magnet with it.',
+    'Unscrew the bolt from the bottom half.',
+    'Remove the spring, black ring, plunger, and bolt.',
+    'Soak all components in hot water until debris softens.',
+    'Wipe all components clean and dry thoroughly.',
+    'Reassemble in reverse order and reconnect beer lines.',
+  ]},
+  'HT-36':{ title:'Replace Solenoid Plunger', steps:[
+    'Dismantle the solenoid — see HT-35 steps 1–5.',
+    'Inspect the plunger — look at the soft rubber end for any lump, deformation, or swelling.',
+    'Remove the old plunger and insert the new one in the same orientation.',
+    'Reassemble and reconnect — see HT-35 step 8.',
+  ], related:['HT-35']},
+  'HT-37':{ title:'Replace a Solenoid', steps:[
+    'Disconnect the keg.',
+    'Open the tap to release any remaining line pressure.',
+    'Disable the POS — CS → Settings → Close.',
+    'Remove input and output beer pipes — aim toward the drain as residual liquid may spray.',
+    'Unscrew the black plastic cap from the underside of the solenoid.',
+    'Lift and remove the old solenoid carefully — wires are still attached, move to one side.',
+    'Position the new solenoid, insert beer lines, screw on cap.',
+    'Remove old wires from the Wago one at a time, replacing with new solenoid wires — red to red, black to black.',
+    'Reconnect the keg and test.',
+  ]},
+  'HT-38':{ title:'Replace an Actuator', steps:[
+    'Remove the screw or pin from the top, bottom, and platform connection points.',
+    'Carefully remove the old actuator — wires are still attached.',
+    'Position the new actuator with the coil facing toward you.',
+    'Replace the red wire at the Wago first, then the black wire.',
+    'Secure at top, bottom, and platform connection points.',
+    'Test using Motion Control — if reversed see HT-32.',
+    'Adjust up/down time if needed — see HT-33.',
+  ], related:['HT-32','HT-33']},
+  'HT-39':{ title:'Calibrate a Tap', sections:[
+    { heading:'Via CS menu', steps:[
+      'Open CS — hidden button top-left of screen.',
+      'Go to Pumps → Calibration.',
+      'Place a cup under the tap and lower the platform.',
+      'Press Start, press Stop when the cup is full, press Save.',
+    ]},
+    { heading:'Via Maintenance menu', steps:[
+      'Open Maintenance — hidden button top-right of screen.',
+      'Scroll down to Calibration.',
+      'Use Start / Stop / Apply, or type a value directly in Manual Edit.',
+      'Use Check Calibration to verify the pour without a customer order.',
+    ]},
+  ], notes:['If two drinks pour together and one is consistently short, set a Calibration Offset in Maintenance.']},
+  'HT-40':{ title:'Set Up Auto Purge', steps:[
+    'Open CS — hidden button top-left of screen.',
+    'Go to Settings → Auto Purge.',
+    'Set Idle Time — how long before purging. Standard: 900 seconds.',
+    'Set Purge Duration — how long it pours to drain. Standard: 3000ms.',
+    'Save settings.',
+    'Ensure the machine is set to Open — Auto Purge only runs when the machine is open.',
+  ], notes:['Only open the machine at event start time when Auto Purge is active.']},
+  'HT-41':{ title:'Connect Machine to Internet', sections:[
+    { heading:'Ethernet via TP-Link', steps:[
+      'Check the green light on the TP-Link port — no light means no signal.',
+      'Try a different port on the switch, then try a different cable.',
+      'Confirm the venue ethernet source is live.',
+    ]},
+    { heading:'Ethernet via Hotspot', steps:[
+      'On the middle machine, confirm personal hotspot is enabled.',
+      'Connect surrounding machines to the hotspot network.',
+      'Default password: BB2022tech! — check with manager if changed.',
+    ]},
+    { heading:'WiFi', steps:[
+      'Swipe down twice from top of screen → tap settings cog (bottom right) → Network.',
+      'Select the correct network and enter the password.',
+    ]},
+  ], notes:['If the venue network is down this is outside Boxbar\'s control. Switch to hotspot or mobile data and notify the venue.']},
+  'HT-42':{ title:'Restart Viva or Payment Device', sections:[
+    { heading:'Viva (built-in contactless)', steps:[
+      'Confirm the machine has a stable internet connection — see HT-41.',
+      'Exit kiosk mode, close the Viva app fully, reopen it, re-enter kiosk mode.',
+    ]},
+    { heading:'External payment device', steps:[
+      'Power off the terminal fully, wait 10 seconds, power back on.',
+      'Confirm it is on the same network as the Boxbar machine.',
+    ]},
+  ], related:['HT-41']},
+  'HT-43':{ title:'Clean Cooler Water Bath', steps:[
+    'Drain the water bath — unclip the drain line on the side of the cooler and aim downward.',
+    'Refill with line cleaning solution and leave to soak for 20 minutes.',
+    'Drain the cleaning solution.',
+    'Flush with fresh water — repeat 2–3 times until no trace of cleaner remains.',
+    'Wipe inside with blue roll.',
+    'Refill with clean water.',
+  ]},
+  'HT-44':{ title:'Set Cooler Temperature', alert:'Target temperature: 0.5°C. The cooler must be switched on at least 3 hours before service.', steps:[
+    'Hold the Set button on the cooler display until the display flashes.',
+    'Use the up (˄) and down (v) arrow buttons to adjust the temperature.',
+    'Press Set again to confirm and save.',
+  ], warning:'The cooler and power bank must have separate dedicated power supplies. They cannot share an extension lead.'},
+  'HT-45':{ title:'Fix Recirculation Pipe', steps:[
+    'Locate the return pipe — the pipe returning warm water from the python back into the cooler water bath.',
+    'Push the open end of the pipe further down into the water bath so it is fully submerged.',
+    'Secure in position so it cannot pull out during operation.',
+    'Confirm gentle circulation is visible in the water bath rather than spraying.',
+  ]},
+  'HT-46':{ title:'Power Cycle the POS', alert:'A power cycle completely resets the machine and clears most software hangs. Try this first for any unresponsive machine or unexpected software behaviour.', steps:[
+    'Locate the POS power cable plugged into the power bank.',
+    'Unplug the POS from the power bank.',
+    'Wait 10 seconds.',
+    'Plug the POS back into one of the first four battery-backed sockets on the power bank.',
+    'Wait for the machine to fully boot and the Boxbar app to load.',
+    'Test the issue — if it persists, continue with further diagnostics.',
+  ]},
+  'HT-47':{ title:'Software Setup — Kiosk Mode, Event Linking & Reporting', sections:[
+    { heading:'To activate kiosk mode', steps:[
+      'Open the Hexnode app on the tablet.',
+      'Tap Activate — this locks the tablet to Boxbar and basic settings only.',
+      'Settings are PIN-protected — PIN is provided by your manager.',
+    ]},
+    { heading:'To link a machine to a new event', steps:[
+      'From the Start Order screen, tap Maintenance (top right).',
+      'Tap Unlink → enter the unlink code (3105).',
+      'Enter the new machine codes when prompted — the correct event screen will load.',
+    ]},
+    { heading:'Reference numbers when reporting', steps:[
+      'Hexnode ID — Maintenance → Machine Info. Used by the development team to identify the machine remotely.',
+      'M Number — shown at the top of the home screen on the Boxbar app. Used for POS-specific and pour issues.',
+      'Kit Number — on the back right of the machine, or inside the back wall on the left side for container bars. Used for hardware and build issues.',
+    ]},
+  ]},
+  'HT-48':{ title:'Find Your Reference Numbers', sections:[
+    { heading:'Hexnode ID — for software issues', steps:[
+      'Open the Maintenance menu — hidden button top-right of the screen.',
+      'Go to Machine Info.',
+      'The Hexnode ID is listed here — note it down before reporting.',
+    ]},
+    { heading:'M Number — for POS / pour issues', steps:[
+      'Look at the top of the home screen on the Boxbar app.',
+      'The M Number is displayed here.',
+    ]},
+    { heading:'Kit Number — for hardware / build issues', steps:[
+      'For a bar machine: look on the back right side of the machine.',
+      'For a container bar: look on the inside back wall on the left side.',
+    ]},
+  ], notes:['Always note the steps you have already tried when reporting. This helps your manager raise the right ticket with the most useful information.']},
+  'HT-49':{ title:'Set Pour Opt Time', alert:'Pour Opt Time controls how long the machine continues pouring while the taps are raising at the end of a pour. It can speed up the customer journey by reducing wait time.', steps:[
+    'Open the Maintenance menu — hidden button top-right of the screen.',
+    'Locate the Pour Opt Time field.',
+    'Enter the desired duration in milliseconds — start with 500ms and test. Increase in 200ms increments until the pour behaviour is correct.',
+    'A setting of 0 disables Pour Opt Time — use this to turn it off if it causes issues.',
+  ]},
+  'HT-50':{ title:'Diagnose and Manage a Split Cooler Coil', alert:'A split coil allows product to leak from the beer line into the cooler water bath. Product will appear coming from the overflow pipe at the back of the cooler.', sections:[
+    { heading:'To confirm a split coil', steps:[
+      'Disconnect all kegs.',
+      'Connect a gas line at approximately 15 PSI to the input of the suspected coil inside the cooler.',
+      'Submerge the output of that coil in water — if bubbles appear, the coil is confirmed split.',
+    ]},
+    { heading:'Temporary workaround while waiting for replacement', steps:[
+      'Put the output of the split coil on a Y-fitting.',
+      'Connect the Y-fitting to the line from the working tap\'s coil — this allows both taps to serve from the good coil. A calibration offset is likely required.',
+      'Note the Kit Number and notify your manager so a replacement coil can be arranged.',
+    ]},
+  ], notes:['This workaround reduces cooling efficiency as both products now share one coil. Monitor temperature carefully.']},
+  'HT-51':{ title:'Add Ice to Cooler Water Bath', alert:'A temporary measure to bring the water bath temperature down quickly while the cooler works to reach its set temperature.', steps:[
+    'Remove the cooler cover or lid if fitted.',
+    'Add ice directly into the water bath.',
+    'Replace the cover.',
+    'Monitor the temperature display — it should begin dropping within a few minutes.',
+  ], notes:['This is a temporary fix only. The underlying cause — insufficient pre-service time, blocked vents, or a struggling cooler — should still be addressed.']},
+};
+
+
+
+
+
+
+
+function goToReport() {
+  showPage('reportPage');
+  if (!locations.length) addLocation();
+}
+function goToManual() {
+  showPage('manualPage');
+}
+function goToComponent(id) {
+  const data = componentData[id];
+  if (!data) return;
+  document.getElementById('componentTitle').textContent = data.title;
+  document.getElementById('componentBody').innerHTML = data.html;
+  showPage('componentPage');
+}
+function toggleChart() {
+  const panel = document.getElementById('chartPanel');
+  const arrow = document.getElementById('chartToggleArrow');
+  const open = panel.style.display === 'none';
+  panel.style.display = open ? 'block' : 'none';
+  arrow.style.transform = open ? 'rotate(90deg)' : '';
+  if (open) filterGas('');
+}
+
+function goToGas() {
+  showPage('gasPage');
+  document.getElementById('calcProductInput').value = '';
+  document.getElementById('calcGas').value = '';
+  document.getElementById('calcTemp').value = '';
+  document.getElementById('calcResult').style.display = 'none';
+  document.getElementById('calcWarn').style.display = 'none';
+  document.getElementById('calcNoData').style.display = 'none';
+  document.getElementById('chartPanel').style.display = 'none';
+  document.getElementById('chartToggleArrow').style.transform = '';
+  calcSelectedBrand = null;
+}
+function goHome() { showPage('homePage'); }
+function showPage(id) {
+  ['homePage','reportPage','gasPage','manualPage','componentPage','troubleshootPage','tsL2Page','tsL3Page','tsHtPage'].forEach(p => {
+    document.getElementById(p).classList.remove('active');
+  });
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+/* ── PSI CALCULATOR ────────────────────────────────────── */
+let calcSelectedBrand = null;
+
+function calcProductSearch(val) {
+  const dropdown = document.getElementById('calcDropdown');
+  const q = val.trim().toLowerCase();
+  const matches = q ? gasData.filter(b => b.brand.toLowerCase().includes(q)) : gasData;
+  if (!matches.length) { dropdown.style.display = 'none'; return; }
+  dropdown.innerHTML = matches.map(b =>
+    `<div onclick="selectCalcBrand('${b.brand.replace(/'/g,"\\'")}');document.getElementById('calcDropdown').style.display='none'" style="padding:11px 14px;font-size:14px;color:var(--text);border-bottom:0.5px solid var(--border);cursor:pointer" onmouseover="this.style.background='var(--card)'" onmouseout="this.style.background=''">${b.brand}</div>`
+  ).join('');
+  dropdown.style.display = 'block';
+}
+
+function selectCalcBrand(name) {
+  calcSelectedBrand = name;
+  document.getElementById('calcProductInput').value = name;
+  // auto-set gas type if only one option
+  const brand = gasData.find(b => b.brand === name);
+  if (brand && brand.rows.length === 1) {
+    document.getElementById('calcGas').value = brand.rows[0].gas;
+  }
+  runCalc();
+}
+
+function runCalc() {
+  const result = document.getElementById('calcResult');
+  const warn   = document.getElementById('calcWarn');
+  const noData = document.getElementById('calcNoData');
+  result.style.display = 'none';
+  warn.style.display   = 'none';
+  noData.style.display = 'none';
+
+  if (!calcSelectedBrand) return;
+  const gasType = document.getElementById('calcGas').value;
+  const tempIdx = document.getElementById('calcTemp').value;
+  if (!gasType || tempIdx === '') return;
+
+  const brand = gasData.find(b => b.brand === calcSelectedBrand);
+  if (!brand) return;
+  const row = brand.rows.find(r => r.gas === gasType);
+  if (!row) { noData.style.display = 'block'; return; }
+
+  const psi = row.t[parseInt(tempIdx)];
+  if (psi === null || psi === undefined) { noData.style.display = 'block'; return; }
+
+  const tempLabels = ['2°C','5°C','8°C','11°C','14°C','17°C','20°C','23°C'];
+  const isWarn = row.warn && row.warn.includes(parseInt(tempIdx));
+
+  document.getElementById('calcPSIValue').textContent = psi;
+  document.getElementById('calcPSILabel').textContent = `${calcSelectedBrand} · ${gasType}${row.vols ? ' · '+row.vols+' vol' : ''} · ${tempLabels[parseInt(tempIdx)]}`;
+  result.style.display = 'block';
+  if (isWarn) warn.style.display = 'block';
+}
+
+// Close dropdown on outside tap
+document.addEventListener('click', e => {
+  if (!e.target.closest('#calcProductInput') && !e.target.closest('#calcDropdown')) {
+    document.getElementById('calcDropdown').style.display = 'none';
+  }
+});
+
+/* ── COMPONENT DATA ──────────────────────────────────── */
+function mCard(content) {
+  return `<div style="background:var(--card);border:0.5px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:10px">${content}</div>`;
+}
+function mSection(title, body) {
+  return `<div style="padding:10px 14px 12px;border-bottom:0.5px solid var(--border);background:var(--card2)"><span style="font-size:11px;font-weight:700;letter-spacing:0.7px;text-transform:uppercase;color:var(--pink)">${title}</span></div><div style="padding:12px 14px;font-size:14px;line-height:1.65;color:var(--text)">${body}</div>`;
+}
+function mTable(headers, rows) {
+  const hcells = headers.map(h => `<div style="padding:7px 10px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--pink);background:var(--card2);border-right:0.5px solid var(--border)">${h}</div>`).join('');
+  const grid = `grid-template-columns:${headers.map(()=>'1fr').join(' ')}`;
+  let html = `<div style="display:grid;${grid};border-bottom:0.5px solid var(--border)">${hcells}</div>`;
+  rows.forEach((row,ri) => {
+    const cells = row.map(c => `<div style="padding:8px 10px;font-size:13px;color:var(--text);border-right:0.5px solid var(--border);border-bottom:${ri<rows.length-1?'0.5px solid var(--border)':'none'}">${c}</div>`).join('');
+    html += `<div style="display:grid;${grid}">${cells}</div>`;
+  });
+  return `<div style="border:0.5px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:10px">${html}</div>`;
+}
+function mAlert(text) {
+  return `<div style="background:rgba(233,30,140,0.1);border:0.5px solid var(--pink-border);border-radius:8px;padding:10px 14px;margin-bottom:10px;font-size:13px;color:var(--text);line-height:1.55"><span style="color:var(--pink);font-weight:700">!</span> ${text}</div>`;
+}
+
+const componentData = {
+
+  // ── 1. THE BEER SYSTEM ──────────────────────────────────────────────
+  gas: { title:'1.1 Gas', html: (() => {
+    let h = '';
+    h += mCard(mSection('Overview','Gas is the engine of the whole system. It pressurises the keg to push beer through the lines without agitation, maintains the correct level of carbonation in the product, and creates a sealed environment inside the keg that prevents oxygen from entering and spoiling the beer.<br><br>Too little gas and CO₂ escapes from the beer — it goes flat and fobby. Too much and excess CO₂ is forced in — it becomes over-carbonated and foamy. The correct gas pressure for a given product at its current temperature is called the <strong>equilibrium pressure</strong>. See the Gas &amp; Pressure section for more.'));
+    h += mAlert('Always turn gas on before connecting kegs. Always turn gas off before disconnecting.');
+    return h;
+  })()},
+
+  keg: { title:'1.2 Keg', html: (() => {
+    let h = '';
+    h += mCard(mSection('Overview','The keg is a sealed, pressurised container that holds the product. When gas is connected via the coupler and the tap is opened, the incoming gas pressure forces beer up through an internal dip tube and out through the beer line toward the tap.<br><br>Temperature plays a critical role in pour quality. A keg that is warm, recently agitated, or has been disconnected and reconnected will cause pour problems regardless of how the rest of the system is set up.'));
+    h += mTable(['Condition','Effect on Pour'],[
+      ['Warm keg','Beer releases CO₂ too readily — fobbing and flat pours'],
+      ['Recently agitated','Unsettled CO₂ causes excessive fobbing on first pours'],
+      ['Previously connected keg','Compromised seal — inconsistent pressure and pour quality'],
+      ['Faulty product','Can cause flat, off-taste or fobbing regardless of setup'],
+    ]);
+    h += mAlert('Always use fresh, unbroached kegs. Always store kegs upright. Every fresh keg needs 2–3 pints pulled through before service to fill the lines and stabilise pressure.');
+    return h;
+  })()},
+
+  coupler: { title:'1.3 Coupler', html: (() => {
+    let h = '';
+    h += mCard(mSection('Overview','The coupler connects the keg to both the gas supply and the beer line. When pushed down and locked onto the keg valve, it creates two sealed pathways simultaneously — gas flows in through one, beer flows out through the other.<br><br>The coupler type varies by product and brewery. Using the wrong coupler for a keg will result in it not fitting or not sealing correctly.'));
+    h += mTable(['Type','Common Use','Notes'],[
+      ['S-Type (Sankey)','Most lagers, ciders and stouts — Carling, Guinness, Peroni, Madri, Strongbow','Most common by far on Boxbar installs'],
+      ['G-Type','Many UK ales and some European brands','Less common'],
+      ['A-Type','German beers','Less common'],
+      ['D-Type','Some American and European lagers','Less common'],
+      ['KeyKeg','Single-use pressure kegs','Gas acts on outer bag — no direct gas contact with product. Requires dedicated KeyKeg coupler.'],
+    ]);
+    return h;
+  })()},
+
+  fob: { title:'1.4 Cellar Buoy / FOB Detector', html: (() => {
+    let h = '';
+    h += mCard(mSection('Overview','The FOB (Foam On Beer) detector sits in the beer line between the coupler and the cooler. Inside is a small chamber with a float ball. While beer flows normally the ball floats and beer passes through freely. When a keg runs out, air and foam enter the line — the ball drops and seals the valve at the bottom, stopping air from travelling any further down the system.<br><br>Without a FOB detector, a kicked keg sends air all the way through to the tap, requiring the entire line to be purged before the next keg can pour properly. With one in place, simply connect the new keg and reset the FOB — the line is immediately ready.'));
+    h += mCard(mSection('Reset Procedure','1. Connect the fresh keg and ensure gas is on<br>2. Pull the lever at the bottom of the FOB down to release the float ball<br>3. Press the button at the top to fill the chamber with beer<br>4. Beer should now flow normally — check for clean pour before opening to service'));
+    h += mAlert('If the FOB is not reset after a keg change, air will remain in the chamber and the line will not flow. This is one of the most common causes of a tap not pouring after a keg change.');
+    return h;
+  })()},
+
+  cooler: { title:'1.5 Cooler', html: (() => {
+    let h = '';
+    h += mCard(mSection('Overview','The cooler chills a tank of water down to around 0°C. Beer lines from the kegs pass through this cold water tank via coils — typically 10 to 20 metres of line wound inside the unit. The coiled length maximises contact between the beer line and the cold water, pulling heat out of the beer efficiently before it enters the python.<br><br>From the cooler, the python carries the beer lines to the machines. Running alongside the beer lines inside the python are two water lines — a flow line and a return line. The cooler continuously pumps cold water out through the flow line, along the full length of the python, and back through the return line where it is rechilled and sent around again. This constant recirculation keeps the python cold at all times, ensuring beer maintains its serving temperature for the entire run from cooler to tap.'));
+    h += mTable(['Setting','Value'],[
+      ['Target cooler temperature','-1°C to +1°C'],
+      ['Minimum pre-service warm-up time','3 hours before service opens'],
+    ]);
+    h += mAlert('Do not turn the cooler off overnight between events. The water bath takes hours to reach temperature — leaving it running costs very little and means the system is ready when you are. Only turn it off for multi-day shutdowns or line cleaning.');
+    return h;
+  })()},
+
+  python: { title:'1.6 Python', html: (() => {
+    let h = '';
+    h += mCard(mSection('Overview','The python is the insulated bundle that carries beer from the cooler to the machine. Inside the outer insulated sleeve sits a bundle of individual beer lines alongside the chilled water flow and return lines from the cooler. The cold water jacket surrounds the beer lines for the full length of the run, keeping beer at serving temperature all the way to the tap.'));
+    h += mTable(['What\'s inside a python',''],[
+      ['Beer lines','One per product being dispensed'],
+      ['Chilled water flow line','Cold water pumped out from cooler'],
+      ['Chilled water return line','Warm water returned to cooler to be rechilled'],
+      ['Insulated outer sleeve','Keeps ambient temperature out'],
+    ]);
+    h += mCard(mSection('Sizing','Python size depends on the number of beer lines. A 4-line python typically serves one cooler and two machines. A 6-line python serves three machines from one cooler. From the machine entry point the python connects to 5/16" or 3/8" pipe feeding into the solenoid.'));
+    return h;
+  })()},
+
+  beerlines: { title:'1.7 Beer Lines', html: (() => {
+    let h = '';
+    h += mCard(mSection('Overview','Beer lines are the pipes that carry beer through the system. The bore (internal diameter) of the pipe determines how much resistance it creates, which controls the speed at which beer travels. Choosing the correct bore for each section of the run is essential to a consistent pour.'));
+    h += mTable(['Size','Bore','Use in System'],[
+      ['3/16"','4.8mm','High resistance — used between solenoid and tap as the restriction coil. Slows beer significantly.'],
+      ['5/16"','7.9mm','Used as the jumper line between python outlet and solenoid valve.'],
+      ['3/8"','9.5mm','Lower resistance — used for longer runs inside the python where flow rate must be maintained.'],
+      ['1/2"','12.7mm','Drainage only.'],
+    ]);
+    h += mAlert('Lines accumulate yeast and bacteria over time. Regular cleaning is essential — dirty lines directly affect pour quality, taste, and product condition.');
+    return h;
+  })()},
+
+  restriction: { title:'1.8 Restriction', html: (() => {
+    let h = '';
+    h += mCard(mSection('Overview','The restriction is a length of 3/16" (4.8mm) bore pipe running in a downward spiral from the solenoid valve to the tap nozzle. Its narrow bore creates resistance that slows the beer as it travels the final section before dispense — reducing velocity at the nozzle, which reduces foam and produces a cleaner pour.'));
+    h += mTable(['Setting','Detail'],[
+      ['Standard length','55cm — balances pour speed with pour quality for most products'],
+      ['Lively / fobby products','Increase restriction length to slow beer further and reduce turbulence'],
+      ['Slow-pouring products','Decrease restriction length to allow faster flow'],
+    ]);
+    h += mAlert('Always recalibrate after changing restriction length — pour time will change. Never remove the restriction entirely. Without it beer arrives too fast and the pour becomes uncontrollable.');
+    return h;
+  })()},
+
+  solenoid: { title:'1.9 Solenoid Valve', html: (() => {
+    let h = '';
+    h += mCard(mSection('Overview','The solenoid is an electrically operated valve that controls the flow of beer into the tap. It connects to the grey box via two wires — red to red, black to black. When closed no beer passes through. When a pour is triggered it receives an electrical signal and opens instantly. When the pour ends it closes immediately, giving precise control over every dispense.'));
+    return h;
+  })()},
+
+  actuator: { title:'1.10 Actuator', html: (() => {
+    let h = '';
+    h += mCard(mSection('Overview','The actuator is an electrically operated coil, also connected to the grey box red to red and black to black. It turns clockwise and anticlockwise to raise and lower the tap platform, which moves the tap assembly and cover. Raising creates clearance for a cup to be placed. Lowering positions the nozzle correctly over the cup ready to pour. The directional nozzle disperses liquid into four directions inside the cup, reducing foam on impact.'));
+    h += mTable(['Setting','Standard Value'],[
+      ['Machine Down Time','4000ms — how long the actuator travels down'],
+      ['Machine Up Time','4300ms — how long the actuator travels up'],
+    ]);
+    h += mAlert('These values are set in the Maintenance menu. Adjust only if the platform is not reaching full up or down position.');
+    return h;
+  })()},
+
+  // ── 2. GAS & PRESSURE ───────────────────────────────────────────────
+  gauges: { title:'2. Gas & Pressure', html: (() => {
+    let h = '';
+    h += mCard(mSection('Overview','Gas pressure is the most common cause of pour problems on site. Understanding how the gas system is structured, how the two regulators work together, and what equilibrium means gives a technician the knowledge to diagnose and fix the majority of issues without escalation.'));
+
+    h += `<div class="section-label">2.1 Gas Mixes by Product</div>`;
+    h += mTable(['Product','Gas Mix'],[
+      ['Lager','60/40 (CO₂/Nitrogen)'],
+      ['Cider','60/40'],
+      ['Cocktails','60/40'],
+      ['Guinness','70/30 (CO₂/Nitrogen)'],
+      ['Asian beers','Pure CO₂'],
+      ['Spirits','Pure CO₂'],
+    ]);
+    h += mTable(['Pipe Colour','Gas'],[
+      ['White','60/40'],
+      ['Green','70/30'],
+      ['Grey','Pure CO₂'],
+      ['Purple','Nitrogen'],
+    ]);
+
+    h += `<div class="section-label">2.2 Primary Regulator</div>`;
+    h += mCard(mSection('','The primary regulator attaches directly to the gas bottle. Its job is to take the very high pressure coming out of the bottle and reduce it down to a manageable working pressure to feed the rest of the system.<br><br>The primary has two gauges: a <strong>bottle pressure gauge</strong> showing how much gas remains in the bottle, and an <strong>output pressure gauge</strong> showing what pressure is being sent into the system.'));
+    h += mTable(['Gas Type','Bottle Fitting'],[
+      ['60/40 and 70/30','Male primary regulator fitting'],
+      ['CO₂','Female primary regulator fitting'],
+    ]);
+    h += mAlert('The primary should always be set at least 10 PSI above the highest secondary output. The blow-off safety valve is set at 55 PSI — no secondary should exceed this. Standard primary output for most Boxbar installations is 55 PSI.');
+
+    h += `<div class="section-label">2.3 Secondary Regulator</div>`;
+    h += mCard(mSection('','The secondary regulator sits downstream from the primary, close to the keg. Its job is fine-tuning — it takes the primary output and dials it down precisely to the correct dispense pressure for that specific product. Most installations have one primary per gas type with multiple secondaries branching off, one per keg or product. This allows different products to run at different pressures from the same gas supply simultaneously.'));
+    h += mAlert('The secondary can never output higher pressure than the primary is sending it. If a secondary won\'t reach the pressure you need, check the primary output first.');
+
+    h += `<div class="section-label">2.4 Equilibrium</div>`;
+    h += mCard(mSection('','Every keg beer contains dissolved CO₂ that gives it carbonation and mouthfeel. The gas pressure from your regulator keeps that CO₂ in solution inside the keg. Equilibrium is the point at which the pressure being applied exactly matches the natural carbonation level of the beer at its current temperature — the CO₂ is stable, neither escaping nor being forced in further.'));
+    h += mTable(['Under Carbonation','Equilibrium','Over Carbonation'],[
+      ['Pressure too low — CO₂ escapes from beer → flat or fobbing','Pressure matches carbonation — stable beer → perfect dispense','Pressure too high — CO₂ forced into beer → fobbing or over-gassed'],
+    ]);
+    h += mAlert('Temperature is the most important variable. Cold beer holds CO₂ in solution more easily and needs less pressure. It takes approximately 4.5 hours for a product to warm from 11°C to 20°C in a 25°C ambient environment. For exact PSI values use the Boxbar PSI calculator.');
+
+    return h;
+  })()},
+
+  // ── 3. ELECTRICAL & POWER ───────────────────────────────────────────
+  power3bank: { title:'3.1 3 Bank Bar Power', html: (() => {
+    let h = '';
+    h += mCard(mSection('Overview','Power is sourced from the venue via a 32amp connection. This feeds into a 32amp to 2x16amp splitter, dividing the supply into two dedicated circuits.'));
+    h += mTable(['Circuit','Dedicated To'],[
+      ['1x 16amp','Cooler'],
+      ['1x 16amp','Power bank (which powers all three machines)'],
+    ]);
+    h += mCard(mSection('Power Bank','The power bank receives its supply from the 16amp circuit and distributes power to all three machines and the LEDs, including screens and all electrical components across the bar.'));
+    h += mTable(['Socket','Type'],[
+      ['Sockets 1–4','Battery backup — continue supplying power during temporary mains loss'],
+      ['Sockets 5–6','Mains only — no battery backup'],
+    ]);
+    h += mAlert('Always plug machines into the first four battery-backed sockets. This protects against power loss mid-service.');
+    h += mCard(mSection('Startup & Loss of Power','• If the power bank has no incoming power it will flash and beep<br>• When mains is restored it recovers automatically<br>• If it has fully died or been turned off manually, hold the power button to restart'));
+    return h;
+  })()},
+
+  powercontainer: { title:'3.3 Container Bar Power', html: (() => {
+    let h = '';
+    h += mCard(mSection('Overview','Container bars use two 32amp power cords located on the back right side. Both are always live when connected.'));
+    h += mTable(['Cord','Dedicated To'],[
+      ['1x 32amp','Lighting'],
+      ['1x 32amp','Internal sockets — power banks and coolers plug in here'],
+    ]);
+    return h;
+  })()},
+
+  greyswitch: { title:'3.4 Grey Switch / Black Box Power', html: (() => {
+    let h = '';
+    h += mCard(mSection('Overview','Each POS has one black box with one grey switch on the outside. The grey switch powers everything inside the black box including the screens. When the red indicator light is on, all components inside are receiving power.'));
+    h += mAlert('The grey switch is also used to restart a machine if it becomes unresponsive. Hold for 3 seconds to power off, then press again to power back on.');
+    return h;
+  })()},
+
+  // ── 4. INTERNET & CONNECTIVITY ─────────────────────────────────────
+  internet: { title:'4. Internet & Connectivity', html: (() => {
+    let h = '';
+    h += mCard(mSection('Overview','Internet connectivity is required for the Boxbar app to process payments and communicate with the Boxbar platform. There are three methods used on site, listed here in order of preference and reliability.'));
+
+    h += `<div class="section-label">4.1 Ethernet via TP-Link Switch</div>`;
+    h += mCard(mSection('','The most reliable method. The venue provides an ethernet connection which is fed into the Boxbar and plugged into one of the six ports on the TP-Link switch. Each remaining port runs an ethernet cable out to the black box of an individual POS device.'));
+    h += mTable(['Detail',''],[
+      ['Coverage','One TP-Link switch typically serves three POS machines'],
+      ['Active port indicator','Green light on a port = connection active and data passing'],
+      ['Port assignment','Any port can be used for any device — no fixed assignment'],
+    ]);
+    h += mAlert('If a machine shows no internet and the ethernet is plugged in, check the green light on the corresponding TP-Link port. No light = no signal reaching that port. Try a different port or cable.');
+
+    h += `<div class="section-label">4.2 Ethernet via Personal Hotspot</div>`;
+    h += mCard(mSection('','Used where a venue provides ethernet but no TP-Link switch is available. The ethernet cable plugs directly into the middle machine. That machine enables its personal hotspot and the surrounding machines connect to it via WiFi.'));
+    h += mTable(['Detail',''],[
+      ['Default hotspot password','BB2022tech! (may have been changed on site — check with manager)'],
+      ['Limitation','All machines depend on the middle machine staying online'],
+    ]);
+
+    h += `<div class="section-label">4.3 WiFi</div>`;
+    h += mCard(mSection('','Where neither ethernet option is available, machines connect directly to the venue\'s WiFi network. This is the least preferred method and the most common cause of connectivity-related payment and app issues on site.<br><br>To connect: swipe down twice from the top of the tablet screen → tap the settings cog (bottom right) → select Network → choose the network → enter the password.'));
+    h += mAlert('If a machine is struggling to connect or keeps dropping WiFi, check that the venue router is in range and that no other devices are saturating the network. Payment terminals require their own stable connection — connect them separately.');
+
+    return h;
+  })()},
+
+  // ── 5. SOFTWARE ─────────────────────────────────────────────────────
+  software: { title:'5. Software', html: (() => {
+    let h = '';
+    h += mCard(mSection('Overview','The Boxbar machines run on Android tablets locked into kiosk mode. This section covers everything a technician needs to know to set up, configure, and operate the software on site.'));
+
+    h += `<div class="section-label">5.1 Setup & Kiosk Mode</div>`;
+    h += mCard(mSection('','When a machine first powers on it behaves like a standard Android tablet. Kiosk mode locks it down so only the Boxbar app and basic settings are accessible.<br><br>If the home screen shows only the Boxbar app and Settings — kiosk mode is active. If other apps are visible, activate kiosk mode:<br><br>1. Open the Hexnode app<br>2. Tap Activate<br>3. Settings are PIN-protected — PIN provided by manager'));
+
+    h += `<div class="section-label">5.2 Linking a Machine to an Event</div>`;
+    h += mCard(mSection('If it opens on a previous event\'s Start Order screen','1. Tap Maintenance (top right)<br>2. Tap Unlink → enter the unlink code<br>3. Enter the new machine codes when prompted<br>4. The correct event Start Order screen will load'));
+    h += mCard(mSection('If it opens on the correct Start Order screen','Ready to go.'));
+
+    h += `<div class="section-label">5.3 CS & Maintenance Menus</div>`;
+    h += mTable(['Menu','Access Method'],[
+      ['CS (Customer Service)','Hidden button top-left of screen — QR code scan or PIN'],
+      ['Maintenance','Hidden button top-right of screen — QR code scan or PIN'],
+    ]);
+    h += mCard(mSection('Motion Control','Available from inside either menu. Raises and lowers the tap platform manually. Does not require login.'));
+
+    h += `<div class="section-label">5.4 Customer Service Menu</div>`;
+    h += `<div class="section-label" style="font-size:11px;padding-left:0">Pumps Tab</div>`;
+    h += mTable(['Function','What it does'],[
+      ['Create Free Order','Makes the next order free — used when a customer paid but the machine did not pour'],
+      ['Cancel Free Order','Removes an active free order'],
+      ['Test Order','Simulates a full customer order for testing — minimum £0.10'],
+      ['Sold Out','Disables a product on the machine'],
+      ['Open / Close (Taps)','Manual tap control — one set per tap. Used for testing and topping up short pours'],
+      ['Calibration','Sets the pour time per tap. Place cup → Start → Stop when full → Save'],
+      ['Keg Level / Refill','Shows estimated keg %. Press Refill to reset to 100% after a keg change'],
+      ['Pour Adjustment','Fine-tunes calibrated pour time — use + or − to adjust'],
+    ]);
+    h += `<div class="section-label" style="font-size:11px;padding-left:0">Settings Tab</div>`;
+    h += mTable(['Function','What it does'],[
+      ['Machine Open / Close','Toggles the machine between open and closed for customers'],
+      ['Auto Purge','Configures automatic purge after idle period. Idle time (e.g. 900s) + purge duration (e.g. 3000ms). Clears settled beer from lines to prevent fobbing on next pour'],
+      ['Taps Enabled','Enables or disables individual taps — Left / Both / Right'],
+    ]);
+
+    h += `<div class="section-label">5.5 Maintenance Menu</div>`;
+    h += `<div class="section-label" style="font-size:11px;padding-left:0">Machine Info</div>`;
+    h += mTable(['Field','Purpose'],[
+      ['Machine ID','ID used when linking to a new event'],
+      ['Name','Identifies this POS within the system'],
+      ['Site','The venue — used for grouping'],
+      ['Zone','Location within the venue — used for grouping'],
+      ['IP Address','The machine\'s network address — used for linking external payment devices'],
+      ['Hexnode ID','Always quote this when reporting a software issue to the development team'],
+    ]);
+    h += `<div class="section-label" style="font-size:11px;padding-left:0">Configuration Settings</div>`;
+    h += mTable(['Setting','Detail'],[
+      ['Calibration Offset','Extra ms added when two drinks pour simultaneously — only needed on certain products'],
+      ['Machine Down Time','How long actuator travels down — standard 4000ms'],
+      ['Machine Up Time','How long actuator travels up — standard 4300ms'],
+      ['Pour Opt Time','How long machine continues pouring while taps raise — only on certain products'],
+    ]);
+    h += `<div class="section-label" style="font-size:11px;padding-left:0">Calibration (scroll down in Maintenance)</div>`;
+    h += mTable(['Control','Function'],[
+      ['Start / Stop / Apply','Place cup, Start, Stop when full, Apply to save'],
+      ['Check Calibration','Pours for exactly the saved calibration duration — verifies the pour without a customer order'],
+      ['Manual Edit','Type a calibration time in ms directly — useful for copying a known working value across taps'],
+    ]);
+
+    return h;
+  })()},
+
+  // ── 6. PAYMENTS ─────────────────────────────────────────────────────
+  payments: { title:'6. Payments', html: (() => {
+    let h = '';
+    h += mCard(mSection('Overview','Payments are processed through one of two methods depending on the site setup. Payment issues on site are almost always connectivity-related — check the Internet &amp; Connectivity section and the Troubleshoot section if a payment device is not working.'));
+
+    h += `<div class="section-label">6.1 Viva</div>`;
+    h += mCard(mSection('','The Viva app handles payments directly through the Boxbar app. The contactless receiver is built into the bottom of the screen and links automatically — no additional configuration is required.<br><br>Refunds: CS → Orders → locate the order → process refund (requires last 4 digits of the customer\'s card).'));
+
+    h += `<div class="section-label">6.2 External Payment Device</div>`;
+    h += mCard(mSection('','External payment devices are typically mains-powered and connect to the POS screen over the network. To link a device, enter the POS IP address (found in Maintenance → Machine Info) into the payment device settings, or vice versa. Once linked the device communicates directly with the screen to process transactions.'));
+    h += mAlert('Payment devices must be on the same network as the machine they are paired with. If a payment device loses connectivity, check its WiFi connection first before restarting either device.');
+
+    return h;
+  })()},
+};
+
+
+
+const gasData = [
+  { brand:'Asahi Dry 5.0', rows:[
+    { gas:'CO2', vols:null, t:[19,22,25,28,32,35,38,42] },
+    { gas:'60/40', vols:2.8, t:[32,37,42,47,53,58,64,70], warn:[5,6,7] }
+  ]},
+  { brand:'Brothers Apple Cider', rows:[
+    { gas:'CO2', vols:null, t:[14,17,19,22,25,27,30,33] },
+    { gas:'60/40', vols:2.3, t:[23,28,32,36,41,46,50,55], warn:[7] }
+  ]},
+  { brand:'Carling', rows:[
+    { gas:'CO2', vols:null, t:[14,17,19,22,25,27,30,33] },
+    { gas:'60/40', vols:2.3, t:[23,28,32,36,41,46,50,55], warn:[7] }
+  ]},
+  { brand:'Carling Black Fruits', rows:[
+    { gas:'CO2', vols:null, t:[17,20,23,26,29,32,35,38] },
+    { gas:'60/40', vols:2.6, t:[28,34,38,43,48,53,58,64], warn:[6,7] }
+  ]},
+  { brand:'Cherry & Blackberry Cider', rows:[
+    { gas:'CO2', vols:null, t:[null,null,null,null,null,null,null,null] },
+    { gas:'60/40', vols:null, t:[null,null,null,null,null,null,null,null] }
+  ]},
+  { brand:'Cold River', rows:[
+    { gas:'CO2', vols:null, t:[9,11,14,17,19,22,25,28] },
+    { gas:'60/40', vols:2.15, t:[15,19,23,28,32,37,41,46] }
+  ]},
+  { brand:'Cruzcampo', rows:[
+    { gas:'CO2', vols:null, t:[13,15,18,21,23,26,29,32] },
+    { gas:'60/40', vols:2.2, t:[22,26,30,34,39,43,48,53] }
+  ]},
+  { brand:'Estrella Damm', rows:[
+    { gas:'CO2', vols:null, t:[15,18,20,23,26,29,32,35] },
+    { gas:'60/40', vols:2.4, t:[25,29,34,39,43,48,53,59], warn:[7] }
+  ]},
+  { brand:'Grolsch', rows:[
+    { gas:'CO2', vols:null, t:[13,15,18,21,24,27,30,34] },
+    { gas:'60/40', vols:2.5, t:[21,26,30,35,40,45,50,57], warn:[7] }
+  ]},
+  { brand:'Guiness', rows:[
+    { gas:'70/30', vols:null, t:[null,null,null,null,null,null,null,null] }
+  ]},
+  { brand:'Heineken', rows:[
+    { gas:'CO2', vols:null, t:[13,15,18,21,23,26,29,32] },
+    { gas:'60/40', vols:2.2, t:[22,26,30,34,39,43,48,53] }
+  ]},
+  { brand:'Inch\'s', rows:[
+    { gas:'CO2', vols:null, t:[15,18,20,23,26,29,32,35] },
+    { gas:'60/40', vols:2.4, t:[25,29,34,39,43,48,53,59], warn:[7] }
+  ]},
+  { brand:'Madri', rows:[
+    { gas:'CO2', vols:null, t:[14,17,19,22,25,28,30,33] },
+    { gas:'60/40', vols:2.3, t:[23,28,32,36,41,46,50,60], warn:[7] }
+  ]},
+  { brand:'Moretti', rows:[
+    { gas:'CO2', vols:null, t:[14,17,19,22,25,27,30,33] },
+    { gas:'60/40', vols:2.3, t:[23,28,32,36,41,46,50,55], warn:[7] }
+  ]},
+  { brand:'Peroni', rows:[
+    { gas:'CO2', vols:null, t:[17,20,23,26,29,32,35,38] },
+    { gas:'60/40', vols:2.6, t:[28,34,38,43,48,53,58,64], warn:[6,7] }
+  ]},
+  { brand:'Stowford Press', rows:[
+    { gas:'CO2', vols:null, t:[13,15,18,21,23,26,29,32] },
+    { gas:'60/40', vols:2.2, t:[22,26,30,34,39,43,48,53] }
+  ]},
+  { brand:'Strongbow Dark Fruit', rows:[
+    { gas:'CO2', vols:null, t:[14,17,19,22,25,28,30,33] },
+    { gas:'60/40', vols:2.3, t:[23,28,32,36,41,46,50,60], warn:[7] }
+  ]},
+];
+
+function renderGasRows(data) {
+  const container = document.getElementById('gasRows');
+  container.innerHTML = '';
+  data.forEach((brand, bi) => {
+    brand.rows.forEach((row, ri) => {
+      const isFirst = ri === 0;
+      const isLast = ri === brand.rows.length - 1;
+      const rowEl = document.createElement('div');
+      rowEl.style.cssText = `display:grid;grid-template-columns:1fr 52px 52px 52px 52px 52px 52px 52px 52px;border-bottom:0.5px solid var(--border);${isLast && bi < data.length-1 ? 'border-bottom:1px solid var(--pink-border);' : ''}`;
+
+      // brand / gas label cell
+      const labelCell = document.createElement('div');
+      labelCell.style.cssText = 'padding:7px 12px;display:flex;flex-direction:column;justify-content:center;';
+      if (isFirst) {
+        labelCell.innerHTML = `<span style="font-size:13px;font-weight:600;color:var(--text)">${brand.brand}</span>`;
+      }
+      const gasSpan = document.createElement('span');
+      gasSpan.style.cssText = 'font-size:11px;color:var(--muted);margin-top:1px';
+      gasSpan.textContent = row.vols ? `${row.gas} · ${row.vols} vol` : row.gas;
+      labelCell.appendChild(gasSpan);
+      rowEl.appendChild(labelCell);
+
+      // value cells
+      row.t.forEach((val, ti) => {
+        const cell = document.createElement('div');
+        const isWarn = row.warn && row.warn.includes(ti);
+        cell.style.cssText = `padding:7px 4px;text-align:center;font-size:13px;font-weight:${isWarn?'700':'400'};color:${isWarn?'#ff453a':val===null?'var(--muted)':'var(--text)'};font-family:inherit;`;
+        cell.textContent = val !== null ? val : '—';
+        rowEl.appendChild(cell);
+      });
+
+      container.appendChild(rowEl);
+    });
+  });
+}
+
+function filterGas(query) {
+  const q = query.trim().toLowerCase();
+  const noResult = document.getElementById('gasNoResult');
+  if (!q) {
+    renderGasRows(gasData);
+    noResult.style.display = 'none';
+    return;
+  }
+  const filtered = gasData.filter(b => b.brand.toLowerCase().includes(q));
+  if (filtered.length) {
+    renderGasRows(filtered);
+    noResult.style.display = 'none';
+  } else {
+    document.getElementById('gasRows').innerHTML = '';
+    noResult.style.display = 'block';
+  }
+}
+
+let locations = [];
+let locIdCounter = 0;
+let activeTab = 'event';
+
+function switchTab(tab) {
+  activeTab = tab;
+  document.getElementById('tabEvent').style.display = tab === 'event' ? 'block' : 'none';
+  document.getElementById('locationTabContent').style.display = tab !== 'event' ? 'block' : 'none';
+  renderTabBar();
+  renderLocationTabs();
+}
+
+function renderTabBar() {
+  const bar = document.getElementById('tabBar');
+  if (!bar) return;
+  const evtName = (document.getElementById('eventName')||{}).value || 'Event';
+  const mkBtn = (label, tab, isActive) => {
+    const style = `padding:8px 14px;border-radius:20px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;white-space:nowrap;transition:all 0.15s;background:${isActive?'var(--pink)':'var(--card)'};color:${isActive?'#fff':'var(--muted)'};border:0.5px solid ${isActive?'var(--pink)':'var(--border)'}`;
+    return `<button onclick="switchTab(${tab})" style="${style}">${label}</button>`;
+  };
+  let html = mkBtn(evtName, "'event'", activeTab === 'event');
+  locations.forEach(loc => {
+    html += mkBtn(loc.name || 'Location', loc.id, activeTab === loc.id);
+  });
+  html += `<button onclick="addLocation()" style="padding:8px 14px;border-radius:20px;border:0.5px dashed var(--pink-border);font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;white-space:nowrap;background:var(--pink-light);color:var(--pink)">＋</button>`;
+  bar.innerHTML = html;
+}
+
+function renderLocationTabs() {
+  const container = document.getElementById('locationTabContent');
+  if (!container) return;
+  container.innerHTML = '';
+  locations.forEach(loc => {
+    if (activeTab !== loc.id) return;
+    const div = document.createElement('div');
+    div.innerHTML = buildLocationHTML(loc);
+    container.appendChild(div);
+  });
+}
+
+function buildLocationHTML(loc) {
+  const machines = loc.machines.map((m, mIdx) => `
+    <div class="machine-card">
+      <div class="machine-top" style="display:flex;align-items:center;padding:8px 10px;gap:6px;border-bottom:0.5px solid var(--border)">
+        ${loc.machines.length > 1 ? `<button class="remove-machine-btn" onclick="removeMachine(${loc.id},${mIdx})" style="flex-shrink:0">✕</button>` : '<span style="width:22px;flex-shrink:0"></span>'}
+        <span style="font-size:13px;font-weight:700;color:var(--muted);flex-shrink:0;margin-left:2px">M</span>
+        <input type="text" placeholder="Name / number" value="${esc(m.name)}"
+          oninput="setMachineField(${loc.id},${mIdx},'name',this.value)"
+          style="flex:1;border:none;outline:none;font-size:13px;font-family:inherit;color:var(--text);background:transparent;text-align:right;min-width:0;padding:0 2px">
+      </div>
+      <div class="machine-fields">
+        <div class="field-row">
+          <span class="field-label">Product</span>
+          <input class="field-input" type="text" placeholder="e.g. Stella Artois" value="${esc(m.product)}" oninput="setMachineField(${loc.id},${mIdx},'product',this.value)">
+        </div>
+        <div class="field-row">
+          <span class="field-label">PSI</span>
+          <input class="field-input" type="number" step="0.5" placeholder="0" value="${esc(m.psi)}" oninput="setMachineField(${loc.id},${mIdx},'psi',this.value)">
+        </div>
+        <div class="field-row">
+          <span class="field-label">Tap 1</span>
+          <input class="field-input" type="text" placeholder="e.g. 12s" value="${esc(m.tap1)}" oninput="setMachineField(${loc.id},${mIdx},'tap1',this.value)">
+        </div>
+        <div class="field-row">
+          <span class="field-label">Tap 2</span>
+          <input class="field-input" type="text" placeholder="e.g. 12s" value="${esc(m.tap2)}" oninput="setMachineField(${loc.id},${mIdx},'tap2',this.value)">
+        </div>
+        <div class="field-row" style="border-bottom:none">
+          <span class="field-label">Notes</span>
+          <input class="field-input" type="text" placeholder="Any issues…" value="${esc(m.notes)}" oninput="setMachineField(${loc.id},${mIdx},'notes',this.value)">
+        </div>
+      </div>
+    </div>`).join('');
+
+  return `
+    <div class="location-wrap">
+      <div class="loc-header">
+        <span class="loc-num">📍</span>
+        <input class="loc-name-input" id="locName_${loc.id}" type="text" placeholder="Location name" value="${esc(loc.name)}"
+          oninput="setLocField(${loc.id},'name',this.value);renderTabBar()">
+        <button class="remove-loc-btn" onclick="removeLocation(${loc.id})">✕</button>
+      </div>
+
+      <div class="loc-details">
+        <div class="field-row">
+          <span class="field-label">Product temp</span>
+          <input class="field-input" type="number" step="0.1" placeholder="0.0" value="${esc(loc.productTemp)}" oninput="setLocField(${loc.id},'productTemp',this.value)">
+          <span class="field-unit">°C</span>
+        </div>
+        <div class="field-row pill-row">
+          <span class="field-label">Fresh kegs</span>
+          <div class="pill-group kegs_${loc.id}">
+            <button class="pill ${loc.freshKegs==='Yes'?'active':''}" data-val="Yes" onclick="setPill(${loc.id},'freshKegs','Yes','kegs')">Yes</button>
+            <button class="pill ${loc.freshKegs==='No'?'active':''}" data-val="No" onclick="setPill(${loc.id},'freshKegs','No','kegs')">No</button>
+          </div>
+        </div>
+        <div class="field-row">
+          <span class="field-label">Internet</span>
+          <div class="select-wrap">
+            <select class="field-select" onchange="setLocField(${loc.id},'internet',this.value)">
+              <option value="" ${!loc.internet?'selected':''}>Select…</option>
+              <option value="Ethernet" ${loc.internet==='Ethernet'?'selected':''}>Ethernet</option>
+              <option value="WiFi" ${loc.internet==='WiFi'?'selected':''}>WiFi</option>
+              <option value="Hotspot" ${loc.internet==='Hotspot'?'selected':''}>Hotspot</option>
+            </select>
+            <span class="select-caret">›</span>
+          </div>
+        </div>
+        <div class="field-row pill-row">
+          <span class="field-label">Test payment</span>
+          <div class="pill-group pay_${loc.id}">
+            <button class="pill ${loc.testPayment==='Pass'?'active':''}" data-val="Pass" onclick="setPill(${loc.id},'testPayment','Pass','pay')">Pass</button>
+            <button class="pill ${loc.testPayment==='Fail'?'active':''}" data-val="Fail" onclick="setPill(${loc.id},'testPayment','Fail','pay')">Fail</button>
+          </div>
+        </div>
+        <div class="field-row pill-row" style="align-items:center">
+          <span class="field-label">Staff trained</span>
+          <div style="flex:1;display:flex;align-items:center;justify-content:flex-end;gap:6px;flex-wrap:wrap">
+            <div class="pill-group staff_${loc.id}">
+              <button class="pill ${loc.staffTrained==='FOH'?'active':''}" data-val="FOH" onclick="setPill(${loc.id},'staffTrained','FOH','staff')">FOH</button>
+              <button class="pill ${loc.staffTrained==='FOH & BOH'?'active':''}" data-val="FOH & BOH" onclick="setPill(${loc.id},'staffTrained','FOH & BOH','staff')">FOH &amp; BOH</button>
+              <button class="pill ${loc.staffTrained==='N/A'?'active':''}" data-val="N/A" onclick="setPill(${loc.id},'staffTrained','N/A','staff')">N/A</button>
+            </div>
+            <input type="number" min="0" placeholder="Qty" value="${esc(loc.staffCount)}"
+              oninput="setLocField(${loc.id},'staffCount',this.value)"
+              style="width:52px;border:0.5px solid var(--border);border-radius:6px;background:var(--card2);color:var(--text);font-size:13px;font-family:inherit;padding:5px 6px;text-align:center;outline:none">
+          </div>
+        </div>
+        <div style="border-top:0.5px solid var(--border)">
+          <textarea class="notes-area" placeholder="Location notes…"
+            oninput="setLocField(${loc.id},'notes',this.value)">${esc(loc.notes)}</textarea>
+        </div>
+      </div>
+
+      <div class="machines-wrap">
+        <div class="machines-label">Machines</div>
+        ${machines}
+        <div class="machines-footer">
+          <button class="add-machine-btn" onclick="addMachine(${loc.id})">＋ Add Machine</button>
+        </div>
+      </div>
+
+      <div class="actions-area" style="margin-top:10px">
+        <div class="btn-row">
+          <button class="action-btn btn-ghost" onclick="showSingleLocPreview(${loc.id})">👁 Preview</button>
+          <button class="action-btn btn-clear" onclick="removeLocation(${loc.id})">🗑 Remove</button>
+        </div>
+        <button class="action-btn btn-copy" onclick="copySingleLoc(${loc.id})">📋 Copy ${esc(loc.name || 'Location')} to Clipboard</button>
+      </div>
+    </div>`;
+}
+
+function setToday() {
+  const d = new Date();
+  const pad = n => String(n).padStart(2,'0');
+  document.getElementById('eventDate').value = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+}
+
+function makeMachine(num) { return { num, name:'', product:'', psi:'', tap1:'', tap2:'', notes:'' }; }
+
+function addLocation() {
+  const id = ++locIdCounter;
+  locations.push({ id, name:'', internet:'', staffTrained:'', staffCount:'', freshKegs:'', productTemp:'', testPayment:'', notes:'', machines:[makeMachine(1),makeMachine(2),makeMachine(3)] });
+  activeTab = id;
+  document.getElementById('tabEvent').style.display = 'none';
+  document.getElementById('locationTabContent').style.display = 'block';
+  renderTabBar();
+  renderLocationTabs();
+  setTimeout(() => {
+    const el = document.getElementById('locName_'+id);
+    if (el) { el.focus(); el.scrollIntoView({ behavior:'smooth', block:'center' }); }
+  }, 60);
+}
+
+function removeLocation(id) {
+  locations = locations.filter(l => l.id !== id);
+  if (activeTab === id) {
+    activeTab = locations.length ? locations[locations.length-1].id : 'event';
+  }
+  document.getElementById('tabEvent').style.display = activeTab === 'event' ? 'block' : 'none';
+  document.getElementById('locationTabContent').style.display = activeTab !== 'event' ? 'block' : 'none';
+  renderTabBar();
+  renderLocationTabs();
+}
+
+function addMachine(locId) {
+  const loc = locations.find(l => l.id === locId);
+  if (!loc) return;
+  loc.machines.push(makeMachine(loc.machines.length + 1));
+  renderLocationTabs();
+}
+
+function removeMachine(locId, mIdx) {
+  const loc = locations.find(l => l.id === locId);
+  if (!loc || loc.machines.length <= 1) return;
+  loc.machines.splice(mIdx, 1);
+  loc.machines.forEach((m,i) => m.num = i+1);
+  renderLocationTabs();
+}
+
+function setLocField(id, field, val) {
+  const loc = locations.find(l => l.id === id);
+  if (loc) loc[field] = val;
+}
+function setMachineField(locId, mIdx, field, val) {
+  const loc = locations.find(l => l.id === locId);
+  if (loc && loc.machines[mIdx]) loc.machines[mIdx][field] = val;
+}
+function setPill(locId, field, val, groupCls) {
+  setLocField(locId, field, val);
+  document.querySelectorAll(`.${groupCls}_${locId} .pill`).forEach(p => {
+    p.classList.toggle('active', p.dataset.val === val);
+  });
+}
+
+function fmtDate(val) {
+  if (!val) return '—';
+  const [y,m,d] = val.split('-');
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return `${parseInt(d)} ${months[parseInt(m)-1]} ${y}`;
+}
+function fmtTime(val) {
+  if (!val) return '—';
+  const [h,m] = val.split(':');
+  let hr = parseInt(h); const ap = hr >= 12 ? 'PM' : 'AM'; hr = hr % 12 || 12;
+  return `${hr}:${m} ${ap}`;
+}
+
+function buildSingleLocText(loc) {
+  const locName = loc.name || 'Location';
+  let r = `📍 ${locName}\n`;
+  r += `Product Temperature: ${loc.productTemp ? loc.productTemp + '°C' : ''}\n`;
+  r += `Fresh Kegs: ${loc.freshKegs || ''}\n`;
+  r += `Internet: ${loc.internet || ''}\n`;
+  r += `Test Payment: ${loc.testPayment || ''}\n`;
+  const staffStr = [loc.staffTrained, loc.staffCount].filter(Boolean).join(' × ');
+  r += `Staff Trained: ${staffStr}\n`;
+  r += `Notes: ${loc.notes || ''}\n`;
+  loc.machines.forEach(m => {
+    r += `\u2500`.repeat(22) + '\n';
+    r += `M${m.name ? ' ' + m.name : ''}\n`;
+    r += `Product: ${m.product || ''}\n`;
+    r += `PSI: ${m.psi || ''}\n`;
+    r += `Tap 1: ${m.tap1 || ''}\n`;
+    r += `Tap 2: ${m.tap2 || ''}\n`;
+    if (m.notes) r += `Notes: ${m.notes}\n`;
+  });
+  return r;
+}
+
+function buildEventReport() {
+  const name  = gv('eventName') || '—';
+  const venue = gv('venue') || '—';
+  const date  = fmtDate(gv('eventDate'));
+  const time  = fmtTime(gv('arrivalTime'));
+  const notes = gv('eventNotes');
+  let r = `🍺 PRE EVENT REPORT\n${'─'.repeat(28)}\n`;
+  r += `Event:    ${name}\n`;
+  r += `Venue:    ${venue}\n`;
+  r += `Date:     ${date}\n`;
+  r += `Arrival:  ${time}\n`;
+  if (notes) r += `\nNotes:\n${notes}\n`;
+  r += `${'─'.repeat(28)}\nSent via Boxbar Field Report`;
+  return r;
+}
+
+function gv(id) { return (document.getElementById(id)||{}).value||''; }
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function showEventPreview() {
+  document.getElementById('previewText').textContent = buildEventReport();
+  document.getElementById('previewCopyBtn').onclick = () => { copyText(buildEventReport()); closePreview(); };
+  document.getElementById('previewModal').classList.add('open');
+}
+function showSingleLocPreview(id) {
+  const loc = locations.find(l => l.id === id);
+  if (!loc) return;
+  const txt = buildSingleLocText(loc);
+  document.getElementById('previewText').textContent = txt;
+  document.getElementById('previewCopyBtn').onclick = () => { copyText(txt); closePreview(); };
+  document.getElementById('previewModal').classList.add('open');
+}
+function closePreview() { document.getElementById('previewModal').classList.remove('open'); }
+function openClear() { document.getElementById('clearModal').classList.add('open'); }
+function closeClear() { document.getElementById('clearModal').classList.remove('open'); }
+function clearAll() {
+  ['eventName','venue','eventDate','arrivalTime','eventNotes'].forEach(id => { const el = document.getElementById(id); if(el) el.value=''; });
+  locations=[]; locIdCounter=0; activeTab='event';
+  document.getElementById('tabEvent').style.display = 'block';
+  document.getElementById('locationTabContent').style.display = 'none';
+  renderTabBar(); closeClear();
+}
+function copyText(txt) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(txt).then(showToast).catch(()=>fbCopy(txt));
+  } else { fbCopy(txt); }
+}
+function copyEventReport() { copyText(buildEventReport()); }
+function copySingleLoc(id) { const loc = locations.find(l => l.id === id); if (loc) copyText(buildSingleLocText(loc)); }
+
+
+function fbCopy(txt) {
+  const ta=document.createElement('textarea'); ta.value=txt; ta.style.cssText='position:fixed;opacity:0';
+  document.body.appendChild(ta); ta.focus(); ta.select();
+  try{document.execCommand('copy');showToast();}catch(e){}
+  document.body.removeChild(ta);
+}
+function showToast() {
+  const el=document.getElementById('toast');
+  el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),2400);
+}
+
+// Location added on first visit to report page
+// Init gas chart and troubleshoot index
+renderGasRows(gasData);
+tsRenderL1();
+renderTabBar();
+</script>
+</body>
+</html>
