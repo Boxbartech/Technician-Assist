@@ -253,23 +253,23 @@ header {
 .home-big-btn {
   display: flex;
   align-items: center;
-  justify-content: center;
   width: 100%;
-  height: 64px;
-  padding: 0 20px;
+  padding: 14px 20px;
   background: var(--card);
   border: 0.5px solid var(--border);
-  border-radius: 50px;
+  border-radius: 18px;
   cursor: pointer;
   font-family: inherit;
-  text-align: center;
+  text-align: left;
   transition: opacity 0.12s, transform 0.1s;
+  gap: 0;
 }
 .home-big-btn:active { opacity: 0.7; transform: scale(0.985); }
 .home-big-btn--dim { opacity: 0.4; cursor: default; }
 .home-big-icon { display: none; }
 .home-big-label { font-size: 15px; font-weight: 600; color: var(--text); line-height: 1.3; }
-.home-big-arr { display: none; }
+.home-big-desc { font-size: 12px; color: var(--muted); margin-top: 3px; line-height: 1.4; font-weight: 400; }
+.home-big-arr { margin-left: auto; padding-left: 12px; font-size: 20px; color: var(--muted); flex-shrink: 0; display: block; }
 
 /* keep old nav styles but hide home-logo-area */
 .home-logo-area { display: none; }
@@ -305,32 +305,42 @@ header {
 <div style="padding:16px 16px;display:flex;flex-direction:column;gap:16px">
 
   <button class="home-big-btn" onclick="goToReport()">
-    <span class="home-big-icon">📋</span>
-    <span class="home-big-label">Create a Pre Event Report</span>
+    <div style="flex:1;min-width:0">
+      <span class="home-big-label">Pre Event Report</span>
+      <div class="home-big-desc">Fill in pressures, pour times and other info to share with the events team</div>
+    </div>
     <span class="home-big-arr">›</span>
   </button>
 
   <button class="home-big-btn" onclick="window.open('https://docs.google.com/forms/d/1yUYoy1ZTbTkZizhUfhLOwfCS0SXDNd0CMCpe0nP-Mkg/edit?usp=forms_home&ths=true','_blank')">
-    <span class="home-big-icon">📄</span>
-    <span class="home-big-label">Post Event Report</span>
+    <div style="flex:1;min-width:0">
+      <span class="home-big-label">Post Event Report</span>
+      <div class="home-big-desc">Fill in after every event to log what happened on site</div>
+    </div>
     <span class="home-big-arr">›</span>
   </button>
 
   <button class="home-big-btn" onclick="goToGas()">
-    <span class="home-big-icon">🍺</span>
-    <span class="home-big-label">PSI Calculator</span>
+    <div style="flex:1;min-width:0">
+      <span class="home-big-label">PSI Calculator</span>
+      <div class="home-big-desc">Find a recommended PSI for your product and temperature</div>
+    </div>
     <span class="home-big-arr">›</span>
   </button>
 
   <button class="home-big-btn" onclick="goToTroubleshoot()">
-    <span class="home-big-icon">🔧</span>
-    <span class="home-big-label">Troubleshoot</span>
+    <div style="flex:1;min-width:0">
+      <span class="home-big-label">Troubleshoot</span>
+      <div class="home-big-desc">Identify and resolve an issue on site</div>
+    </div>
     <span class="home-big-arr">›</span>
   </button>
 
   <button class="home-big-btn" onclick="goToManual()">
-    <span class="home-big-icon">📖</span>
-    <span class="home-big-label">Technicians Manual</span>
+    <div style="flex:1;min-width:0">
+      <span class="home-big-label">Technicians Manual</span>
+      <div class="home-big-desc">Learn about the components of the machine</div>
+    </div>
     <span class="home-big-arr">›</span>
   </button>
 
@@ -459,6 +469,11 @@ header {
   <button class="back-btn" onclick="goHome()">‹ Home</button>
 </header>
 
+<!-- GUIDANCE NOTE -->
+<div style="margin:10px 12px 0;background:rgba(233,30,140,0.10);border:0.5px solid var(--pink-border);border-radius:var(--radius);padding:12px 14px">
+  <p style="font-size:13px;color:var(--pink);font-weight:600;line-height:1.55">PSI values are guidance only. Always verify against pour quality and adjust based on product temperature and line setup.</p>
+</div>
+
 <!-- CALCULATOR -->
 <div class="section-label">Calculator</div>
 <div class="group">
@@ -485,13 +500,27 @@ header {
       <select id="calcTemp" class="field-select" onchange="runCalc()">
         <option value="">Select…</option>
         <option value="0">2°C</option>
-        <option value="1">5°C</option>
-        <option value="2">8°C</option>
-        <option value="3">11°C</option>
-        <option value="4">14°C</option>
-        <option value="5">17°C</option>
-        <option value="6">20°C</option>
-        <option value="7">23°C</option>
+        <option value="1">3°C</option>
+        <option value="2">4°C</option>
+        <option value="3">5°C</option>
+        <option value="4">6°C</option>
+        <option value="5">7°C</option>
+        <option value="6">8°C</option>
+        <option value="7">9°C</option>
+        <option value="8">10°C</option>
+        <option value="9">11°C</option>
+        <option value="10">12°C</option>
+        <option value="11">13°C</option>
+        <option value="12">14°C</option>
+        <option value="13">15°C</option>
+        <option value="14">16°C</option>
+        <option value="15">17°C</option>
+        <option value="16">18°C</option>
+        <option value="17">19°C</option>
+        <option value="18">20°C</option>
+        <option value="19">21°C</option>
+        <option value="20">22°C</option>
+        <option value="21">23°C</option>
       </select>
       <span class="select-caret">›</span>
     </div>
@@ -504,17 +533,17 @@ header {
     <div style="color:rgba(255,255,255,0.75);font-size:11px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;margin-bottom:6px">Recommended PSI</div>
     <div id="calcPSIValue" style="color:#fff;font-size:52px;font-weight:700;line-height:1;letter-spacing:-2px">—</div>
     <div id="calcPSILabel" style="color:rgba(255,255,255,0.75);font-size:13px;margin-top:8px"></div>
+    <div id="calcUserReported" style="display:none;margin-top:12px;padding-top:12px;border-top:0.5px solid rgba(255,255,255,0.25)">
+      <p style="color:#fff;font-size:13px;font-weight:700;line-height:1.5;margin-bottom:8px">User-reported volumes — apply with caution. Start at the lower end and adjust based on pour quality.</p>
+      <button id="calcSourceBtn" onclick="toggleCalcSource()" style="background:rgba(255,255,255,0.2);border:0.5px solid rgba(255,255,255,0.35);border-radius:6px;color:#fff;font-size:12px;font-weight:600;font-family:inherit;padding:5px 12px;cursor:pointer">View source</button>
+      <div id="calcSourceText" style="display:none;margin-top:10px;background:rgba(0,0,0,0.15);border-radius:6px;padding:10px 12px;font-size:12px;color:rgba(255,255,255,0.85);line-height:1.6;text-align:left"></div>
+    </div>
   </div>
 </div>
 <div id="calcWarn" style="display:none;margin:8px 12px 0;background:rgba(255,69,58,0.12);border:0.5px solid rgba(255,69,58,0.3);border-radius:var(--radius);padding:10px 14px">
   <p style="color:#ff453a;font-size:13px;font-weight:600">⚠️ Above recommended range — check your line setup</p>
 </div>
 <div id="calcNoData" style="display:none;margin:8px 12px 0;background:var(--card);border:0.5px solid var(--border);border-radius:var(--radius);padding:14px;text-align:center;color:var(--muted);font-size:14px">No data available for this combination</div>
-
-<!-- GUIDANCE NOTE -->
-<div style="margin:10px 12px 0;background:var(--card);border:0.5px solid var(--border);border-radius:var(--radius);padding:12px 14px">
-  <p style="font-size:12px;color:var(--muted);line-height:1.65">⚠️ <strong style="color:var(--text)">PSI values are guidance only.</strong></p>
-</div>
 
 <!-- BROWSE CHART BUTTON -->
 <div style="margin:10px 12px 32px">
@@ -529,18 +558,32 @@ header {
       <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:16px;pointer-events:none">🔍</span>
     </div>
     <div style="background:var(--card);border:0.5px solid var(--border);border-radius:var(--radius);overflow:hidden">
-      <div style="display:grid;grid-template-columns:1fr 52px 52px 52px 52px 52px 52px 52px 52px;background:var(--card2);border-bottom:0.5px solid var(--border)">
+      <div style="display:grid;grid-template-columns:120px repeat(22,36px);background:var(--card2);border-bottom:0.5px solid var(--border);overflow-x:auto">
         <div style="padding:8px 12px;font-size:11px;font-weight:700;letter-spacing:0.6px;text-transform:uppercase;color:var(--muted)">Product / Gas</div>
-        <div style="padding:8px 4px;font-size:11px;font-weight:700;text-align:center;color:var(--pink)">2°</div>
-        <div style="padding:8px 4px;font-size:11px;font-weight:700;text-align:center;color:var(--pink)">5°</div>
-        <div style="padding:8px 4px;font-size:11px;font-weight:700;text-align:center;color:var(--pink)">8°</div>
-        <div style="padding:8px 4px;font-size:11px;font-weight:700;text-align:center;color:var(--pink)">11°</div>
-        <div style="padding:8px 4px;font-size:11px;font-weight:700;text-align:center;color:var(--pink)">14°</div>
-        <div style="padding:8px 4px;font-size:11px;font-weight:700;text-align:center;color:var(--pink)">17°</div>
-        <div style="padding:8px 4px;font-size:11px;font-weight:700;text-align:center;color:var(--pink)">20°</div>
-        <div style="padding:8px 4px;font-size:11px;font-weight:700;text-align:center;color:var(--pink)">23°</div>
+        <div style="padding:8px 2px;font-size:10px;font-weight:700;text-align:center;color:var(--pink)">2°</div>
+        <div style="padding:8px 2px;font-size:10px;font-weight:700;text-align:center;color:var(--pink)">3°</div>
+        <div style="padding:8px 2px;font-size:10px;font-weight:700;text-align:center;color:var(--pink)">4°</div>
+        <div style="padding:8px 2px;font-size:10px;font-weight:700;text-align:center;color:var(--pink)">5°</div>
+        <div style="padding:8px 2px;font-size:10px;font-weight:700;text-align:center;color:var(--pink)">6°</div>
+        <div style="padding:8px 2px;font-size:10px;font-weight:700;text-align:center;color:var(--pink)">7°</div>
+        <div style="padding:8px 2px;font-size:10px;font-weight:700;text-align:center;color:var(--pink)">8°</div>
+        <div style="padding:8px 2px;font-size:10px;font-weight:700;text-align:center;color:var(--pink)">9°</div>
+        <div style="padding:8px 2px;font-size:10px;font-weight:700;text-align:center;color:var(--pink)">10°</div>
+        <div style="padding:8px 2px;font-size:10px;font-weight:700;text-align:center;color:var(--pink)">11°</div>
+        <div style="padding:8px 2px;font-size:10px;font-weight:700;text-align:center;color:var(--pink)">12°</div>
+        <div style="padding:8px 2px;font-size:10px;font-weight:700;text-align:center;color:var(--pink)">13°</div>
+        <div style="padding:8px 2px;font-size:10px;font-weight:700;text-align:center;color:var(--pink)">14°</div>
+        <div style="padding:8px 2px;font-size:10px;font-weight:700;text-align:center;color:var(--pink)">15°</div>
+        <div style="padding:8px 2px;font-size:10px;font-weight:700;text-align:center;color:var(--pink)">16°</div>
+        <div style="padding:8px 2px;font-size:10px;font-weight:700;text-align:center;color:var(--pink)">17°</div>
+        <div style="padding:8px 2px;font-size:10px;font-weight:700;text-align:center;color:var(--pink)">18°</div>
+        <div style="padding:8px 2px;font-size:10px;font-weight:700;text-align:center;color:var(--pink)">19°</div>
+        <div style="padding:8px 2px;font-size:10px;font-weight:700;text-align:center;color:var(--pink)">20°</div>
+        <div style="padding:8px 2px;font-size:10px;font-weight:700;text-align:center;color:var(--pink)">21°</div>
+        <div style="padding:8px 2px;font-size:10px;font-weight:700;text-align:center;color:var(--pink)">22°</div>
+        <div style="padding:8px 2px;font-size:10px;font-weight:700;text-align:center;color:var(--pink)">23°</div>
       </div>
-      <div id="gasRows"></div>
+      <div id="gasRows" style="overflow-x:auto"></div>
       <div id="gasNoResult" style="display:none;padding:24px;text-align:center;color:var(--muted);font-size:14px">No products found</div>
     </div>
     <p style="font-size:11px;color:var(--muted);line-height:1.6;text-align:center;margin-top:10px">Red values indicate pressures above recommended range.<br>Vols = volumes of CO₂. 60/40 = mixed gas blend.</p>
@@ -720,26 +763,59 @@ function storeCause(cause, l2id, l1id) {
 function tsSearchFilter(q) {
   const lq = q.trim().toLowerCase();
   if (!lq) { tsRenderL1(); return; }
-  const results = [];
+
+  const l2Matches = [];
+  const causeResults = [];
+  const relatedL1Ids = new Set();
+  const l2MatchIds = new Set();
+
   tsTree.forEach(l1 => {
-    l1.children.forEach(l2 => {
-      l2.causes.forEach(c => {
-        if (c.label.toLowerCase().includes(lq) || l1.label.toLowerCase().includes(lq) || l2.label.toLowerCase().includes(lq)) {
-          results.push({ cause: c, l2id: l2.id, l1id: l1.id, l2label: l2.label, l1label: l1.label });
+    const children = l1.children || [];
+    children.forEach(l2 => {
+      const l2Hit = l2.label.toLowerCase().includes(lq);
+      if (l2Hit) { l2Matches.push({ l2, l1 }); l2MatchIds.add(l2.id); }
+      const causes = l2.causes || [];
+      causes.forEach(c => {
+        if (c.label.toLowerCase().includes(lq) || l2.label.toLowerCase().includes(lq) || l1.label.toLowerCase().includes(lq)) {
+          causeResults.push({ cause: c, l2id: l2.id, l1id: l1.id, l2label: l2.label, l1label: l1.label });
+          relatedL1Ids.add(l1.id);
         }
       });
     });
   });
+
   const el = document.getElementById('tsL1List');
-  if (!results.length) { el.innerHTML = '<div class="ts-no-result">No results found.<br>Try different keywords.</div>'; return; }
+  if (!l2Matches.length && !causeResults.length) {
+    el.innerHTML = '<div class="ts-no-result">No results found.<br>Try different keywords.</div>';
+    return;
+  }
+
   tsCauseStore = {}; tsCauseIdx = 0;
-  el.innerHTML = `<div class="ts-section-lbl" style="padding:10px 0 6px">Search results</div>` +
-    results.map(r => {
+  let html = '';
+
+  // Section 1 — L2 category matches (the sub-category button)
+  if (l2Matches.length) {
+    html += `<div class="ts-section-lbl" style="padding:10px 0 6px">Problem types</div>`;
+    html += l2Matches.map(({ l2, l1 }) => `
+      <div class="ts-symptom-card" onclick="goToL3('${l2.id}','${l1.id}',false)">
+        <div class="ts-symptom-header">
+          <div style="flex:1;min-width:0">
+            <div class="ts-symptom-title">${l2.label}</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px">${l1.label}</div>
+          </div>
+          <span class="ts-chevron">›</span>
+        </div>
+      </div>`).join('');
+  }
+
+  // Section 2 — individual cause matches (excluding causes already surfaced via an L2 match)
+  const filteredCauses = causeResults.filter(r => !l2MatchIds.has(r.l2id));
+  if (filteredCauses.length) {
+    html += `<div class="ts-section-lbl" style="padding:10px 0 6px">Individual fixes</div>`;
+    html += filteredCauses.map(r => {
       const key = storeCause(r.cause, r.l2id, r.l1id);
-      const htBadge = r.cause.hts && r.cause.hts.length ? r.cause.hts[0] : r.cause.escalate ? '↑' : '→';
       return `<div class="ts-symptom-card" onclick="launchCause('${key}')">
         <div class="ts-symptom-header">
-          <div class="ts-num" style="font-size:9px">${htBadge}</div>
           <div style="flex:1;min-width:0">
             <div class="ts-symptom-title">${r.cause.label}</div>
             <div style="font-size:11px;color:var(--muted);margin-top:2px">${r.l1label} › ${r.l2label}</div>
@@ -748,6 +824,22 @@ function tsSearchFilter(q) {
         </div>
       </div>`;
     }).join('');
+  }
+
+  // Section 3 — related L1 categories
+  const relatedL1s = tsTree.filter(l1 => relatedL1Ids.has(l1.id));
+  if (relatedL1s.length) {
+    html += `<div class="ts-section-lbl" style="padding:10px 0 6px">Related categories</div>`;
+    html += relatedL1s.map(l1 => `
+      <div class="ts-symptom-card" onclick="goToL2('${l1.id}')">
+        <div class="ts-symptom-header">
+          <span class="ts-symptom-title">${l1.label}</span>
+          <span class="ts-chevron">›</span>
+        </div>
+      </div>`).join('');
+  }
+
+  el.innerHTML = html;
 }
 
 function launchCause(key) {
@@ -949,7 +1041,7 @@ const tsTree = [
     { id:'2A', label:'Fobbing / Excessive Foam / Large Head', causes:[
       {label:'Is the correct gas type connected for this product?', hts:['HT-09'], manual:'gas'},
       {label:'Is the gas pressure set correctly for this product and temperature? Both too high and too low can cause fobbing.', hts:['HT-09','HT-10'], manual:'gas'},
-      {label:'Is there a gas leak causing pressure instability? Turn off gas at bottle if suspected and see Section 5.', hts:['HT-29'], manual:'gas'},
+      {label:'Is there a gas leak causing pressure instability? Turn off gas at the bottle if suspected.', hts:['HT-29'], manual:'gas'},
       {label:'Is the keg warm or has it been recently moved and agitated?', hts:['HT-11'], manual:'keg'},
       {label:'Is the keg out of date? Check the best before on the top or side of the keg.', hts:['HT-12'], manual:'keg'},
       {label:'Is the keg faulty? If a fresh in-date keg is still fobbing, the product itself may be the cause.', hts:['HT-03'], manual:'keg'},
@@ -963,8 +1055,8 @@ const tsTree = [
       {label:'Is the tap dangling too high above the cup when the platform is fully down?', hts:['HT-18'], manual:'actuator'},
       {label:'Are the tap or nozzles dirty?', hts:['HT-19'], manual:'solenoid'},
       {label:'Is there less than 3 inches of pipe between any two fittings in the line?', hts:['HT-23'], manual:'beerlines'},
-      {label:'Is there a product leak somewhere in the line on that tap\'s side? A leaking line reduces pressure and causes fobbing. See Section 4: Product Leaks.', hts:['HT-21','HT-22'], manual:'beerlines'},
-      {label:'Is the cooler water bath discoloured with product? This may indicate a split coil — see Section 7B.', hts:['HT-43'], manual:'cooler'},
+      {label:'Is there a product leak somewhere in the line on that tap\'s side? A leaking line reduces pressure and causes fobbing.', hts:['HT-21','HT-22'], manual:'beerlines'},
+      {label:'Is the cooler water bath discoloured with product? This may indicate a split coil.', hts:['HT-43'], manual:'cooler'},
     ], escalate:'Contact your manager with the Kit Number.'},
     { id:'2B', label:'Pouring Slowly', causes:[
       {label:'Is the gas bottle getting low? Check the bottle pressure gauge on the primary.', hts:['HT-04'], manual:'gas'},
@@ -980,25 +1072,34 @@ const tsTree = [
     { id:'2C', label:'Beer Flat or Undercarbonated', causes:[
       {label:'Is the gas pressure set too low? Too little pressure allows CO₂ to escape from the beer.', hts:['HT-09'], manual:'gas'},
       {label:'Is the gas bottle nearly empty?', hts:['HT-04'], manual:'gas'},
-      {label:'Is there a gas leak? Turn off gas at the bottle if suspected and see Section 5.', hts:['HT-29'], manual:'gas'},
+      {label:'Is there a gas leak? Turn off gas at the bottle if suspected.', hts:['HT-29'], manual:'gas'},
       {label:'Is the keg out of date?', hts:['HT-12'], manual:'keg'},
     ], escalate:'Contact your manager with the Site and Machine Number.'},
-    { id:'2D', label:'Underpouring — Drinks Not Filling Correctly', causes:[
+    { id:'2D', label:'Underpouring', causes:[
       {label:'Have the taps been calibrated recently? Calibration is the most common cause of underpouring and should be checked first.', hts:['HT-39'], manual:'software'},
       {label:'Is the gas pressure correct and stable?', hts:['HT-09'], manual:'gas'},
-      {label:'Is the PSI staying stable? If pressure keeps moving see Section 5F.', hts:['HT-06'], manual:'gas'},
+      {label:'Is the secondary locking nut tight? A loose nut lets the PSI creep.', hts:['HT-06'], manual:'gas'},
       {label:'Are two drinks pouring simultaneously and one consistently short? A calibration offset may be needed.', hts:['HT-39'], manual:'software'},
     ], escalate:'Contact your manager with the Site and Machine Number.'},
     { id:'2E', label:'Beer Foaming When Changing Kegs', causes:[
       {label:'Is the keg fresh and unbroached? A previously connected keg can fob on reconnection.', hts:['HT-03'], manual:'keg'},
       {label:'Have you pulled through 2–3 pints to drain after connecting the new keg?', hts:['HT-03'], manual:'keg'},
-      {label:'Is there a non-return valve on the coupler? Without one, air enters the line during keg changes and more pull-throughs will be needed — typically 4–5 pints rather than 2–3.', hts:['HT-02'], manual:'coupler'},
+      {label:'Is there a non-return valve on the coupler? Without one, air enters the line during keg changes and more pull-throughs will be needed — typically 4–5 pints rather than 2–3.', hts:['HT-55'], manual:'coupler'},
       {label:'Is the pressure set correctly for the product temperature?', hts:['HT-09'], manual:'gas'},
     ], escalate:'Contact your manager with the Site and Machine Number.'},
     { id:'2F', label:'Beer Foaming After Machine Has Been Sat Idle', causes:[
       {label:'Have the kegs warmed during the idle period?', hts:['HT-11','HT-09'], manual:'keg'},
       {label:'Has the gas pressure drifted while idle?', hts:['HT-09'], manual:'gas'},
       {label:'Is Auto Purge configured and active? It automatically clears settled beer before the next pour.', hts:['HT-40'], manual:'software'},
+    ], escalate:'Contact your manager with the Site and Machine Number.'},
+  ]},
+
+  { id:'2U', icon:'', label:'Underpouring', children:[
+    { id:'2UA', label:'Underpouring', causes:[
+      {label:'Have the taps been calibrated recently? Calibration is the most common cause of underpouring and should be checked first.', hts:['HT-39'], manual:'software'},
+      {label:'Is the gas pressure correct and stable?', hts:['HT-09'], manual:'gas'},
+      {label:'Is the secondary locking nut tight? A loose nut lets the PSI creep.', hts:['HT-06'], manual:'gas'},
+      {label:'Are two drinks pouring simultaneously and one consistently short? A calibration offset may be needed.', hts:['HT-39'], manual:'software'},
     ], escalate:'Contact your manager with the Site and Machine Number.'},
   ]},
 
@@ -1036,20 +1137,26 @@ const tsTree = [
       {label:'Has the solenoid got a black rubber ring sealing the bottom from airflow?', hts:['HT-37'], manual:'solenoid'},
       {label:'Does the solenoid need full replacement?', hts:['HT-37'], manual:'solenoid'},
     ], escalate:'Contact your manager with the Site and Machine Number.'},
+    { id:'4E', label:'Drain Connection Leaking', causes:[
+      {label:'Is the drain pipe fully pushed into the fitting?', hts:['HT-22'], manual:'beerlines'},
+      {label:'Is the fitting dirty?', hts:['HT-23'], manual:'beerlines'},
+      {label:'Are the fitting teeth worn?', hts:['HT-24'], manual:'beerlines'},
+      {label:'Is the drain line blocked, causing back-pressure forcing liquid out at the fitting?', hts:['HT-30'], manual:'beerlines'},
+      {label:'Is the drain line kinked?', hts:['HT-07'], manual:'beerlines'},
+    ]},
   ]},
 
   { id:'5', icon:'', label:'Gas Leaks',
-    tip:'Apply soapy water to all gas connections to pinpoint the exact leak location, then work through the relevant sub-section below.',
     children:[
     { id:'5A', label:'Gas Leaking at the Bottle Connection',
-      note:'⚠ If you can hear significant gas escaping, turn off the gas at the bottle immediately and ensure the area is ventilated before investigating.',
+      note:'If you can hear significant gas escaping, turn off the gas at the bottle immediately and ensure the area is ventilated before investigating.',
       causes:[
       {label:'Is the primary regulator spanner-tight on the bottle? Hand tight alone is not sufficient — it must be tightened with a gas spanner.', hts:['HT-26'], manual:'gas'},
       {label:'Is the bottle seal (rubber washer) intact? Detach the regulator and inspect the black ring on the gauge insert.', hts:['HT-27'], manual:'gas'},
       {label:'Is the bottle itself faulty — leaking from the valve rather than the connection? Remove from service and contact your gas supplier.', hts:[], escalate:true},
     ]},
     { id:'5B', label:'Gas Leaking at the Gauge / Regulator',
-      note:'⚠ If you can hear significant gas escaping, turn off the gas at the bottle immediately and ensure the area is ventilated before investigating.',
+      note:'If you can hear significant gas escaping, turn off the gas at the bottle immediately and ensure the area is ventilated before investigating.',
       causes:[
       {label:'Is the ring pull on the gauge fully retracted? No air should be able to escape past it.', hts:['HT-28'], manual:'gas'},
       {label:'Is the primary PSI set too high? Must not exceed 55 PSI.', hts:['HT-20'], manual:'gas'},
@@ -1057,7 +1164,7 @@ const tsTree = [
       {label:'Is the gauge seal worn — leaking from the gauge body or thread even after PSI reduction? Turn off gas and notify your manager with the Kit Number — the regulator needs replacing.', hts:['HT-28'], manual:'gas'},
     ]},
     { id:'5C', label:'Gas Leaking at a Fitting or Pipe',
-      note:'⚠ If you can hear significant gas escaping, turn off the gas at the bottle immediately and ensure the area is ventilated before investigating.',
+      note:'If you can hear significant gas escaping, turn off the gas at the bottle immediately and ensure the area is ventilated before investigating.',
       causes:[
       {label:'Is the gas pipe scored, kinked, or cut at an angle where it enters the fitting?', hts:['HT-21'], manual:'gas'},
       {label:'Is the gas pipe fully pushed into the fitting?', hts:['HT-22'], manual:'gas'},
@@ -1065,12 +1172,12 @@ const tsTree = [
       {label:'Are the fitting teeth worn?', hts:['HT-24'], manual:'gas'},
     ]},
     { id:'5D', label:'Gas Leaking at an Unused Port — Missing Plug',
-      note:'⚠ If you can hear significant gas escaping, turn off the gas at the bottle immediately and ensure the area is ventilated before investigating.',
+      note:'If you can hear significant gas escaping, turn off the gas at the bottle immediately and ensure the area is ventilated before investigating.',
       causes:[
       {label:'Is there an open port on the gas manifold, regulator, or secondary with no pipe and no blanking plug? Every unused port must be capped.', hts:['HT-25'], manual:'gas'},
     ]},
     { id:'5E', label:'Gas Lines Freezing',
-      note:'⚠ If you can hear significant gas escaping, turn off the gas at the bottle immediately and ensure the area is ventilated before investigating.',
+      note:'If you can hear significant gas escaping, turn off the gas at the bottle immediately and ensure the area is ventilated before investigating.',
       causes:[
       {label:'Is there a gas leak at a fitting? Frost appears exactly at the point where high-pressure gas escapes — this identifies the leak location.', hts:['HT-29'], manual:'gas'},
       {label:'Is the gauge freezing? This indicates a gauge or regulator seal issue.', hts:['HT-28'], manual:'gas'},
@@ -1137,25 +1244,42 @@ const tsTree = [
   ]},
 
   { id:'10', icon:'', label:'Software & Payments', children:[
-    { id:'10A', label:'Machine Unresponsive or Screen Black', causes:[
-      {label:'Have you tried a power cycle? Unplug the POS from the power bank, wait 10 seconds, plug back in.', hts:['HT-46'], manual:'power3bank'},
-      {label:'Is the screen completely black with no response? Confirm the grey switch on the black box is on — the red indicator light should be visible. If the switch is on but screen is black, power cycle the machine.', hts:['HT-46'], manual:'greyswitch'},
-      {label:'Is the machine in kiosk mode? If other apps are visible on the home screen, activate kiosk mode via Hexnode.', hts:['HT-47'], manual:'software'},
-      {label:'Is the app on the correct event screen? If showing a previous event, it needs relinking.', hts:['HT-47'], manual:'software'},
-      {label:'Is there a software error on screen? Note the error message and the Hexnode ID and report to your manager.', hts:['HT-47'], manual:'software'},
-    ], escalate:'Contact your manager with the Hexnode ID.'},
     { id:'10B', label:'Machine Not Connecting to Internet', causes:[
       {label:'Is this machine on ethernet via TP-Link? Is there a green light on the port? No light = no signal. Try a different port or cable.', hts:['HT-41'], manual:'software'},
       {label:'Is this machine connecting via hotspot? Is the middle machine\'s hotspot enabled and is the password correct?', hts:['HT-41'], manual:'software'},
       {label:'Is this machine on WiFi? Is the correct network selected and is the signal strong enough?', hts:['HT-41'], manual:'software'},
       {label:'Have you tried a power cycle?', hts:['HT-46'], manual:'power3bank'},
+      {label:'Have you tried resetting network settings? Exit kiosk mode → Settings → Reset Network Settings → rejoin the network.', hts:['HT-54'], manual:'software'},
     ], escalate:'Contact your manager with the Hexnode ID.'},
     { id:'10C', label:'Payment Issues', causes:[
-      {label:'Does the machine have a stable internet connection? Payment issues are almost always connectivity-related — check Section 10B first.', hts:['HT-41'], manual:'software'},
+      {label:'Does the machine have a stable internet connection? Payment issues are almost always connectivity-related — check Machine Not Connecting to Internet first.', hts:['HT-41'], manual:'software'},
       {label:'Is the Viva app responding? Try restarting it.', hts:['HT-42'], manual:'software'},
       {label:'Has the external payment device lost its link to the machine? Re-enter the POS IP address found in Maintenance → Machine Info.', hts:['HT-42'], manual:'software'},
       {label:'Does the payment terminal need restarting?', hts:['HT-42'], manual:'software'},
       {label:'Have you tried a full power cycle of the machine?', hts:['HT-46'], manual:'power3bank'},
+    ], escalate:'Contact your manager with the Hexnode ID.'},
+  ]},
+
+  { id:'11', icon:'', label:'Taps Won\'t Stop Pouring', children:[
+    { id:'11A', label:'Tap(s) Not Stopping',
+      note:'⚠️ If both taps are not stopping, a software issue is the likely cause. If only one tap is not stopping, the solenoid on that side is the likely cause.',
+      causes:[
+        {label:'Detach the kegs immediately to stop product loss and turn off gas at the bottle.', hts:[], manual:''},
+        {label:'Reboot the machine — power cycle first.', hts:['HT-46'], manual:'power3bank'},
+        {label:'Clear the app cache.', hts:['HT-52'], manual:'software'},
+        {label:'Unlink and relink the machine in Maintenance. If the issue persists, request a new machine ID from your manager.', hts:['HT-47'], manual:'software'},
+        {label:'Is the solenoid dirty or stuck open? Clean it. If cleaning doesn\'t resolve it, replace the plunger or replace the solenoid.', hts:['HT-35','HT-36','HT-37'], manual:'solenoid'},
+      ], escalate:'Contact your manager with the Site and M Number.'},
+  ]},
+
+  { id:'12', icon:'', label:'Machine Unresponsive or Screen Black', children:[
+    { id:'12A', label:'Machine Unresponsive or Screen Black', causes:[
+      {label:'Is the screen completely black with no response? Confirm the grey switch on the black box is on — the red indicator light should be visible.', hts:['HT-46'], manual:'greyswitch'},
+      {label:'Have you tried a power cycle? Unplug the POS from the power bank, wait 10 seconds, plug back in.', hts:['HT-46'], manual:'power3bank'},
+      {label:'Have you cleared the app cache? This resolves many software hangs without a full reboot.', hts:['HT-52'], manual:'software'},
+      {label:'Is the machine in kiosk mode? If other apps are visible on the home screen, activate kiosk mode via Hexnode.', hts:['HT-47'], manual:'software'},
+      {label:'Is the app on the correct event screen? If showing a previous event, it needs relinking.', hts:['HT-47'], manual:'software'},
+      {label:'Is there a software error on screen? Note the error message and the Hexnode ID and report to your manager.', hts:['HT-47'], manual:'software'},
     ], escalate:'Contact your manager with the Hexnode ID.'},
   ]},
 ];
@@ -1163,8 +1287,8 @@ const tsTree = [
 const tsHowTo = {
   'HT-01':{ title:'How to Reset the FOB Detector', steps:[
     'Connect the fresh keg and confirm gas is on.',
-    'Push the lever at the bottom of the FOB up — this releases the float ball.',
-    'Press the button at the top — this draws beer into the chamber to float the ball.',
+    'Press the button at the top — this draws beer into the chamber.',
+    'Push the lever at the bottom of the FOB up — this releases the float ball once there is liquid in the chamber to float on.',
     'Confirm beer flows normally before opening to service.',
   ]},
   'HT-02':{ title:'How to Attach or Reseat a Coupler', steps:[
@@ -1172,8 +1296,7 @@ const tsHowTo = {
     'Twist the coupler clockwise to lock onto the keg.',
     'Push the handle firmly all the way down until fully engaged.',
     'Confirm no gas or product leaking from the connection.',
-    'To check for a non-return valve: unscrew the product line washer from the coupler. If you can see straight through, a non-return valve needs to be fitted to prevent air ingress during keg changes.',
-  ]},
+  ], related:['HT-55']},
   'HT-03':{ title:'How to Change a Keg', warning:'Always use fresh, unbroached kegs. Never reconnect a previously used keg.', steps:[
     'Lift the coupler handle, twist anticlockwise and remove.',
     'Remove the empty keg.',
@@ -1561,6 +1684,12 @@ const tsHowTo = {
       'Tap Unlink → enter the unlink code (3105).',
       'Enter the new machine codes when prompted — the correct event screen will load.',
     ]},
+    { heading:'To unlink and relink a machine', steps:[
+      'From the Start Order screen, tap Maintenance (top right).',
+      'Tap Unlink → enter the unlink code.',
+      'Enter the new machine codes when prompted — the correct event screen will load.',
+      'If the issue persists, request a new machine ID from your manager.',
+    ]},
     { heading:'Reference numbers when reporting', steps:[
       'Hexnode ID — Maintenance → Machine Info. Used by the development team to identify the machine remotely.',
       'M Number — shown at the top of the home screen on the Boxbar app. Used for POS-specific and pour issues.',
@@ -1606,6 +1735,30 @@ const tsHowTo = {
     'Replace the cover.',
     'Monitor the temperature display — it should begin dropping within a few minutes.',
   ], notes:['This is a temporary fix only. The underlying cause — insufficient pre-service time, blocked vents, or a struggling cooler — should still be addressed.']},
+  'HT-52':{ title:'How to Clear App Cache', steps:[
+    'Close the Boxbar app fully.',
+    'Exit kiosk mode.',
+    'Hold down on the Boxbar app icon.',
+    'Tap More Info.',
+    'Tap Storage.',
+    'Tap Clear Cache.',
+    'Reopen the app and re-enter kiosk mode.',
+  ]},
+  'HT-54':{ title:'How to Reset Network Settings', steps:[
+    'Exit kiosk mode.',
+    'Open Settings on the tablet.',
+    'Go to Reset Network Settings.',
+    'Confirm the reset.',
+    'Rejoin the venue network or hotspot.',
+    'Re-enter kiosk mode.',
+  ]},
+  'HT-55':{ title:'How to Check and Fit a Non-Return Valve', alert:'A non-return valve on the coupler prevents air entering the line during keg changes. Without one, more pull-throughs are needed and fobbing is more likely immediately after a keg change.', steps:[
+    'Unscrew the product line washer from the coupler.',
+    'Look through the coupler body — if you can see straight through with no obstruction, there is no non-return valve fitted.',
+    'Fit a non-return valve into the coupler body before reattaching the product line washer.',
+    'Reattach the washer and confirm it is hand-tight.',
+    'Reconnect the keg and check for leaks.',
+  ]},
 };
 
 
@@ -1628,6 +1781,15 @@ function goToComponent(id) {
   document.getElementById('componentBody').innerHTML = data.html;
   showPage('componentPage');
 }
+function toggleCalcSource() {
+  const box = document.getElementById('calcSourceText');
+  const btn = document.getElementById('calcSourceBtn');
+  if (!box) return;
+  const isOpen = box.style.display !== 'none';
+  if (isOpen) { box.style.display = 'none'; btn.textContent = 'View source'; }
+  else { box.textContent = box.dataset.src || 'Source not available.'; box.style.display = 'block'; btn.textContent = 'Hide source'; }
+}
+
 function toggleChart() {
   const panel = document.getElementById('chartPanel');
   const arrow = document.getElementById('chartToggleArrow');
@@ -1687,9 +1849,15 @@ function runCalc() {
   const result = document.getElementById('calcResult');
   const warn   = document.getElementById('calcWarn');
   const noData = document.getElementById('calcNoData');
+  const userRep = document.getElementById('calcUserReported');
+  const sourceText = document.getElementById('calcSourceText');
+  const sourceBtn = document.getElementById('calcSourceBtn');
   result.style.display = 'none';
   warn.style.display   = 'none';
   noData.style.display = 'none';
+  userRep.style.display = 'none';
+  if (sourceText) { sourceText.style.display = 'none'; sourceText.textContent = ''; }
+  if (sourceBtn) sourceBtn.textContent = 'View source';
 
   if (!calcSelectedBrand) return;
   const gasType = document.getElementById('calcGas').value;
@@ -1704,13 +1872,17 @@ function runCalc() {
   const psi = row.t[parseInt(tempIdx)];
   if (psi === null || psi === undefined) { noData.style.display = 'block'; return; }
 
-  const tempLabels = ['2°C','5°C','8°C','11°C','14°C','17°C','20°C','23°C'];
+  const tempLabels = ['2°C','3°C','4°C','5°C','6°C','7°C','8°C','9°C','10°C','11°C','12°C','13°C','14°C','15°C','16°C','17°C','18°C','19°C','20°C','21°C','22°C','23°C'];
   const isWarn = row.warn && row.warn.includes(parseInt(tempIdx));
 
   document.getElementById('calcPSIValue').textContent = psi;
   document.getElementById('calcPSILabel').textContent = `${calcSelectedBrand} · ${gasType}${row.vols ? ' · '+row.vols+' vol' : ''} · ${tempLabels[parseInt(tempIdx)]}`;
   result.style.display = 'block';
   if (isWarn) warn.style.display = 'block';
+  if (brand.userReported) {
+    userRep.style.display = 'block';
+    if (sourceText && brand.source) sourceText.dataset.src = brand.source;
+  }
 }
 
 // Close dropdown on outside tap
@@ -1807,6 +1979,7 @@ const componentData = {
       ['G-Type','Many UK ales and some European brands','Less common'],
       ['A-Type','German beers','Less common'],
       ['D-Type','Some American and European lagers','Less common'],
+      ['U-Type','Some craft and European keg products','Less common — check product spec if unsure'],
       ['KeyKeg','Single-use pressure kegs','Gas acts on outer bag — no direct gas contact with product. Requires dedicated KeyKeg coupler.'],
     ]);
     return h;
@@ -1815,7 +1988,7 @@ const componentData = {
   fob: { title:'Cellar Buoy / FOB Detector', html: (() => {
     let h = '';
     h += mCard(mSection('Overview','The FOB (Foam On Beer) detector sits in the beer line between the coupler and the cooler. Inside is a small chamber with a float ball. While beer flows normally the ball floats and beer passes through freely. When a keg runs out, air and foam enter the line — the ball drops and seals the valve at the bottom, stopping air from travelling any further down the system.<br><br>Without a FOB detector, a kicked keg sends air all the way through to the tap, requiring the entire line to be purged before the next keg can pour properly. With one in place, simply connect the new keg and reset the FOB — the line is immediately ready.'));
-    h += mCard(mSection('Reset Procedure','1. Connect the fresh keg and ensure gas is on<br>2. Pull the lever at the bottom of the FOB down to release the float ball<br>3. Press the button at the top to fill the chamber with beer<br>4. Beer should now flow normally — check for clean pour before opening to service'));
+    h += mCard(mSection('Reset Procedure','1. Connect the fresh keg and ensure gas is on<br>2. Press the button at the top to fill the chamber with beer<br>3. Push the lever at the bottom of the FOB up to release the float ball — there must be liquid in the chamber for the ball to float on<br>4. Beer should now flow normally — check for clean pour before opening to service'));
     h += mAlert('If the FOB is not reset after a keg change, air will remain in the chamber and the line will not flow. This is one of the most common causes of a tap not pouring after a keg change.');
     return h;
   })()},
@@ -2035,72 +2208,262 @@ const componentData = {
 
 
 const gasData = [
+  // ── SECTION 1 — Brewery-confirmed ──────────────────────────────────
   { brand:'Asahi Dry 5.0', rows:[
-    { gas:'CO2', vols:null, t:[19,22,25,28,32,35,38,42] },
-    { gas:'60/40', vols:2.8, t:[32,37,42,47,53,58,64,70], warn:[5,6,7] }
+    { gas:'CO2', vols:null, t:[19,20,21,22,23,24,25,26,27,28,29,31,32,33,34,35,36,37,38,39,41,42], warn:[20,21] },
+    { gas:'60/40', vols:2.8, t:[32,34,35,37,39,40,42,44,45,47,49,51,53,55,56,58,60,62,64,66,68,70], warn:[11,12,13,14,15,16,17,18,19,20,21] }
   ]},
   { brand:'Brothers Apple Cider', rows:[
-    { gas:'CO2', vols:null, t:[14,17,19,22,25,27,30,33] },
-    { gas:'60/40', vols:2.3, t:[23,28,32,36,41,46,50,55], warn:[7] }
+    { gas:'CO2', vols:null, t:[14,15,16,17,18,18,19,20,21,22,23,24,25,26,26,27,28,29,30,31,32,33] },
+    { gas:'60/40', vols:2.3, t:[23,25,26,28,29,31,32,33,35,36,38,39,41,43,44,46,47,49,50,52,53,55], warn:[21] }
   ]},
   { brand:'Carling', rows:[
-    { gas:'CO2', vols:null, t:[14,17,19,22,25,27,30,33] },
-    { gas:'60/40', vols:2.3, t:[23,28,32,36,41,46,50,55], warn:[7] }
+    { gas:'CO2', vols:null, t:[14,15,16,17,18,18,19,20,21,22,23,24,25,26,26,27,28,29,30,31,32,33] },
+    { gas:'60/40', vols:2.3, t:[23,25,26,28,29,31,32,33,35,36,38,39,41,43,44,46,47,49,50,52,53,55], warn:[21] }
   ]},
   { brand:'Carling Black Fruits', rows:[
-    { gas:'CO2', vols:null, t:[17,20,23,26,29,32,35,38] },
-    { gas:'60/40', vols:2.6, t:[28,34,38,43,48,53,58,64], warn:[6,7] }
+    { gas:'CO2', vols:null, t:[17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38] },
+    { gas:'60/40', vols:2.6, t:[28,30,32,34,35,37,38,40,41,43,45,46,48,50,51,53,55,56,58,60,62,64], warn:[16,17,18,19,20,21] }
   ]},
   { brand:'Cherry & Blackberry Cider', rows:[
-    { gas:'CO2', vols:null, t:[null,null,null,null,null,null,null,null] },
-    { gas:'60/40', vols:null, t:[null,null,null,null,null,null,null,null] }
+    { gas:'CO2', vols:null, t:[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null] },
+    { gas:'60/40', vols:null, t:[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null] }
   ]},
   { brand:'Cold River', rows:[
-    { gas:'CO2', vols:null, t:[9,11,14,17,19,22,25,28] },
-    { gas:'60/40', vols:2.15, t:[15,19,23,28,32,37,41,46] }
+    { gas:'CO2', vols:null, t:[9,10,10,11,12,13,14,15,16,17,18,18,19,20,21,22,23,24,25,26,27,28] },
+    { gas:'60/40', vols:2.15, t:[15,16,18,19,20,22,23,25,26,28,29,31,32,34,35,37,38,40,41,43,44,46] }
   ]},
   { brand:'Cruzcampo', rows:[
-    { gas:'CO2', vols:null, t:[13,15,18,21,23,26,29,32] },
-    { gas:'60/40', vols:2.2, t:[22,26,30,34,39,43,48,53] }
+    { gas:'CO2', vols:null, t:[13,14,14,15,16,17,18,19,20,21,22,22,23,24,25,26,27,28,29,30,31,32] },
+    { gas:'60/40', vols:2.2, t:[22,23,25,26,27,29,30,31,33,34,36,37,39,40,42,43,45,46,48,50,51,53] }
   ]},
   { brand:'Estrella Damm', rows:[
-    { gas:'CO2', vols:null, t:[15,18,20,23,26,29,32,35] },
-    { gas:'60/40', vols:2.4, t:[25,29,34,39,43,48,53,59], warn:[7] }
+    { gas:'CO2', vols:null, t:[15,16,17,18,19,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35] },
+    { gas:'60/40', vols:2.4, t:[25,26,28,29,31,32,34,35,37,38,40,41,43,45,46,48,50,51,53,55,57,59], warn:[19,20,21] }
   ]},
   { brand:'Grolsch', rows:[
-    { gas:'CO2', vols:null, t:[13,15,18,21,24,27,30,34] },
-    { gas:'60/40', vols:2.5, t:[21,26,30,35,40,45,50,57], warn:[7] }
+    { gas:'CO2', vols:null, t:[13,14,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,33,34] },
+    { gas:'60/40', vols:2.5, t:[22,23,25,26,27,29,30,31,33,34,36,38,40,42,43,45,47,48,50,52,55,57], warn:[20,21] }
   ]},
-  { brand:'Guiness', rows:[
-    { gas:'70/30', vols:null, t:[null,null,null,null,null,null,null,null] }
+  { brand:'Guinness', rows:[
+    { gas:'70/30', vols:null, t:[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null] }
   ]},
   { brand:'Heineken', rows:[
-    { gas:'CO2', vols:null, t:[13,15,18,21,23,26,29,32] },
-    { gas:'60/40', vols:2.2, t:[22,26,30,34,39,43,48,53] }
+    { gas:'CO2', vols:null, t:[13,14,14,15,16,17,18,19,20,21,22,22,23,24,25,26,27,28,29,30,31,32] },
+    { gas:'60/40', vols:2.2, t:[22,23,25,26,27,29,30,31,33,34,36,37,39,40,42,43,45,46,48,50,51,53] }
   ]},
   { brand:'Inch\'s', rows:[
-    { gas:'CO2', vols:null, t:[15,18,20,23,26,29,32,35] },
-    { gas:'60/40', vols:2.4, t:[25,29,34,39,43,48,53,59], warn:[7] }
+    { gas:'CO2', vols:null, t:[15,16,17,18,19,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35] },
+    { gas:'60/40', vols:2.4, t:[25,26,28,29,31,32,34,35,37,38,40,41,43,45,46,48,50,51,53,55,57,59], warn:[19,20,21] }
   ]},
   { brand:'Madri', rows:[
-    { gas:'CO2', vols:null, t:[14,17,19,22,25,28,30,33] },
-    { gas:'60/40', vols:2.3, t:[23,28,32,36,41,46,50,60], warn:[7] }
+    { gas:'CO2', vols:null, t:[14,15,16,17,18,18,19,20,21,22,23,24,25,26,27,28,29,29,30,31,32,33] },
+    { gas:'60/40', vols:2.3, t:[23,25,26,28,29,31,32,33,35,36,38,39,41,43,44,46,47,49,50,53,57,60], warn:[19,20,21] }
   ]},
   { brand:'Moretti', rows:[
-    { gas:'CO2', vols:null, t:[14,17,19,22,25,27,30,33] },
-    { gas:'60/40', vols:2.3, t:[23,28,32,36,41,46,50,55], warn:[7] }
+    { gas:'CO2', vols:null, t:[14,15,16,17,18,18,19,20,21,22,23,24,25,26,27,28,29,29,30,31,32,33] },
+    { gas:'60/40', vols:2.3, t:[23,25,26,28,29,31,32,33,35,36,38,39,41,43,44,46,47,49,50,52,53,55], warn:[21] }
   ]},
   { brand:'Peroni', rows:[
-    { gas:'CO2', vols:null, t:[17,20,23,26,29,32,35,38] },
-    { gas:'60/40', vols:2.6, t:[28,34,38,43,48,53,58,64], warn:[6,7] }
+    { gas:'CO2', vols:null, t:[17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38] },
+    { gas:'60/40', vols:2.6, t:[28,30,32,34,35,37,38,40,41,43,45,46,48,50,51,53,55,56,58,60,62,64], warn:[16,17,18,19,20,21] }
   ]},
   { brand:'Stowford Press', rows:[
-    { gas:'CO2', vols:null, t:[13,15,18,21,23,26,29,32] },
-    { gas:'60/40', vols:2.2, t:[22,26,30,34,39,43,48,53] }
+    { gas:'CO2', vols:null, t:[13,14,14,15,16,17,18,19,20,21,22,22,23,24,25,26,27,28,29,30,31,32] },
+    { gas:'60/40', vols:2.2, t:[22,23,25,26,27,29,30,31,33,34,36,37,39,40,42,43,45,46,48,50,51,53] }
   ]},
   { brand:'Strongbow Dark Fruit', rows:[
-    { gas:'CO2', vols:null, t:[14,17,19,22,25,28,30,33] },
-    { gas:'60/40', vols:2.3, t:[23,28,32,36,41,46,50,60], warn:[7] }
+    { gas:'CO2', vols:null, t:[14,15,16,17,18,18,19,20,21,22,23,24,25,26,26,27,28,29,30,31,32,33] },
+    { gas:'60/40', vols:2.3, t:[23,25,26,28,29,31,32,33,35,36,38,39,41,43,44,46,47,49,50,52,53,55], warn:[21] }
+  ]},
+  { brand:'Strongbow Dark Fruits', rows:[
+    { gas:'CO2', vols:null, t:[14,15,16,17,18,18,19,20,21,22,23,24,25,26,26,27,28,29,30,31,32,33] },
+    { gas:'60/40', vols:2.3, t:[23,25,26,28,29,31,32,33,35,36,38,39,41,43,44,46,47,49,50,52,53,55], warn:[21] }
+  ]},
+  // ── SECTION 2 — User-reported volumes ──────────────────────────────
+  { brand:'Amstel', userReported:true, source:'DraftMore (industry dispense equipment reference, Denmark): European lager 2.4–2.7 vols (lower/conservative end used)', rows:[
+    { gas:'CO2', vols:2.4, t:[15,16,17,18,19,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35] },
+    { gas:'60/40', vols:2.4, t:[25,27,29,31,32,32,33,35,36,38,40,42,44,45,47,48,50,51,53,55,57,58], warn:[21] }
+  ]},
+  { brand:'Aspall', userReported:true, source:'Dry Suffolk cider style; slightly lower carbonation consistent with dry cider style', rows:[
+    { gas:'CO2', vols:2.4, t:[15,16,17,18,19,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35] },
+    { gas:'60/40', vols:2.4, t:[25,27,29,31,32,32,33,35,36,38,40,42,44,45,47,48,50,51,53,55,57,58], warn:[21] }
+  ]},
+  { brand:'Belhaven Twisted Thistle', userReported:true, source:'DraftMore (industry dispense equipment reference, Denmark): Belhaven Twisted Thistle 2.3 vols', rows:[
+    { gas:'CO2', vols:2.3, t:[14,15,16,17,18,18,19,20,21,22,23,24,25,26,26,27,28,29,30,31,32,33] },
+    { gas:'60/40', vols:2.3, t:[23,25,27,29,30,31,32,33,35,36,38,40,42,43,44,45,46,48,50,51,53,55], warn:[21] }
+  ]},
+  { brand:'Bud Light', userReported:true, source:'DraftMore (industry dispense equipment reference, Denmark): Bud/Bud Light 2.6 vols; American Homebrewers Association forum — multiple consistent user reports', rows:[
+    { gas:'CO2', vols:2.6, t:[17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38] },
+    { gas:'60/40', vols:2.6, t:[28,30,32,34,36,37,38,40,41,43,45,47,49,50,52,53,55,56,58,60,62,63], warn:[16,17,18,19,20,21] }
+  ]},
+  { brand:'Budweiser', userReported:true, source:'The Drinks Business — independent physical CO₂ measurement test (2017): measured 2.7 vols; American Homebrewers Association forum — multiple consistent user reports', rows:[
+    { gas:'CO2', vols:2.7, t:[18,19,20,21,22,23,24,25,26,27,28,29,31,32,32,34,34,36,36,38,39,40] },
+    { gas:'60/40', vols:2.7, t:[30,32,34,36,37,39,40,41,43,44,46,49,51,53,54,55,57,59,60,63,65,67], warn:[11,12,13,14,15,16,17,18,19,20,21] }
+  ]},
+  { brand:'Bulmers', userReported:true, source:'Same recipe as Magners outside Ireland — identical vols applied', rows:[
+    { gas:'CO2', vols:2.5, t:[16,17,18,19,20,21,22,22,24,24,26,26,28,28,30,30,32,32,34,34,36,36] },
+    { gas:'60/40', vols:2.5, t:[27,29,31,33,34,35,36,37,39,40,42,44,46,48,49,50,52,54,55,57,59,61], warn:[21] }
+  ]},
+  { brand:'Carlsberg', userReported:true, source:'DraftMore (industry dispense equipment reference, Denmark): Carlsberg alle typer 2.6–2.75 vols (lower end used)', rows:[
+    { gas:'CO2', vols:2.6, t:[17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38] },
+    { gas:'60/40', vols:2.6, t:[28,30,32,34,36,37,38,40,41,43,45,47,49,50,52,53,55,56,58,60,62,63], warn:[16,17,18,19,20,21] }
+  ]},
+  { brand:'Coors / Coors Light', userReported:true, source:'DraftMore (industry dispense equipment reference, Denmark): Coors/Coors Light 2.8 vols; The Drinks Business — independent physical CO₂ measurement test (2017)', rows:[
+    { gas:'CO2', vols:2.8, t:[19,20,21,22,23,24,25,26,27,28,29,31,32,33,34,35,36,37,38,39,41,42] },
+    { gas:'60/40', vols:2.8, t:[32,34,36,38,39,40,41,43,44,46,48,51,54,55,56,58,60,61,63,65,68,70], warn:[11,12,13,14,15,16,17,18,19,20,21] }
+  ]},
+  { brand:'Corona', userReported:true, source:'American Homebrewers Association forum — multiple consistent user reports; consistent with European lager range on DraftMore (industry dispense equipment reference, Denmark)', rows:[
+    { gas:'CO2', vols:2.6, t:[17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38] },
+    { gas:'60/40', vols:2.6, t:[28,30,32,34,36,37,38,40,41,43,45,47,49,50,52,53,55,56,58,60,62,63], warn:[16,17,18,19,20,21] }
+  ]},
+  { brand:'DAB', userReported:true, source:'DraftMore (industry dispense equipment reference, Denmark): DAB 2.4 vols', rows:[
+    { gas:'CO2', vols:2.4, t:[15,16,17,18,19,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35] },
+    { gas:'60/40', vols:2.4, t:[25,27,29,31,32,32,33,35,36,38,40,42,44,45,47,48,50,51,53,55,57,58], warn:[21] }
+  ]},
+  { brand:'Erdinger Weissbier', userReported:true, source:'DraftMore (industry dispense equipment reference, Denmark): German Wheat beer 3.3–3.6 vols; Brew Your Own magazine (peer-reviewed brewing publication)', rows:[
+    { gas:'CO2', vols:3.4, t:[25,26,27,28,29,30,31,32,33,34,36,39,41,42,43,44,45,46,47,49,52,54], warn:[10,11,12,13,14,15,16,17,18,19,20,21] },
+    { gas:'60/40', vols:3.4, t:[42,44,46,48,49,50,51,53,54,56,60,64,69,70,71,73,74,76,78,82,86,90], warn:[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21] }
+  ]},
+  { brand:'European Stout', userReported:true, source:'DraftMore (industry dispense equipment reference, Denmark): European Stout 2.3–2.6 vols (mid-point used)', rows:[
+    { gas:'CO2', vols:2.45, t:[16,17,18,19,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36] },
+    { gas:'60/40', vols:2.45, t:[26,28,30,32,33,34,34,36,37,39,41,43,45,46,48,49,51,53,54,56,58,60], warn:[21] }
+  ]},
+  { brand:'Foster\'s', userReported:true, source:'DraftMore (industry dispense equipment reference, Denmark): Fosters 2.75 vols', rows:[
+    { gas:'CO2', vols:2.75, t:[18,20,20,22,22,24,24,26,26,28,29,30,31,32,33,34,35,36,37,38,40,41] },
+    { gas:'60/40', vols:2.75, t:[31,33,35,37,38,39,41,42,44,45,47,50,52,54,55,57,58,60,62,64,66,68], warn:[11,12,13,14,15,16,17,18,19,20,21] }
+  ]},
+  { brand:'Fuller\'s London Pride', userReported:true, source:'DraftMore (industry dispense equipment reference, Denmark): Fullers London Pride 2.2 vols', rows:[
+    { gas:'CO2', vols:2.2, t:[13,14,14,15,16,17,18,19,20,21,22,22,23,24,25,26,27,28,29,30,31,32] },
+    { gas:'60/40', vols:2.2, t:[22,23,24,26,27,28,30,31,33,34,36,37,39,40,42,43,45,46,48,50,52,53] }
+  ]},
+  { brand:'Hofbräu', userReported:true, source:'DraftMore (industry dispense equipment reference, Denmark): Hofbrau 2.5–2.6 vols (mid-point used)', rows:[
+    { gas:'CO2', vols:2.55, t:[16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37] },
+    { gas:'60/40', vols:2.55, t:[28,30,31,33,35,36,37,38,40,41,43,45,47,49,50,52,53,55,57,59,60,62], warn:[21] }
+  ]},
+  { brand:'Hoegaarden', userReported:true, source:'DraftMore (industry dispense equipment reference, Denmark): Hoegaarden 2.95–3.0 vols (upper end used)', rows:[
+    { gas:'CO2', vols:3.0, t:[21,22,23,24,25,26,27,28,29,30,32,33,35,36,37,38,39,40,41,43,44,46], warn:[21] },
+    { gas:'60/40', vols:3.0, t:[35,37,39,41,42,44,45,46,48,49,52,55,59,60,61,63,65,66,68,71,74,77], warn:[12,13,14,15,16,17,18,19,20,21] }
+  ]},
+  { brand:'Killian\'s Irish Red', userReported:true, source:'DraftMore (industry dispense equipment reference, Denmark): Killians Irish Red 2.75 vols', rows:[
+    { gas:'CO2', vols:2.75, t:[18,20,20,22,22,24,24,26,26,28,29,30,31,32,33,34,35,36,37,38,40,41] },
+    { gas:'60/40', vols:2.75, t:[31,33,35,37,38,39,41,42,44,45,47,50,52,54,55,57,58,60,62,64,66,68], warn:[11,12,13,14,15,16,17,18,19,20,21] }
+  ]},
+  { brand:'Kirin', userReported:true, source:'DraftMore (industry dispense equipment reference, Denmark): Kirin 2.7 vols', rows:[
+    { gas:'CO2', vols:2.7, t:[18,19,20,21,22,23,24,25,26,27,28,29,31,32,32,34,34,36,36,38,39,40] },
+    { gas:'60/40', vols:2.7, t:[30,32,34,36,37,39,40,41,43,44,46,49,51,53,54,55,57,59,60,63,65,67], warn:[11,12,13,14,15,16,17,18,19,20,21] }
+  ]},
+  { brand:'König Ludwig Dunkel', userReported:true, source:'DraftMore (industry dispense equipment reference, Denmark): König Ludwig Dunkel 2.5–2.75 vols (mid-point used)', rows:[
+    { gas:'CO2', vols:2.6, t:[17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38] },
+    { gas:'60/40', vols:2.6, t:[28,30,32,34,36,37,38,40,41,43,45,47,49,50,52,53,55,56,58,60,62,63], warn:[16,17,18,19,20,21] }
+  ]},
+  { brand:'König Ludwig Weissbier', userReported:true, source:'DraftMore (industry dispense equipment reference, Denmark): König Ludwig Weissbier 2.75–2.9 vols (lower end used)', rows:[
+    { gas:'CO2', vols:2.8, t:[19,20,21,22,23,24,25,26,27,28,29,31,32,33,34,35,36,37,38,39,41,42] },
+    { gas:'60/40', vols:2.8, t:[32,34,36,38,39,40,41,43,44,46,48,51,54,55,56,58,60,61,63,65,68,70], warn:[11,12,13,14,15,16,17,18,19,20,21] }
+  ]},
+  { brand:'Kölsch', userReported:true, source:'DraftMore (industry dispense equipment reference, Denmark): Kölsch 2.7 vols', rows:[
+    { gas:'CO2', vols:2.7, t:[18,19,20,21,22,23,24,25,26,27,28,29,31,32,32,34,34,36,36,38,39,40] },
+    { gas:'60/40', vols:2.7, t:[30,32,34,36,37,39,40,41,43,44,46,49,51,53,54,55,57,59,60,63,65,67], warn:[11,12,13,14,15,16,17,18,19,20,21] }
+  ]},
+  { brand:'Kopparberg', userReported:true, source:'Fruit cider style; consistent across multiple independent sources; American Homebrewers Association forum — multiple consistent user reports', rows:[
+    { gas:'CO2', vols:2.7, t:[18,19,20,21,22,23,24,25,26,27,28,29,31,32,32,34,34,36,36,38,39,40] },
+    { gas:'60/40', vols:2.7, t:[30,32,34,36,37,39,40,41,43,44,46,49,51,53,54,55,57,59,60,63,65,67], warn:[11,12,13,14,15,16,17,18,19,20,21] }
+  ]},
+  { brand:'Kronenbourg 1664', userReported:true, source:'European lager style; consistent across multiple independent sources', rows:[
+    { gas:'CO2', vols:2.5, t:[16,17,18,19,20,21,22,22,24,24,26,26,28,28,30,30,32,32,34,34,36,36] },
+    { gas:'60/40', vols:2.5, t:[27,29,31,33,34,35,36,37,39,40,42,44,46,48,49,50,52,54,55,57,59,61], warn:[21] }
+  ]},
+  { brand:'Labatt', userReported:true, source:'DraftMore (industry dispense equipment reference, Denmark): Labatt 2.7 vols', rows:[
+    { gas:'CO2', vols:2.7, t:[18,19,20,21,22,23,24,25,26,27,28,29,31,32,32,34,34,36,36,38,39,40] },
+    { gas:'60/40', vols:2.7, t:[30,32,34,36,37,39,40,41,43,44,46,49,51,53,54,55,57,59,60,63,65,67], warn:[11,12,13,14,15,16,17,18,19,20,21] }
+  ]},
+  { brand:'Leffe Blonde', userReported:true, source:'DraftMore (industry dispense equipment reference, Denmark): Leffe Blond 2.5 vols', rows:[
+    { gas:'CO2', vols:2.5, t:[16,17,18,19,20,21,22,22,24,24,26,26,28,28,30,30,32,32,34,34,36,36] },
+    { gas:'60/40', vols:2.5, t:[27,29,31,33,34,35,36,37,39,40,42,44,46,48,49,50,52,54,55,57,59,61], warn:[21] }
+  ]},
+  { brand:'Leffe (standard)', userReported:true, source:'DraftMore (industry dispense equipment reference, Denmark): Leffe 2.4 vols', rows:[
+    { gas:'CO2', vols:2.4, t:[15,16,17,18,19,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35] },
+    { gas:'60/40', vols:2.4, t:[25,27,29,31,32,32,33,35,36,38,40,42,44,45,47,48,50,51,53,55,57,58], warn:[21] }
+  ]},
+  { brand:'Löwenbräu', userReported:true, source:'DraftMore (industry dispense equipment reference, Denmark): Lowenbrau 2.7 vols', rows:[
+    { gas:'CO2', vols:2.7, t:[18,19,20,21,22,23,24,25,26,27,28,29,31,32,32,34,34,36,36,38,39,40] },
+    { gas:'60/40', vols:2.7, t:[30,32,34,36,37,39,40,41,43,44,46,49,51,53,54,55,57,59,60,63,65,67], warn:[11,12,13,14,15,16,17,18,19,20,21] }
+  ]},
+  { brand:'Magners', userReported:true, source:'Traditional apple cider style; consistent across multiple independent sources', rows:[
+    { gas:'CO2', vols:2.5, t:[16,17,18,19,20,21,22,22,24,24,26,26,28,28,30,30,32,32,34,34,36,36] },
+    { gas:'60/40', vols:2.5, t:[27,29,31,33,34,35,36,37,39,40,42,44,46,48,49,50,52,54,55,57,59,61], warn:[21] }
+  ]},
+  { brand:'Miller Genuine Draft', userReported:true, source:'DraftMore (industry dispense equipment reference, Denmark): Miller Genuine Draft 2.7 vols', rows:[
+    { gas:'CO2', vols:2.7, t:[18,19,20,21,22,23,24,25,26,27,28,29,31,32,32,34,34,36,36,38,39,40] },
+    { gas:'60/40', vols:2.7, t:[30,32,34,36,37,39,40,41,43,44,46,49,51,53,54,55,57,59,60,63,65,67], warn:[11,12,13,14,15,16,17,18,19,20,21] }
+  ]},
+  { brand:'Miller Lite', userReported:true, source:'DraftMore (industry dispense equipment reference, Denmark): Miller Lite 2.7 vols', rows:[
+    { gas:'CO2', vols:2.7, t:[18,19,20,21,22,23,24,25,26,27,28,29,31,32,32,34,34,36,36,38,39,40] },
+    { gas:'60/40', vols:2.7, t:[30,32,34,36,37,39,40,41,43,44,46,49,51,53,54,55,57,59,60,63,65,67], warn:[11,12,13,14,15,16,17,18,19,20,21] }
+  ]},
+  { brand:'Newcastle Brown Ale', userReported:true, source:'DraftMore (industry dispense equipment reference, Denmark): Newcastle Brown Ale 2.2 vols; American Homebrewers Association forum — multiple consistent user reports', rows:[
+    { gas:'CO2', vols:2.2, t:[13,14,14,15,16,17,18,19,20,21,22,22,23,24,25,26,27,28,29,30,31,32] },
+    { gas:'60/40', vols:2.2, t:[22,23,24,26,27,28,30,31,33,34,36,37,39,40,42,43,45,46,48,50,52,53] }
+  ]},
+  { brand:'Old Mout Cider', userReported:true, source:'Fruit cider style; consistent with mid-range fruit cider carbonation', rows:[
+    { gas:'CO2', vols:2.6, t:[17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38] },
+    { gas:'60/40', vols:2.6, t:[28,30,32,34,36,37,38,40,41,43,45,47,49,50,52,53,55,56,58,60,62,63], warn:[16,17,18,19,20,21] }
+  ]},
+  { brand:'Paulaner Weissbier', userReported:true, source:'DraftMore (industry dispense equipment reference, Denmark): German Wheat beer 3.3–3.6 vols; Brew Your Own magazine (peer-reviewed brewing publication)', rows:[
+    { gas:'CO2', vols:3.4, t:[25,26,27,28,29,30,31,32,33,34,36,39,41,42,43,44,45,46,47,49,52,54], warn:[10,11,12,13,14,15,16,17,18,19,20,21] },
+    { gas:'60/40', vols:3.4, t:[42,44,46,48,49,50,51,53,54,56,60,64,69,70,71,73,74,76,78,82,86,90], warn:[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21] }
+  ]},
+  { brand:'Pilsner Urquell', userReported:true, source:'DraftMore (industry dispense equipment reference, Denmark): Pilsener Urquell 2.6 vols; American Homebrewers Association forum — multiple consistent user reports', rows:[
+    { gas:'CO2', vols:2.6, t:[17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38] },
+    { gas:'60/40', vols:2.6, t:[28,30,32,34,36,37,38,40,41,43,45,47,49,50,52,53,55,56,58,60,62,63], warn:[16,17,18,19,20,21] }
+  ]},
+  { brand:'Rekorderlig', userReported:true, source:'Fruit cider style; consistent with Kopparberg; American Homebrewers Association forum — multiple consistent user reports', rows:[
+    { gas:'CO2', vols:2.7, t:[18,19,20,21,22,23,24,25,26,27,28,29,31,32,32,34,34,36,36,38,39,40] },
+    { gas:'60/40', vols:2.7, t:[30,32,34,36,37,39,40,41,43,44,46,49,51,53,54,55,57,59,60,63,65,67], warn:[11,12,13,14,15,16,17,18,19,20,21] }
+  ]},
+  { brand:'Samuel Adams', userReported:true, source:'DraftMore (industry dispense equipment reference, Denmark): Samuel Adams 2.6 vols; American Homebrewers Association forum — multiple consistent user reports', rows:[
+    { gas:'CO2', vols:2.6, t:[17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38] },
+    { gas:'60/40', vols:2.6, t:[28,30,32,34,36,37,38,40,41,43,45,47,49,50,52,53,55,56,58,60,62,63], warn:[16,17,18,19,20,21] }
+  ]},
+  { brand:'San Miguel', userReported:true, source:'European pilsner style; American Homebrewers Association forum — multiple consistent user reports; consistent across multiple independent sources', rows:[
+    { gas:'CO2', vols:2.5, t:[16,17,18,19,20,21,22,22,24,24,26,26,28,28,30,30,32,32,34,34,36,36] },
+    { gas:'60/40', vols:2.5, t:[27,29,31,33,34,35,36,37,39,40,42,44,46,48,49,50,52,54,55,57,59,61], warn:[21] }
+  ]},
+  { brand:'Schneider Weisse', userReported:true, source:'DraftMore (industry dispense equipment reference, Denmark): Schneider Weisse 3.3–3.6 vols; Brew Your Own magazine (peer-reviewed brewing publication)', rows:[
+    { gas:'CO2', vols:3.4, t:[25,26,27,28,29,30,31,32,33,34,36,39,41,42,43,44,45,46,47,49,52,54], warn:[10,11,12,13,14,15,16,17,18,19,20,21] },
+    { gas:'60/40', vols:3.4, t:[42,44,46,48,49,50,51,53,54,56,60,64,69,70,71,73,74,76,78,82,86,90], warn:[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21] }
+  ]},
+  { brand:'Sierra Nevada', userReported:true, source:'DraftMore (industry dispense equipment reference, Denmark): Sierra Nevada all beers 2.6–2.7 vols (lower end used); American Homebrewers Association forum — multiple consistent user reports', rows:[
+    { gas:'CO2', vols:2.6, t:[17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38] },
+    { gas:'60/40', vols:2.6, t:[28,30,32,34,36,37,38,40,41,43,45,47,49,50,52,53,55,56,58,60,62,63], warn:[16,17,18,19,20,21] }
+  ]},
+  { brand:'Stella Artois', userReported:true, source:'DraftMore (industry dispense equipment reference, Denmark): 2.5–2.6 vols (lower end used); The Drinks Business — independent physical CO₂ measurement test (2017)', rows:[
+    { gas:'CO2', vols:2.5, t:[16,17,18,19,20,21,22,22,24,24,26,26,28,28,30,30,32,32,34,34,36,36] },
+    { gas:'60/40', vols:2.5, t:[27,29,31,33,34,35,36,37,39,40,42,44,46,48,49,50,52,54,55,57,59,61], warn:[21] }
+  ]},
+  { brand:'Thatchers Gold', userReported:true, source:'Traditional dry apple cider style; consistent with Magners/Bulmers range', rows:[
+    { gas:'CO2', vols:2.5, t:[16,17,18,19,20,21,22,22,24,24,26,26,28,28,30,30,32,32,34,34,36,36] },
+    { gas:'60/40', vols:2.5, t:[27,29,31,33,34,35,36,37,39,40,42,44,46,48,49,50,52,54,55,57,59,61], warn:[21] }
+  ]},
+  { brand:'Tuborg', userReported:true, source:'DraftMore (industry dispense equipment reference, Denmark): Tuborg alle typer 2.6–2.75 vols (lower end used)', rows:[
+    { gas:'CO2', vols:2.6, t:[17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38] },
+    { gas:'60/40', vols:2.6, t:[28,30,32,34,36,37,38,40,41,43,45,47,49,50,52,53,55,56,58,60,62,63], warn:[16,17,18,19,20,21] }
+  ]},
+  { brand:'Weihenstephan Pilsner', userReported:true, source:'DraftMore (industry dispense equipment reference, Denmark): Weihenstephan Pilsner and Lager 2.5–2.75 vols (lower end used)', rows:[
+    { gas:'CO2', vols:2.6, t:[17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38] },
+    { gas:'60/40', vols:2.6, t:[28,30,32,34,36,37,38,40,41,43,45,47,49,50,52,53,55,56,58,60,62,63], warn:[16,17,18,19,20,21] }
+  ]},
+  { brand:'Weihenstephan Wheat', userReported:true, source:'DraftMore (industry dispense equipment reference, Denmark): Weihenstephan Wheat beer 2.75–2.85 vols (lower end used)', rows:[
+    { gas:'CO2', vols:2.8, t:[19,20,21,22,23,24,25,26,27,28,29,31,32,33,34,35,36,37,38,39,41,42] },
+    { gas:'60/40', vols:2.8, t:[32,34,36,38,39,40,41,43,44,46,48,51,54,55,56,58,60,61,63,65,68,70], warn:[11,12,13,14,15,16,17,18,19,20,21] }
+  ]},
+  { brand:'Weston\'s Old Rosie', userReported:true, source:'Cloudy farmhouse cider style; lower carbonation consistent with traditional style', rows:[
+    { gas:'CO2', vols:2.3, t:[14,15,16,17,18,18,19,20,21,22,23,24,25,26,26,27,28,29,30,31,32,33] },
+    { gas:'60/40', vols:2.3, t:[23,25,27,29,30,31,32,33,35,36,38,40,42,43,44,45,46,48,50,51,53,55], warn:[21] }
+  ]},
+  { brand:'Westmalle Dubbel', userReported:true, source:'DraftMore (industry dispense equipment reference, Denmark): Westmalle Mørk (Trappist) 2.2–2.3 vols (mid-point used)', rows:[
+    { gas:'CO2', vols:2.25, t:[14,14,15,16,17,18,18,20,20,22,22,23,24,25,26,26,28,28,30,30,32,32] },
+    { gas:'60/40', vols:2.25, t:[23,24,26,27,29,30,31,32,34,35,37,39,40,41,43,44,46,47,49,51,52,54], warn:[21] }
   ]},
 ];
 
@@ -2112,7 +2475,7 @@ function renderGasRows(data) {
       const isFirst = ri === 0;
       const isLast = ri === brand.rows.length - 1;
       const rowEl = document.createElement('div');
-      rowEl.style.cssText = `display:grid;grid-template-columns:1fr 52px 52px 52px 52px 52px 52px 52px 52px;border-bottom:0.5px solid var(--border);${isLast && bi < data.length-1 ? 'border-bottom:1px solid var(--pink-border);' : ''}`;
+      rowEl.style.cssText = `display:grid;grid-template-columns:120px repeat(22,36px);border-bottom:0.5px solid var(--border);${isLast && bi < data.length-1 ? 'border-bottom:1px solid var(--pink-border);' : ''}`;
 
       // brand / gas label cell
       const labelCell = document.createElement('div');
@@ -2130,7 +2493,7 @@ function renderGasRows(data) {
       row.t.forEach((val, ti) => {
         const cell = document.createElement('div');
         const isWarn = row.warn && row.warn.includes(ti);
-        cell.style.cssText = `padding:7px 4px;text-align:center;font-size:13px;font-weight:${isWarn?'700':'400'};color:${isWarn?'#ff453a':val===null?'var(--muted)':'var(--text)'};font-family:inherit;`;
+        cell.style.cssText = `padding:7px 2px;text-align:center;font-size:11px;font-weight:${isWarn?'700':'400'};color:${isWarn?'#ff453a':val===null?'var(--muted)':'var(--text)'};font-family:inherit;`;
         cell.textContent = val !== null ? val : '—';
         rowEl.appendChild(cell);
       });
