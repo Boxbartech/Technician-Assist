@@ -318,7 +318,7 @@ header {
   </svg>
   <div class="header-left">
     <h1>Boxbar Technician Assist</h1>
-    <p style="opacity:0.7;font-size:10px;letter-spacing:0.3px">Early Beta v1</p>
+    <p style="opacity:0.7;font-size:10px;letter-spacing:0.3px">Early Beta v1.1</p>
   </div>
 </header>
 
@@ -438,7 +438,7 @@ header {
       <button class="action-btn btn-ghost" onclick="showEventPreview()">Preview</button>
       <button class="action-btn btn-clear" onclick="openClear()">🗑 Clear all</button>
     </div>
-    <button class="action-btn btn-copy" onclick="preSubmitReport()">Submit Report</button>
+    <button class="action-btn btn-copy" onclick="copyEventReport()">Copy Event</button>
   </div>
 </div>
 
@@ -2374,7 +2374,7 @@ async function preSubmitReport() {
 function preSubmitDone() {
   document.getElementById('preSubmittingPage').style.display = 'none';
 }
-const PER_WEBHOOK = 'https://script.google.com/macros/s/AKfycbyx2-4fylU__3TiGqTJaQ6GJrnLSnT8rokd16VzhDQfeoRHyxerT2XnRb_yU_Gz2zS8ww/exec';
+const PER_WEBHOOK = 'https://script.google.com/macros/s/AKfycbxrEBMvZdTd3lcc4Cfo-Ugq-jgCkgpJVCBSJM26djibmnJ3fhjIfmwXWCshazUhMjEaVw/exec';
 const PER_DRIVE_FOLDER = '1nj8_tle6eS7vxsPvn8VDUhjhEc5QEBFI';
 
 const perYNState = {};
@@ -2619,7 +2619,39 @@ async function perSubmit() {
     }
   }
 
+  // Build pre-event payload from stored data
+  const preLocData = locations.map(loc => ({
+    name: loc.name || '',
+    machineType: loc.machineType || '',
+    productTemp: loc.productTemp || '',
+    freshKegs: loc.freshKegs || '',
+    internet: loc.internet || '',
+    testPayment: loc.testPayment || '',
+    staffTrained: loc.staffTrained || '',
+    staffCount: loc.staffCount || '',
+    notes: loc.notes || '',
+    machines: loc.machines.map(m => ({
+      name: m.name || '',
+      product: m.product || '',
+      psi: m.psi || '',
+      tap1: m.tap1 || '',
+      tap2: m.tap2 || '',
+      notes: m.notes || '',
+    })),
+  }));
+
+  const prePayload = {
+    action: 'preEvent',
+    event: gv('eventName'),
+    venue: gv('venue'),
+    date: gv('eventDate'),
+    arrivalTime: gv('arrivalTime'),
+    eventNotes: gv('eventNotes'),
+    locations: preLocData,
+  };
+
   const payload = {
+    action: 'postEvent',
     date, name, email, event,
     busy_event: perYNState['busy_event'] || '',
     busy_bars: perYNState['busy_bars'] || '',
@@ -2640,13 +2672,13 @@ async function perSubmit() {
   };
 
   try {
-    await fetch(PER_WEBHOOK, {
-      method: 'POST', mode: 'no-cors',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
+    // Send pre-event first then post-event
+    await fetch(PER_WEBHOOK, { method:'POST', mode:'no-cors', headers:{'Content-Type':'application/json'}, body: JSON.stringify(prePayload) });
+    await fetch(PER_WEBHOOK, { method:'POST', mode:'no-cors', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
     perDeductPartsFromToolkit();
     perResetForm();
+    // Also clear pre-event report
+    clearAll();
     document.getElementById('perSubmitTitle').textContent = 'Submitted';
     document.getElementById('perSubmitSub').textContent = `${event} — ${date}`;
     document.getElementById('perSubmitHomeBtn').style.display = 'block';
