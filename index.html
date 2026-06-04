@@ -2374,7 +2374,7 @@ async function preSubmitReport() {
 function preSubmitDone() {
   document.getElementById('preSubmittingPage').style.display = 'none';
 }
-const PER_WEBHOOK = 'https://script.google.com/macros/s/AKfycbxeBCRmXgcg5Iob9dFMJDAg1QAo3-PSIyfNcXtbGuXmiCBtbGfGLZm-mpEcHmhbOXqU6w/exec';
+const PER_WEBHOOK = 'https://script.google.com/macros/s/AKfycbzFf6km8vW1GzwHx7fGPhMwd73-TnPNzTPpvhNbkW9Mr4sc5kyoJ76PliZl5nQSkpl9Zw/exec';
 const PER_DRIVE_FOLDER = '1nj8_tle6eS7vxsPvn8VDUhjhEc5QEBFI';
 
 const perYNState = {};
@@ -2640,21 +2640,18 @@ async function perSubmit() {
     })),
   }));
 
-  const prePayload = {
-    action: 'preEvent',
+  const combined = {
+    action: 'combined',
+    // Event info from pre-event
     event: gv('eventName'),
     venue: gv('venue'),
-    date: gv('eventDate'),
+    date: gv('eventDate') || date,
     arrivalTime: gv('arrivalTime'),
     eventNotes: gv('eventNotes'),
     locations: preLocData,
-  };
-
-  const payload = {
-    action: 'postEvent',
-    date: gv('eventDate') || date,
-    event: gv('eventName') || event,
-    name, email,
+    // Post-event info
+    technician: name,
+    email,
     busy_event: perYNState['busy_event'] || '',
     busy_bars: perYNState['busy_bars'] || '',
     location_score: perYNState['location_score'] || '',
@@ -2674,15 +2671,12 @@ async function perSubmit() {
   };
 
   try {
-    // Send pre-event first then post-event
-    await fetch(PER_WEBHOOK, { method:'POST', mode:'no-cors', headers:{'Content-Type':'application/json'}, body: JSON.stringify(prePayload) });
-    await fetch(PER_WEBHOOK, { method:'POST', mode:'no-cors', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+    await fetch(PER_WEBHOOK, { method:'POST', mode:'no-cors', headers:{'Content-Type':'application/json'}, body: JSON.stringify(combined) });
     perDeductPartsFromToolkit();
     perResetForm();
-    // Also clear pre-event report
     clearAll();
     document.getElementById('perSubmitTitle').textContent = 'Submitted';
-    document.getElementById('perSubmitSub').textContent = `${event} — ${date}`;
+    document.getElementById('perSubmitSub').textContent = `${combined.event} — ${combined.date}`;
     document.getElementById('perSubmitHomeBtn').style.display = 'block';
   } catch(e) {
     document.getElementById('perSubmittingPage').style.display = 'none';
