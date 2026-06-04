@@ -2374,7 +2374,7 @@ async function preSubmitReport() {
 function preSubmitDone() {
   document.getElementById('preSubmittingPage').style.display = 'none';
 }
-const PER_WEBHOOK = 'https://script.google.com/macros/s/AKfycby78GCV3urcWTwfo1BCE4ImWqHK_DK6dAw5kqpoU7Ge5s9KnwDIxRVJ1FEubGENHMLHnA/exec';
+const PER_WEBHOOK = 'https://script.google.com/macros/s/AKfycbxeBCRmXgcg5Iob9dFMJDAg1QAo3-PSIyfNcXtbGuXmiCBtbGfGLZm-mpEcHmhbOXqU6w/exec';
 const PER_DRIVE_FOLDER = '1nj8_tle6eS7vxsPvn8VDUhjhEc5QEBFI';
 
 const perYNState = {};
@@ -2652,7 +2652,9 @@ async function perSubmit() {
 
   const payload = {
     action: 'postEvent',
-    date, name, email, event,
+    date: gv('eventDate') || date,
+    event: gv('eventName') || event,
+    name, email,
     busy_event: perYNState['busy_event'] || '',
     busy_bars: perYNState['busy_bars'] || '',
     location_score: perYNState['location_score'] || '',
