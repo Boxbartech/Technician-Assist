@@ -332,7 +332,7 @@ header {
     <span class="home-big-arr">›</span>
   </button>
 
-  <button class="home-big-btn" onclick="showPage('postEventPage');perInit()">
+  <button class="home-big-btn" onclick="showPage('postEventPage');perInitFromPre()">
     <div style="flex:1;min-width:0">
       <span class="home-big-label">Post Event Report</span>
       <div class="home-big-desc">Fill in after every event to log what happened on site</div>
@@ -438,8 +438,7 @@ header {
       <button class="action-btn btn-ghost" onclick="showEventPreview()">Preview</button>
       <button class="action-btn btn-clear" onclick="openClear()">🗑 Clear all</button>
     </div>
-    <button class="action-btn btn-copy" onclick="preSubmitReport()" style="margin-bottom:6px">Submit to Sheet</button>
-    <button class="action-btn btn-copy" onclick="copyEventReport()">Copy Event</button>
+    <button class="action-btn btn-copy" onclick="preSubmitReport()">Submit Report</button>
   </div>
 </div>
 
@@ -2076,7 +2075,7 @@ function goToReport() {
   if (!locations.length) addLocation();
   renderTabBar();
   renderLocationTabs();
-  switchTab(activeTab);
+  switchTab('event');
 }
 function manualSearchFilter(q) {
   const lq = q.trim().toLowerCase();
@@ -2375,7 +2374,7 @@ async function preSubmitReport() {
 function preSubmitDone() {
   document.getElementById('preSubmittingPage').style.display = 'none';
 }
-const PER_WEBHOOK = 'https://script.google.com/macros/s/AKfycbwp-wnITI6orCiN5g4l1Mc95bIpCNgpLi0meQfoqxtIju0ZlqMr1NiNf-tGQUPuvZrBjA/exec';
+const PER_WEBHOOK = 'https://script.google.com/macros/s/AKfycbyx2-4fylU__3TiGqTJaQ6GJrnLSnT8rokd16VzhDQfeoRHyxerT2XnRb_yU_Gz2zS8ww/exec';
 const PER_DRIVE_FOLDER = '1nj8_tle6eS7vxsPvn8VDUhjhEc5QEBFI';
 
 const perYNState = {};
@@ -2427,6 +2426,22 @@ function perBuildRating(containerId, fieldKey) {
       perYNState[fieldKey] = i;
     };
     el.appendChild(btn);
+  }
+}
+
+function perInitFromPre() {
+  perInit();
+  // Auto-fill from pre-event report if available
+  const eventName = gv('eventName');
+  const venue = gv('venue');
+  const date = gv('eventDate');
+  if (eventName) {
+    const eventEl = document.getElementById('per_event');
+    if (eventEl && !eventEl.value) eventEl.value = eventName + (venue ? ' — ' + venue : '');
+  }
+  if (date) {
+    const dateEl = document.getElementById('per_date');
+    if (dateEl && !dateEl.value) dateEl.value = date;
   }
 }
 
@@ -3716,7 +3731,6 @@ function buildLocationHTML(loc) {
           <button class="action-btn btn-ghost" onclick="showSingleLocPreview(${loc.id})">Preview</button>
           <button class="action-btn btn-copy" onclick="copySingleLoc(${loc.id})">Copy</button>
         </div>
-        <button class="action-btn btn-copy" onclick="preSubmitReport()" style="margin-bottom:6px">Submit to Sheet</button>
         <button class="action-btn" style="background:#25D366;color:#fff;border:none;width:100%;margin-top:6px" onclick="shareLocWhatsApp(${loc.id})">Share on WhatsApp</button>
       </div>
     </div>`;
@@ -3731,6 +3745,10 @@ function setToday() {
 function makeMachine(num) { return { num, name:'', product:'', psi:'', tap1:'', tap2:'', notes:'' }; }
 
 function addLocation() {
+  if (locations.length >= 5) {
+    alert('Maximum 5 locations per event.');
+    return;
+  }
   const id = ++locIdCounter;
   locations.push({ id, name:'', internet:'', staffTrained:'', staffCount:'', freshKegs:'', productTemp:'', testPayment:'', notes:'', machines:[makeMachine(1),makeMachine(2),makeMachine(3)] });
   activeTab = id;
