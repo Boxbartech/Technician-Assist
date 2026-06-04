@@ -5,8 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Boxbar Report">
-<title>Boxbar Field Report</title>
+<meta name="apple-mobile-web-app-title" content="Boxbar">
+<meta name="theme-color" content="#E91E8C">
+<link rel="apple-touch-icon" href="icon.png">
+<link rel="manifest" href="manifest.json">
+<title>Boxbar Technician Assist</title>
 <style>
 :root {
   --pink: #E91E8C;
@@ -77,6 +80,19 @@ header {
 .loc-num { color: rgba(255,255,255,0.72); font-size: 11px; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase; flex-shrink: 0; }
 .loc-name-input { flex: 1; background: transparent; border: none; outline: none; font-size: 15px; font-weight: 600; font-family: inherit; color: #fff; min-width: 0; }
 .loc-name-input::placeholder { color: rgba(255,255,255,0.4); font-weight: 400; }
+.per-yn-btn { padding:8px 24px;border-radius:8px;border:0.5px solid var(--border);background:var(--card);color:var(--text);font-size:14px;font-weight:600;font-family:inherit;cursor:pointer;transition:all 0.15s; }
+.per-yn-btn.active { background:var(--pink);color:#fff;border-color:var(--pink); }
+.per-field-label { font-size:13px;font-weight:600;color:var(--text);margin-bottom:6px;display:block; }
+.per-field-hint { font-size:12px;color:var(--muted);font-weight:400;margin-left:4px; }
+.per-input { width:100%;box-sizing:border-box;background:var(--card2);border:0.5px solid var(--border);border-radius:10px;padding:11px 13px;font-size:14px;font-family:inherit;color:var(--text);outline:none;-webkit-appearance:none;appearance:none; }
+.per-input:focus { border-color:var(--pink); }
+.per-textarea { width:100%;box-sizing:border-box;background:var(--card2);border:0.5px solid var(--border);border-radius:10px;padding:11px 13px;font-size:14px;font-family:inherit;color:var(--text);outline:none;resize:none; }
+.per-textarea:focus { border-color:var(--pink); }
+.per-card { background:var(--card);border:0.5px solid var(--border);border-radius:var(--radius);overflow:hidden; }
+.per-row { padding:14px 16px;border-bottom:0.5px solid var(--border);display:flex;flex-direction:column;gap:8px; }
+.per-row:last-child { border-bottom:none; }
+.per-rating-btn { width:34px;height:34px;border-radius:8px;border:0.5px solid var(--border);background:var(--card2);color:var(--text);font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;transition:all 0.15s;flex-shrink:0; }
+.per-rating-btn.active { background:var(--pink);color:#fff;border-color:var(--pink); }
 .remove-loc-btn { background: rgba(255,255,255,0.18); border: none; border-radius: 6px; color: #fff; font-size: 15px; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; font-family: inherit; }
 
 .loc-details { background: var(--card); border: 0.5px solid var(--border); border-top: none; }
@@ -186,6 +202,10 @@ header {
 /* REPORT PAGE */
 #reportPage { display: none; }
 #reportPage.active { display: block; }
+#postEventPage { display: none; }
+#postEventPage.active { display: block; }
+#toolkitPage { display:none; }
+#toolkitPage.active { display:block; }
 /* GAS PAGE */
 #gasPage { display: none; }
 #gasPage.active { display: block; }
@@ -312,7 +332,7 @@ header {
     <span class="home-big-arr">›</span>
   </button>
 
-  <button class="home-big-btn" onclick="window.open('https://docs.google.com/forms/d/1yUYoy1ZTbTkZizhUfhLOwfCS0SXDNd0CMCpe0nP-Mkg/edit?usp=forms_home&ths=true','_blank')">
+  <button class="home-big-btn" onclick="showPage('postEventPage');perInit()">
     <div style="flex:1;min-width:0">
       <span class="home-big-label">Post Event Report</span>
       <div class="home-big-desc">Fill in after every event to log what happened on site</div>
@@ -338,8 +358,16 @@ header {
 
   <button class="home-big-btn" onclick="goToManual()">
     <div style="flex:1;min-width:0">
-      <span class="home-big-label">Technicians Manual</span>
+      <span class="home-big-label">Manual</span>
       <div class="home-big-desc">Learn about the components of the machine</div>
+    </div>
+    <span class="home-big-arr">›</span>
+  </button>
+
+  <button class="home-big-btn" onclick="showPage('toolkitPage')">
+    <div style="flex:1;min-width:0">
+      <span class="home-big-label">Toolkit</span>
+      <div class="home-big-desc">Track what's in your toolkit</div>
     </div>
     <span class="home-big-arr">›</span>
   </button>
@@ -447,6 +475,264 @@ header {
 
 </div><!-- /reportPage -->
 
+<!-- ══════════════════════════════ POST EVENT REPORT PAGE ══════════════════════════════ -->
+<div id="postEventPage">
+
+<header>
+  <svg class="header-logo-small" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <rect x="23" y="5" width="63" height="90" fill="white"/>
+    <rect x="23" y="5" width="63" height="10.8" fill="#E91E8C"/>
+    <rect x="23" y="84.2" width="63" height="10.8" fill="#E91E8C"/>
+    <rect x="23" y="15.8" width="14.8" height="17.1" fill="#E91E8C"/>
+    <rect x="23" y="67.1" width="14.8" height="17.1" fill="#E91E8C"/>
+    <rect x="37.8" y="32.9" width="18.4" height="34.2" fill="#E91E8C"/>
+    <polygon points="63.5,15.8 86,15.8 86,32.9 71.4,32.9 71.4,25.7" fill="#E91E8C"/>
+    <polygon points="71.4,32.9 86,32.9 86,50 63.5,50 71.4,41.5" fill="#E91E8C"/>
+    <polygon points="63.5,50 86,50 86,67.1 71.4,67.1 71.4,58.5" fill="#E91E8C"/>
+    <polygon points="71.4,67.1 86,67.1 86,84.2 63.5,84.2 71.4,76" fill="#E91E8C"/>
+  </svg>
+  <div class="header-left">
+    <h1>Post Event Report</h1>
+    <p>Complete after every event</p>
+  </div>
+  <button class="back-btn" onclick="showPage('homePage')">‹ Home</button>
+</header>
+
+<div style="padding:0 0 24px">
+
+  <!-- Technician -->
+  <div class="section-label">Technician</div>
+  <div class="per-card" style="margin:0 12px">
+    <div class="per-row">
+      <label class="per-field-label">Name</label>
+      <input id="per_name" type="text" class="per-input" placeholder="Your full name">
+    </div>
+    <div class="per-row">
+      <label class="per-field-label">Email</label>
+      <input id="per_email" type="email" class="per-input" placeholder="your@email.com">
+    </div>
+  </div>
+
+  <!-- Event -->
+  <div class="section-label">Event</div>
+  <div class="per-card" style="margin:0 12px">
+    <div class="per-row">
+      <label class="per-field-label">Event / Venue</label>
+      <input id="per_event" type="text" class="per-input" placeholder="Event or venue name">
+    </div>
+    <div class="per-row">
+      <label class="per-field-label">Date</label>
+      <div style="display:flex;gap:8px;align-items:center">
+        <input id="per_date" type="date" class="per-input" style="flex:1;color-scheme:dark">
+        <button onclick="perSetToday()" style="background:var(--pink-light);color:var(--pink);border:0.5px solid var(--pink-border);border-radius:10px;padding:11px 14px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;white-space:nowrap;flex-shrink:0">Today</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Setup -->
+  <div class="section-label">Setup</div>
+  <div class="per-card" style="margin:0 12px">
+    <div class="per-row">
+      <label class="per-field-label">Were machines set up on arrival?</label>
+      <div style="display:flex;gap:8px;margin-top:2px">
+        <button id="per_setup_yes" class="per-yn-btn" onclick="perToggleYN('per_setup','yes')">Yes</button>
+        <button id="per_setup_no" class="per-yn-btn" onclick="perToggleYN('per_setup','no')">No</button>
+      </div>
+    </div>
+    <div class="per-row">
+      <label class="per-field-label">Issues on arrival</label>
+      <textarea id="per_issues_arrival" class="per-textarea" rows="2" placeholder="Describe any issues, or leave blank"></textarea>
+    </div>
+    <div class="per-row">
+      <label class="per-field-label">Had the machines been line cleaned since last use? <span class="per-field-hint">check if product is visible in the lines</span></label>
+      <div style="display:flex;gap:8px;margin-top:2px">
+        <button id="per_lineclean_yes" class="per-yn-btn" onclick="perToggleYN('per_lineclean','yes')">Yes</button>
+        <button id="per_lineclean_no" class="per-yn-btn" onclick="perToggleYN('per_lineclean','no')">No</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Staff -->
+  <div class="section-label">Staff</div>
+  <div class="per-card" style="margin:0 12px">
+    <div class="per-row">
+      <label class="per-field-label" style="margin-bottom:10px">Staff provided</label>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--card2);border-radius:10px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <input type="checkbox" id="per_foh" style="width:20px;height:20px;accent-color:var(--pink);cursor:pointer;flex-shrink:0">
+            <div><div style="font-size:14px;font-weight:600;color:var(--text)">FOH</div><div style="font-size:12px;color:var(--muted)">Trained</div></div>
+          </div>
+          <select id="per_foh_qty" style="background:var(--card);border:0.5px solid var(--border);border-radius:8px;padding:6px 10px;font-size:14px;font-family:inherit;color:var(--text);outline:none;-webkit-appearance:none">
+            <option value="">Qty</option>
+            <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option>
+          </select>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--card2);border-radius:10px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <input type="checkbox" id="per_boh" style="width:20px;height:20px;accent-color:var(--pink);cursor:pointer;flex-shrink:0">
+            <div><div style="font-size:14px;font-weight:600;color:var(--text)">BOH</div><div style="font-size:12px;color:var(--muted)">Trained</div></div>
+          </div>
+          <select id="per_boh_qty" style="background:var(--card);border:0.5px solid var(--border);border-radius:8px;padding:6px 10px;font-size:14px;font-family:inherit;color:var(--text);outline:none;-webkit-appearance:none">
+            <option value="">Qty</option>
+            <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option>
+          </select>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--card2);border-radius:10px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <input type="checkbox" id="per_fohboh" style="width:20px;height:20px;accent-color:var(--pink);cursor:pointer;flex-shrink:0">
+            <div><div style="font-size:14px;font-weight:600;color:var(--text)">FOH &amp; BOH</div><div style="font-size:12px;color:var(--muted)">Trained</div></div>
+          </div>
+          <select id="per_fohboh_qty" style="background:var(--card);border:0.5px solid var(--border);border-radius:8px;padding:6px 10px;font-size:14px;font-family:inherit;color:var(--text);outline:none;-webkit-appearance:none">
+            <option value="">Qty</option>
+            <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Issues -->
+  <div class="section-label">Issues</div>
+  <div class="per-card" style="margin:0 12px">
+    <div class="per-row">
+      <label class="per-field-label">Issues during the event</label>
+      <textarea id="per_issues_during" class="per-textarea" rows="2" placeholder="Describe any issues, or leave blank"></textarea>
+    </div>
+    <div class="per-row">
+      <label class="per-field-label">Was this escalated to the wider events team?</label>
+      <div style="display:flex;gap:8px;margin-top:2px">
+        <button id="per_escalated_yes" class="per-yn-btn" onclick="perToggleYN('per_escalated','yes')">Yes</button>
+        <button id="per_escalated_no" class="per-yn-btn" onclick="perToggleYN('per_escalated','no')">No</button>
+      </div>
+    </div>
+    <div class="per-row">
+      <label class="per-field-label">Parts used during the event</label>
+      <textarea id="per_parts" class="per-textarea" rows="2" placeholder="e.g. Solenoid plunger ×1, gas bottle seal ×2 — or leave blank"></textarea>
+    </div>
+  </div>
+
+  <!-- Busyness -->
+  <div class="section-label">Busyness</div>
+  <div class="per-card" style="margin:0 12px">
+    <div class="per-row">
+      <label class="per-field-label">How busy was the event? <span class="per-field-hint">1 = quiet · 10 = packed</span></label>
+      <div id="per_busy_event" style="display:flex;gap:5px;justify-content:space-between;margin-top:2px"></div>
+    </div>
+    <div class="per-row">
+      <label class="per-field-label">How busy were the other bars? <span class="per-field-hint">1 = quiet · 10 = packed</span></label>
+      <div id="per_busy_bars" style="display:flex;gap:5px;justify-content:space-between;margin-top:2px"></div>
+    </div>
+    <div class="per-row">
+      <label class="per-field-label">How good was the machine location for passing trade? <span class="per-field-hint">1 = very bad · 10 = perfect</span></label>
+      <div id="per_location_score" style="display:flex;gap:5px;justify-content:space-between;margin-top:2px"></div>
+    </div>
+  </div>
+
+  <!-- Feedback -->
+  <div class="section-label">Feedback</div>
+  <div class="per-card" style="margin:0 12px">
+    <div class="per-row">
+      <label class="per-field-label">Customer feedback</label>
+      <textarea id="per_customer_feedback" class="per-textarea" rows="3" placeholder="What were customers saying?"></textarea>
+    </div>
+    <div class="per-row">
+      <label class="per-field-label">Client feedback</label>
+      <textarea id="per_client_feedback" class="per-textarea" rows="3" placeholder="Feedback from the client or venue"></textarea>
+    </div>
+  </div>
+
+  <!-- Closedown -->
+  <div class="section-label">Closedown</div>
+  <div class="per-card" style="margin:0 12px">
+    <div class="per-row">
+      <label class="per-field-label">Were staff briefed on clean down at end of event?</label>
+      <div style="display:flex;gap:8px;margin-top:2px">
+        <button id="per_briefed_yes" class="per-yn-btn" onclick="perToggleYN('per_briefed','yes')">Yes</button>
+        <button id="per_briefed_no" class="per-yn-btn" onclick="perToggleYN('per_briefed','no')">No</button>
+      </div>
+    </div>
+    <div class="per-row">
+      <label class="per-field-label">Additional notes</label>
+      <textarea id="per_notes" class="per-textarea" rows="3" placeholder="Anything else worth noting"></textarea>
+    </div>
+  </div>
+
+  <!-- Photos -->
+  <div class="section-label">Photos</div>
+  <div class="per-card" style="margin:0 12px">
+    <div class="per-row">
+      <label class="per-field-label">Event photos <span class="per-field-hint">optional — select up to 5</span></label>
+      <input type="file" id="per_photos" accept="image/*" multiple style="display:none" onchange="perHandlePhotos(this)">
+      <button onclick="document.getElementById('per_photos').click()" style="margin-top:4px;width:100%;padding:12px;background:var(--card2);border:0.5px dashed var(--border);border-radius:10px;color:var(--muted);font-size:14px;font-weight:600;font-family:inherit;cursor:pointer">Tap to select photos</button>
+      <div id="per_photo_preview" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"></div>
+      <div id="per_photo_status" style="font-size:12px;color:var(--muted);margin-top:4px"></div>
+    </div>
+  </div>
+
+  <!-- Submit -->
+  <div style="margin:16px 12px 0;display:flex;flex-direction:column;gap:10px">
+    <button onclick="perSubmit()" style="width:100%;padding:15px;background:var(--pink);color:#fff;border:none;border-radius:var(--radius);font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;letter-spacing:0.2px">Submit Report</button>
+    <div id="per_success" style="display:none;background:rgba(52,199,89,0.12);border:0.5px solid rgba(52,199,89,0.4);border-radius:var(--radius);padding:14px;text-align:center;color:#34c759;font-weight:600;font-size:14px">Report submitted successfully</div>
+    <div id="per_error" style="display:none;background:rgba(255,69,58,0.10);border:0.5px solid rgba(255,69,58,0.3);border-radius:var(--radius);padding:14px;text-align:center;color:#ff453a;font-weight:600;font-size:14px"></div>
+  </div>
+
+</div>
+</div><!-- /postEventPage -->
+
+<!-- ══════════════════════════════ TOOLKIT PAGE ══════════════════════════════ -->
+<div id="toolkitPage">
+
+<header>
+  <svg class="header-logo-small" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <rect x="23" y="5" width="63" height="90" fill="white"/>
+    <rect x="23" y="5" width="63" height="10.8" fill="#E91E8C"/>
+    <rect x="23" y="84.2" width="63" height="10.8" fill="#E91E8C"/>
+    <rect x="23" y="15.8" width="14.8" height="17.1" fill="#E91E8C"/>
+    <rect x="23" y="67.1" width="14.8" height="17.1" fill="#E91E8C"/>
+    <rect x="37.8" y="32.9" width="18.4" height="34.2" fill="#E91E8C"/>
+    <polygon points="63.5,15.8 86,15.8 86,32.9 71.4,32.9 71.4,25.7" fill="#E91E8C"/>
+    <polygon points="71.4,32.9 86,32.9 86,50 63.5,50 71.4,41.5" fill="#E91E8C"/>
+    <polygon points="63.5,50 86,50 86,67.1 71.4,67.1 71.4,58.5" fill="#E91E8C"/>
+    <polygon points="71.4,67.1 86,67.1 86,84.2 63.5,84.2 71.4,76" fill="#E91E8C"/>
+  </svg>
+  <div class="header-left">
+    <h1>Toolkit</h1>
+    <p>Track your kit</p>
+  </div>
+  <button class="back-btn" onclick="showPage('homePage')">‹ Home</button>
+</header>
+
+<div style="padding:0 0 32px">
+
+  <div class="section-label">My Items</div>
+
+  <!-- Item list -->
+  <div id="tkList" style="margin:0 12px;display:flex;flex-direction:column;gap:6px"></div>
+
+  <!-- Add item row -->
+  <div style="margin:10px 12px 0;display:flex;gap:8px;align-items:center">
+    <input id="tkNewItem" type="text" placeholder="Add an item…" onkeydown="if(event.key==='Enter')tkAddItem()" style="flex:1;background:var(--card2);border:0.5px solid var(--border);border-radius:10px;padding:11px 13px;font-size:14px;font-family:inherit;color:var(--text);outline:none">
+    <button onclick="tkAddItem()" style="background:var(--pink);color:#fff;border:none;border-radius:10px;padding:11px 16px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;flex-shrink:0">Add</button>
+  </div>
+
+  <!-- Spare parts section -->
+  <div class="section-label" style="margin-top:6px">Spare Parts</div>
+  <div id="tkPartsList" style="margin:0 12px;display:flex;flex-direction:column;gap:6px"></div>
+
+  <div style="margin:10px 12px 0;display:flex;gap:8px;align-items:center">
+    <input id="tkNewPart" type="text" placeholder="Part name…" style="flex:1;background:var(--card2);border:0.5px solid var(--border);border-radius:10px;padding:11px 13px;font-size:14px;font-family:inherit;color:var(--text);outline:none" onkeydown="if(event.key==='Enter')document.getElementById('tkNewPartQty').focus()">
+    <input id="tkNewPartQty" type="number" min="0" placeholder="Qty" style="width:64px;background:var(--card2);border:0.5px solid var(--border);border-radius:10px;padding:11px 10px;font-size:14px;font-family:inherit;color:var(--text);outline:none;text-align:center" onkeydown="if(event.key==='Enter')tkAddPart()">
+    <button onclick="tkAddPart()" style="background:var(--pink);color:#fff;border:none;border-radius:10px;padding:11px 16px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;flex-shrink:0">Add</button>
+  </div>
+
+  <div style="margin:16px 12px 0">
+    <button onclick="tkClearAll()" style="width:100%;padding:12px;background:var(--card);border:0.5px solid var(--border);border-radius:var(--radius);color:var(--muted);font-size:13px;font-weight:600;font-family:inherit;cursor:pointer">Clear all</button>
+  </div>
+
+</div>
+</div><!-- /toolkitPage -->
+
 <!-- ══════════════════════════════ PSI CALCULATOR PAGE ══════════════════════════════ -->
 <div id="gasPage">
 <header>
@@ -477,15 +763,22 @@ header {
 <!-- CALCULATOR -->
 <div class="section-label">Calculator</div>
 <div class="group">
+  <!-- Product search -->
   <div class="field-row" style="position:relative;flex-direction:column;align-items:stretch;padding:10px 14px;gap:0">
     <label style="font-size:11px;font-weight:700;letter-spacing:0.6px;text-transform:uppercase;color:var(--muted);margin-bottom:6px">Product</label>
-    <input id="calcProductInput" type="text" placeholder="Type to search product…" autocomplete="off" oninput="calcProductSearch(this.value)" onfocus="calcProductSearch(this.value)" style="width:100%;background:var(--card2);border:0.5px solid var(--border);border-radius:8px;padding:10px 12px;font-size:14px;font-family:inherit;color:var(--text);outline:none;">
+    <input id="calcProductInput" type="text" placeholder="Type to search product…" autocomplete="off" oninput="calcProductSearch(this.value);runCalcUnified()" onfocus="calcProductSearch(this.value)" style="width:100%;background:var(--card2);border:0.5px solid var(--border);border-radius:8px;padding:10px 12px;font-size:14px;font-family:inherit;color:var(--text);outline:none;">
     <div id="calcDropdown" style="display:none;position:absolute;top:100%;left:14px;right:14px;background:var(--card2);border:0.5px solid var(--border);border-radius:8px;z-index:50;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,0.4)"></div>
   </div>
+  <!-- Vols input -->
+  <div class="field-row">
+    <span class="field-label">CO₂ vols</span>
+    <input id="calcVolsInput" type="number" step="0.05" min="1.0" max="4.0" placeholder="e.g. 2.4" oninput="runCalcUnified()" style="width:100px;background:var(--card2);border:0.5px solid var(--border);border-radius:8px;padding:8px 10px;font-size:14px;font-family:inherit;color:var(--text);outline:none;text-align:right">
+  </div>
+  <!-- Gas type -->
   <div class="field-row">
     <span class="field-label">Gas type</span>
     <div class="select-wrap">
-      <select id="calcGas" class="field-select" onchange="runCalc()">
+      <select id="calcGas" class="field-select" onchange="runCalcUnified()">
         <option value="">Select…</option>
         <option value="CO2">CO2</option>
         <option value="60/40">60/40 Mixed</option>
@@ -494,35 +787,13 @@ header {
       <span class="select-caret">›</span>
     </div>
   </div>
+  <!-- Temperature stepper -->
   <div class="field-row">
     <span class="field-label">Temperature</span>
-    <div class="select-wrap">
-      <select id="calcTemp" class="field-select" onchange="runCalc()">
-        <option value="">Select…</option>
-        <option value="0">2°C</option>
-        <option value="1">3°C</option>
-        <option value="2">4°C</option>
-        <option value="3">5°C</option>
-        <option value="4">6°C</option>
-        <option value="5">7°C</option>
-        <option value="6">8°C</option>
-        <option value="7">9°C</option>
-        <option value="8">10°C</option>
-        <option value="9">11°C</option>
-        <option value="10">12°C</option>
-        <option value="11">13°C</option>
-        <option value="12">14°C</option>
-        <option value="13">15°C</option>
-        <option value="14">16°C</option>
-        <option value="15">17°C</option>
-        <option value="16">18°C</option>
-        <option value="17">19°C</option>
-        <option value="18">20°C</option>
-        <option value="19">21°C</option>
-        <option value="20">22°C</option>
-        <option value="21">23°C</option>
-      </select>
-      <span class="select-caret">›</span>
+    <div style="display:flex;align-items:center;gap:0;border:0.5px solid var(--border);border-radius:8px;overflow:hidden;background:var(--card2)">
+      <button onclick="calcTempStep(-1)" style="width:36px;height:36px;background:none;border:none;color:var(--text);font-size:20px;font-family:inherit;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;line-height:1">−</button>
+      <input id="calcTempInput" type="number" min="2" max="23" value="" placeholder="°C" oninput="runCalcUnified()" style="width:56px;background:none;border:none;font-size:15px;font-weight:600;font-family:inherit;color:var(--text);text-align:center;outline:none;padding:0;-moz-appearance:textfield">
+      <button onclick="calcTempStep(1)" style="width:36px;height:36px;background:none;border:none;color:var(--text);font-size:20px;font-family:inherit;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;line-height:1">+</button>
     </div>
   </div>
 </div>
@@ -607,7 +878,7 @@ header {
     <polygon points="71.4,67.1 86,67.1 86,84.2 63.5,84.2 71.4,76" fill="#E91E8C"/>
   </svg>
   <div class="header-left">
-    <h1>Technicians Manual</h1>
+    <h1>Manual</h1>
     <p>Field Operations Reference</p>
   </div>
   <button class="back-btn" onclick="goHome()">‹ Home</button>
@@ -669,7 +940,7 @@ header {
   </svg>
   <div class="header-left">
     <h1 id="componentTitle">Component</h1>
-    <p>Technicians Manual</p>
+    <p>Manual</p>
   </div>
   <button class="back-btn" onclick="goToManual()">‹ Manual</button>
 </header>
@@ -935,7 +1206,7 @@ function goToHt(hts, causeLabel, l2id, l1id, escalate, manualId) {
     document.getElementById('tsHtCode').textContent = causeLabel;
     document.getElementById('tsHtSubtitle').textContent = 'Select the relevant fix';
     document.getElementById('tsHtBody').innerHTML =
-      `<div class="ts-alert">No specific how-to for this item — check the Technicians Manual or contact support.</div>${supportFooter()}`;
+      `<div class="ts-alert">No specific how-to for this item — check the Manual or contact support.</div>${supportFooter()}`;
     showPage('tsHtPage');
     return;
   }
@@ -1769,7 +2040,11 @@ const tsHowTo = {
 
 function goToReport() {
   showPage('reportPage');
+  prerLoad();
   if (!locations.length) addLocation();
+  renderTabBar();
+  renderLocationTabs();
+  switchTab(activeTab);
 }
 function goToManual() {
   showPage('manualPage');
@@ -1790,6 +2065,78 @@ function toggleCalcSource() {
   else { box.textContent = box.dataset.src || 'Source not available.'; box.style.display = 'block'; btn.textContent = 'Hide source'; }
 }
 
+// Brewer's Association polynomial: P(psi) = f(T°F, V vols)
+function baFormula(tempC, vols) {
+  const tf = tempC * 9/5 + 32;
+  return -16.6999 - 0.0101059*tf + 0.00116512*tf*tf + 0.173354*tf*vols + 4.24267*vols - 0.0684226*vols*vols;
+}
+
+function calcTempStep(delta) {
+  const el = document.getElementById('calcTempInput');
+  const cur = parseInt(el.value) || 11;
+  const next = Math.min(23, Math.max(2, cur + delta));
+  el.value = next;
+  runCalcUnified();
+}
+
+function runCalcUnified() {
+  const result = document.getElementById('calcResult');
+  const warn   = document.getElementById('calcWarn');
+  const noData = document.getElementById('calcNoData');
+  const userRep = document.getElementById('calcUserReported');
+  const sourceText = document.getElementById('calcSourceText');
+  const sourceBtn  = document.getElementById('calcSourceBtn');
+  result.style.display = 'none';
+  warn.style.display   = 'none';
+  noData.style.display = 'none';
+  if (userRep) userRep.style.display = 'none';
+  if (sourceText) { sourceText.style.display = 'none'; sourceText.textContent = ''; }
+  if (sourceBtn) sourceBtn.textContent = 'View source';
+
+  const gas     = document.getElementById('calcGas').value;
+  const tempRaw = document.getElementById('calcTempInput').value;
+  const tempC   = parseInt(tempRaw);
+  const tempIdx = tempC - 2; // 2°C = index 0
+  const volsRaw = parseFloat(document.getElementById('calcVolsInput').value);
+  const tempLabels = ['2°C','3°C','4°C','5°C','6°C','7°C','8°C','9°C','10°C','11°C','12°C','13°C','14°C','15°C','16°C','17°C','18°C','19°C','20°C','21°C','22°C','23°C'];
+
+  if (!gas || isNaN(tempC) || tempC < 2 || tempC > 23) return;
+
+  // Product mode — use table data
+  if (calcSelectedBrand) {
+    const brand = gasData.find(b => b.brand === calcSelectedBrand);
+    if (!brand) return;
+    const row = brand.rows.find(r => r.gas === gas);
+    if (!row || !row.t || row.t[tempIdx] === null || row.t[tempIdx] === undefined) {
+      noData.style.display = 'block'; return;
+    }
+    const psi = row.t[tempIdx];
+    if (psi === null) { noData.style.display = 'block'; return; }
+    const isWarn = row.warn && row.warn.includes(tempIdx);
+    document.getElementById('calcPSIValue').textContent = (typeof psi === 'number') ? psi.toFixed(1) : psi;
+    document.getElementById('calcPSILabel').textContent = `${brand.brand} · ${gas} · ${tempLabels[tempIdx]}`;
+    result.style.display = 'block';
+    if (isWarn) warn.style.display = 'block';
+    if (brand.userReported) {
+      if (userRep) userRep.style.display = 'block';
+      if (sourceText && brand.source) sourceText.dataset.src = brand.source;
+    }
+    return;
+  }
+
+  // Vols-only mode — use Brewer's Association formula
+  if (!isNaN(volsRaw) && volsRaw > 0) {
+    let psi = baFormula(tempC, volsRaw);
+    if (gas === '60/40') psi = psi / 0.60;
+    psi = Math.round(psi * 10) / 10;
+    document.getElementById('calcPSIValue').textContent = psi.toFixed(1);
+    document.getElementById('calcPSILabel').textContent = `${volsRaw} vol${volsRaw !== 1 ? 's' : ''} · ${gas} · ${tempLabels[tempIdx]}`;
+    result.style.display = 'block';
+    if (psi > 55) warn.style.display = 'block';
+    return;
+  }
+}
+
 function toggleChart() {
   const panel = document.getElementById('chartPanel');
   const arrow = document.getElementById('chartToggleArrow');
@@ -1803,7 +2150,8 @@ function goToGas() {
   showPage('gasPage');
   document.getElementById('calcProductInput').value = '';
   document.getElementById('calcGas').value = '';
-  document.getElementById('calcTemp').value = '';
+  document.getElementById('calcTempInput').value = '';
+  document.getElementById('calcVolsInput').value = '';
   document.getElementById('calcResult').style.display = 'none';
   document.getElementById('calcWarn').style.display = 'none';
   document.getElementById('calcNoData').style.display = 'none';
@@ -1813,12 +2161,266 @@ function goToGas() {
 }
 function goHome() { showPage('homePage'); }
 function showPage(id) {
-  ['homePage','reportPage','gasPage','manualPage','componentPage','troubleshootPage','tsL2Page','tsL3Page','tsHtPage'].forEach(p => {
+  ['homePage','reportPage','gasPage','manualPage','componentPage','troubleshootPage','tsL2Page','tsL3Page','tsHtPage','postEventPage','toolkitPage'].forEach(p => {
     document.getElementById(p).classList.remove('active');
   });
   document.getElementById(id).classList.add('active');
   window.scrollTo(0,0);
+  if (id === 'toolkitPage') tkRender();
 }
+
+/* ── POST EVENT REPORT ─────────────────────────────────── */
+const PER_WEBHOOK = 'https://script.google.com/macros/s/AKfycbzBYJf9Zxv14Z2to2ISkY2ULYpj3qYtuNwzAYgaOZBVZ8W6D3AHk9GyQeToRZ6n9bsXBw/exec';
+const PER_DRIVE_FOLDER = 'YOUR_GOOGLE_DRIVE_FOLDER_ID_HERE';
+
+const perYNState = {};
+let perPhotoFiles = [];
+
+function perHandlePhotos(input) {
+  const files = Array.from(input.files).slice(0, 5);
+  perPhotoFiles = files;
+  const preview = document.getElementById('per_photo_preview');
+  const status = document.getElementById('per_photo_status');
+  preview.innerHTML = '';
+  files.forEach(f => {
+    const url = URL.createObjectURL(f);
+    const img = document.createElement('img');
+    img.src = url;
+    img.style.cssText = 'width:72px;height:72px;object-fit:cover;border-radius:8px;border:0.5px solid var(--border)';
+    preview.appendChild(img);
+  });
+  status.textContent = files.length ? `${files.length} photo${files.length > 1 ? 's' : ''} selected` : '';
+}
+
+function perSetToday() {
+  const d = new Date();
+  const pad = n => String(n).padStart(2,'0');
+  document.getElementById('per_date').value = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+}
+
+function perToggleYN(field, val) {
+  perYNState[field] = val;
+  ['yes','no'].forEach(v => {
+    const btn = document.getElementById(`${field}_${v}`);
+    if (btn) btn.classList.toggle('active', v === val);
+  });
+}
+
+function perBuildRating(containerId, fieldKey) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  el.innerHTML = '';
+  for (let i = 1; i <= 10; i++) {
+    const btn = document.createElement('button');
+    btn.textContent = i;
+    btn.dataset.val = i;
+    btn.className = 'per-rating-btn';
+    btn.onclick = () => {
+      el.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      perYNState[fieldKey] = i;
+    };
+    el.appendChild(btn);
+  }
+}
+
+function perInit() {
+  perSetToday();
+  perBuildRating('per_busy_event', 'busy_event');
+  perBuildRating('per_busy_bars', 'busy_bars');
+  perBuildRating('per_location_score', 'location_score');
+}
+
+function perVal(id) { return (document.getElementById(id)?.value || '').trim(); }
+
+async function perSubmit() {
+  const btn = document.querySelector('#postEventPage button[onclick="perSubmit()"]');
+  const successEl = document.getElementById('per_success');
+  const errorEl = document.getElementById('per_error');
+  successEl.style.display = 'none';
+  errorEl.style.display = 'none';
+
+  const name = perVal('per_name');
+  const email = perVal('per_email');
+  const event = perVal('per_event');
+  const date = perVal('per_date');
+
+  if (!name || !email || !event || !date) {
+    errorEl.textContent = 'Please fill in Name, Email, Event and Date before submitting.';
+    errorEl.style.display = 'block';
+    errorEl.scrollIntoView({ behavior:'smooth', block:'center' });
+    return;
+  }
+
+  const fohTrained = document.getElementById('per_foh').checked;
+  const bohTrained = document.getElementById('per_boh').checked;
+  const fohbohTrained = document.getElementById('per_fohboh').checked;
+  const fohQty = document.getElementById('per_foh_qty').value;
+  const bohQty = document.getElementById('per_boh_qty').value;
+  const fohbohQty = document.getElementById('per_fohboh_qty').value;
+  const staffStr = [
+    fohTrained ? `FOH trained (×${fohQty||'?'})` : (fohQty ? `FOH not trained (×${fohQty})` : ''),
+    bohTrained ? `BOH trained (×${bohQty||'?'})` : (bohQty ? `BOH not trained (×${bohQty})` : ''),
+    fohbohTrained ? `FOH & BOH trained (×${fohbohQty||'?'})` : (fohbohQty ? `FOH & BOH not trained (×${fohbohQty})` : ''),
+  ].filter(Boolean).join(', ') || 'None recorded';
+
+  // Upload photos first if any
+  let photoLinks = '';
+  if (perPhotoFiles.length) {
+    document.getElementById('per_photo_status').textContent = `Uploading ${perPhotoFiles.length} photo${perPhotoFiles.length > 1 ? 's' : ''}…`;
+    try {
+      const uploads = await Promise.all(perPhotoFiles.map(async (file) => {
+        const base64 = await new Promise(res => {
+          const r = new FileReader();
+          r.onload = () => res(r.result.split(',')[1]);
+          r.readAsDataURL(file);
+        });
+        const resp = await fetch(PER_WEBHOOK, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'uploadPhoto', filename: file.name, mimeType: file.type, data: base64, folderId: PER_DRIVE_FOLDER, event: perVal('per_event'), date }),
+        });
+        return file.name;
+      }));
+      photoLinks = `${uploads.length} photo(s) uploaded to Drive folder`;
+      document.getElementById('per_photo_status').textContent = 'Photos uploaded';
+    } catch(e) {
+      photoLinks = 'Photo upload failed';
+      document.getElementById('per_photo_status').textContent = 'Photo upload failed — continuing with report';
+    }
+  }
+
+  const payload = {
+    date,
+    name,
+    email,
+    event,
+    busy_event: perYNState['busy_event'] || '',
+    busy_bars: perYNState['busy_bars'] || '',
+    location_score: perYNState['location_score'] || '',
+    customer_feedback: perVal('per_customer_feedback'),
+    client_feedback: perVal('per_client_feedback'),
+    staff: staffStr,
+    setup_on_arrival: perYNState['per_setup'] || '',
+    line_cleaned: perYNState['per_lineclean'] || '',
+    issues_arrival: perVal('per_issues_arrival'),
+    issues_during: perVal('per_issues_during'),
+    escalated: perYNState['per_escalated'] || '',
+    parts_used: perVal('per_parts'),
+    staff_briefed: perYNState['per_briefed'] || '',
+    notes: perVal('per_notes'),
+    photos: photoLinks,
+  };
+
+  btn.textContent = 'Submitting…';
+  btn.disabled = true;
+
+  try {
+    await fetch(PER_WEBHOOK, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    successEl.style.display = 'block';
+    successEl.scrollIntoView({ behavior:'smooth', block:'center' });
+    btn.textContent = 'Submit Report';
+    btn.disabled = false;
+  } catch(e) {
+    errorEl.textContent = 'Submission failed — check your connection and try again.';
+    errorEl.style.display = 'block';
+    btn.textContent = 'Submit Report';
+    btn.disabled = false;
+  }
+}
+
+/* ── TOOLKIT ─────────────────────────────────────────── */
+function tkLoad() {
+  try { return JSON.parse(localStorage.getItem('bx_toolkit') || '{"items":[],"parts":[]}'); }
+  catch { return {items:[], parts:[]}; }
+}
+function tkSave(data) { localStorage.setItem('bx_toolkit', JSON.stringify(data)); }
+
+function tkRender() {
+  const data = tkLoad();
+  const listEl = document.getElementById('tkList');
+  const partsEl = document.getElementById('tkPartsList');
+  if (!listEl || !partsEl) return;
+
+  listEl.innerHTML = data.items.length ? data.items.map((item, i) => `
+    <div style="display:flex;align-items:center;gap:10px;background:var(--card);border:0.5px solid var(--border);border-radius:10px;padding:12px 14px">
+      <input type="checkbox" ${item.checked ? 'checked' : ''} onchange="tkToggleItem(${i})" style="width:20px;height:20px;accent-color:var(--pink);cursor:pointer;flex-shrink:0">
+      <span style="flex:1;font-size:14px;color:var(--text);${item.checked ? 'text-decoration:line-through;color:var(--muted)' : ''}">${item.name}</span>
+      <button onclick="tkRemoveItem(${i})" style="background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;padding:0;line-height:1;flex-shrink:0">×</button>
+    </div>`).join('') : `<div style="padding:14px;text-align:center;color:var(--muted);font-size:13px">No items yet</div>`;
+
+  partsEl.innerHTML = data.parts.length ? data.parts.map((part, i) => `
+    <div style="display:flex;align-items:center;gap:10px;background:var(--card);border:0.5px solid var(--border);border-radius:10px;padding:10px 14px">
+      <span style="flex:1;font-size:14px;color:var(--text)">${part.name}</span>
+      <div style="display:flex;align-items:center;gap:0;border:0.5px solid var(--border);border-radius:8px;overflow:hidden;background:var(--card2)">
+        <button onclick="tkAdjustQty(${i},-1)" style="width:32px;height:32px;background:none;border:none;color:var(--text);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center">−</button>
+        <span style="width:32px;text-align:center;font-size:14px;font-weight:700;color:var(--text)">${part.qty}</span>
+        <button onclick="tkAdjustQty(${i},1)" style="width:32px;height:32px;background:none;border:none;color:var(--text);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center">+</button>
+      </div>
+      <button onclick="tkRemovePart(${i})" style="background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;padding:0;line-height:1;flex-shrink:0">×</button>
+    </div>`).join('') : `<div style="padding:14px;text-align:center;color:var(--muted);font-size:13px">No parts yet</div>`;
+}
+
+function tkAddItem() {
+  const input = document.getElementById('tkNewItem');
+  const name = input.value.trim();
+  if (!name) return;
+  const data = tkLoad();
+  data.items.push({ name, checked: false });
+  tkSave(data); tkRender();
+  input.value = '';
+}
+
+function tkToggleItem(i) {
+  const data = tkLoad();
+  data.items[i].checked = !data.items[i].checked;
+  tkSave(data); tkRender();
+}
+
+function tkRemoveItem(i) {
+  const data = tkLoad();
+  data.items.splice(i, 1);
+  tkSave(data); tkRender();
+}
+
+function tkAddPart() {
+  const nameEl = document.getElementById('tkNewPart');
+  const qtyEl  = document.getElementById('tkNewPartQty');
+  const name = nameEl.value.trim();
+  const qty  = parseInt(qtyEl.value) || 1;
+  if (!name) return;
+  const data = tkLoad();
+  const existing = data.parts.find(p => p.name.toLowerCase() === name.toLowerCase());
+  if (existing) { existing.qty += qty; }
+  else { data.parts.push({ name, qty }); }
+  tkSave(data); tkRender();
+  nameEl.value = ''; qtyEl.value = '';
+}
+
+function tkAdjustQty(i, delta) {
+  const data = tkLoad();
+  data.parts[i].qty = Math.max(0, data.parts[i].qty + delta);
+  tkSave(data); tkRender();
+}
+
+function tkRemovePart(i) {
+  const data = tkLoad();
+  data.parts.splice(i, 1);
+  tkSave(data); tkRender();
+}
+
+function tkClearAll() {
+  if (!confirm('Clear everything from your toolkit?')) return;
+  tkSave({items:[], parts:[]}); tkRender();
+}
+
+document.addEventListener('DOMContentLoaded', tkRender);
 
 /* ── PSI CALCULATOR ────────────────────────────────────── */
 let calcSelectedBrand = null;
@@ -1837,53 +2439,19 @@ function calcProductSearch(val) {
 function selectCalcBrand(name) {
   calcSelectedBrand = name;
   document.getElementById('calcProductInput').value = name;
-  // auto-set gas type if only one option
+  document.getElementById('calcDropdown').style.display = 'none';
   const brand = gasData.find(b => b.brand === name);
-  if (brand && brand.rows.length === 1) {
-    document.getElementById('calcGas').value = brand.rows[0].gas;
+  if (brand) {
+    // auto-fill vols from the brand's CO2 row
+    const co2row = brand.rows.find(r => r.gas === 'CO2');
+    document.getElementById('calcVolsInput').value = co2row && co2row.vols ? co2row.vols : '';
+    // auto-set gas if only one option
+    if (brand.rows.length === 1) document.getElementById('calcGas').value = brand.rows[0].gas;
   }
-  runCalc();
+  runCalcUnified();
 }
 
-function runCalc() {
-  const result = document.getElementById('calcResult');
-  const warn   = document.getElementById('calcWarn');
-  const noData = document.getElementById('calcNoData');
-  const userRep = document.getElementById('calcUserReported');
-  const sourceText = document.getElementById('calcSourceText');
-  const sourceBtn = document.getElementById('calcSourceBtn');
-  result.style.display = 'none';
-  warn.style.display   = 'none';
-  noData.style.display = 'none';
-  userRep.style.display = 'none';
-  if (sourceText) { sourceText.style.display = 'none'; sourceText.textContent = ''; }
-  if (sourceBtn) sourceBtn.textContent = 'View source';
-
-  if (!calcSelectedBrand) return;
-  const gasType = document.getElementById('calcGas').value;
-  const tempIdx = document.getElementById('calcTemp').value;
-  if (!gasType || tempIdx === '') return;
-
-  const brand = gasData.find(b => b.brand === calcSelectedBrand);
-  if (!brand) return;
-  const row = brand.rows.find(r => r.gas === gasType);
-  if (!row) { noData.style.display = 'block'; return; }
-
-  const psi = row.t[parseInt(tempIdx)];
-  if (psi === null || psi === undefined) { noData.style.display = 'block'; return; }
-
-  const tempLabels = ['2°C','3°C','4°C','5°C','6°C','7°C','8°C','9°C','10°C','11°C','12°C','13°C','14°C','15°C','16°C','17°C','18°C','19°C','20°C','21°C','22°C','23°C'];
-  const isWarn = row.warn && row.warn.includes(parseInt(tempIdx));
-
-  document.getElementById('calcPSIValue').textContent = psi;
-  document.getElementById('calcPSILabel').textContent = `${calcSelectedBrand} · ${gasType}${row.vols ? ' · '+row.vols+' vol' : ''} · ${tempLabels[parseInt(tempIdx)]}`;
-  result.style.display = 'block';
-  if (isWarn) warn.style.display = 'block';
-  if (brand.userReported) {
-    userRep.style.display = 'block';
-    if (sourceText && brand.source) sourceText.dataset.src = brand.source;
-  }
-}
+function runCalc() { runCalcUnified(); }
 
 // Close dropdown on outside tap
 document.addEventListener('click', e => {
@@ -2208,262 +2776,283 @@ const componentData = {
 
 
 const gasData = [
-  // ── SECTION 1 — Brewery-confirmed ──────────────────────────────────
-  { brand:'Asahi Dry 5.0', rows:[
-    { gas:'CO2', vols:null, t:[19,20,21,22,23,24,25,26,27,28,29,31,32,33,34,35,36,37,38,39,41,42], warn:[20,21] },
-    { gas:'60/40', vols:2.8, t:[32,34,35,37,39,40,42,44,45,47,49,51,53,55,56,58,60,62,64,66,68,70], warn:[11,12,13,14,15,16,17,18,19,20,21] }
+  // ── SECTION 1 — Brewery-confirmed & operator-confirmed ─────────────
+  { brand:'Asahi Dry 5.0', vols:2.8, spec:'Confirmed — Asahi', rows:[
+    { gas:'CO2', vols:2.8, t:[13.0, 14.0, 15.1, 16.1, 17.1, 18.2, 19.2, 20.3, 21.3, 22.4, 23.5, 24.5, 25.6, 26.7, 27.8, 29.0, 30.1, 31.2, 32.4, 33.5, 34.6, 35.8] },
+    { gas:'60/40', vols:4.6667, warn:[19, 20, 21], t:[21.7, 23.4, 25.1, 26.8, 28.5, 30.3, 32.0, 33.8, 35.5, 37.3, 39.1, 40.9, 42.7, 44.6, 46.4, 48.3, 50.1, 52.0, 53.9, 55.8, 57.7, 59.7] },
   ]},
-  { brand:'Brothers Apple Cider', rows:[
-    { gas:'CO2', vols:null, t:[14,15,16,17,18,18,19,20,21,22,23,24,25,26,26,27,28,29,30,31,32,33] },
-    { gas:'60/40', vols:2.3, t:[23,25,26,28,29,31,32,33,35,36,38,39,41,43,44,46,47,49,50,52,53,55], warn:[21] }
+  { brand:'Birra Moretti', vols:2.3, spec:'Confirmed', rows:[
+    { gas:'CO2', vols:2.3, t:[8.0, 8.9, 9.7, 10.6, 11.5, 12.3, 13.2, 14.1, 15.0, 16.0, 16.9, 17.8, 18.7, 19.7, 20.6, 21.6, 22.6, 23.5, 24.5, 25.5, 26.5, 27.5] },
+    { gas:'60/40', vols:3.8333, t:[13.3, 14.8, 16.2, 17.6, 19.1, 20.6, 22.1, 23.6, 25.1, 26.6, 28.1, 29.7, 31.2, 32.8, 34.4, 36.0, 37.6, 39.2, 40.8, 42.5, 44.2, 45.8] },
   ]},
-  { brand:'Carling', rows:[
-    { gas:'CO2', vols:null, t:[14,15,16,17,18,18,19,20,21,22,23,24,25,26,26,27,28,29,30,31,32,33] },
-    { gas:'60/40', vols:2.3, t:[23,25,26,28,29,31,32,33,35,36,38,39,41,43,44,46,47,49,50,52,53,55], warn:[21] }
+  { brand:'Brothers Apple Cider', vols:2.3, spec:'Confirmed', rows:[
+    { gas:'CO2', vols:2.3, t:[8.0, 8.9, 9.7, 10.6, 11.5, 12.3, 13.2, 14.1, 15.0, 16.0, 16.9, 17.8, 18.7, 19.7, 20.6, 21.6, 22.6, 23.5, 24.5, 25.5, 26.5, 27.5] },
+    { gas:'60/40', vols:3.8333, t:[13.3, 14.8, 16.2, 17.6, 19.1, 20.6, 22.1, 23.6, 25.1, 26.6, 28.1, 29.7, 31.2, 32.8, 34.4, 36.0, 37.6, 39.2, 40.8, 42.5, 44.2, 45.8] },
   ]},
-  { brand:'Carling Black Fruits', rows:[
-    { gas:'CO2', vols:null, t:[17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38] },
-    { gas:'60/40', vols:2.6, t:[28,30,32,34,35,37,38,40,41,43,45,46,48,50,51,53,55,56,58,60,62,64], warn:[16,17,18,19,20,21] }
+  { brand:'Carling', vols:2.3, spec:'Confirmed', rows:[
+    { gas:'CO2', vols:2.3, t:[8.0, 8.9, 9.7, 10.6, 11.5, 12.3, 13.2, 14.1, 15.0, 16.0, 16.9, 17.8, 18.7, 19.7, 20.6, 21.6, 22.6, 23.5, 24.5, 25.5, 26.5, 27.5] },
+    { gas:'60/40', vols:3.8333, t:[13.3, 14.8, 16.2, 17.6, 19.1, 20.6, 22.1, 23.6, 25.1, 26.6, 28.1, 29.7, 31.2, 32.8, 34.4, 36.0, 37.6, 39.2, 40.8, 42.5, 44.2, 45.8] },
   ]},
-  { brand:'Cherry & Blackberry Cider', rows:[
-    { gas:'CO2', vols:null, t:[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null] },
-    { gas:'60/40', vols:null, t:[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null] }
+  { brand:'Carling Black Fruits', vols:2.6, spec:'Confirmed', rows:[
+    { gas:'CO2', vols:2.6, t:[11.0, 12.0, 12.9, 13.9, 14.9, 15.8, 16.8, 17.8, 18.8, 19.8, 20.8, 21.9, 22.9, 23.9, 25.0, 26.0, 27.1, 28.1, 29.2, 30.3, 31.4, 32.5] },
+    { gas:'60/40', vols:4.3333, t:[18.4, 20.0, 21.6, 23.2, 24.8, 26.4, 28.0, 29.7, 31.4, 33.0, 34.7, 36.4, 38.1, 39.9, 41.6, 43.4, 45.1, 46.9, 48.7, 50.5, 52.3, 54.1] },
   ]},
-  { brand:'Cold River', rows:[
-    { gas:'CO2', vols:null, t:[9,10,10,11,12,13,14,15,16,17,18,18,19,20,21,22,23,24,25,26,27,28] },
-    { gas:'60/40', vols:2.15, t:[15,16,18,19,20,22,23,25,26,28,29,31,32,34,35,37,38,40,41,43,44,46] }
+  { brand:'Cold River', vols:2.15, spec:'Confirmed', rows:[
+    { gas:'CO2', vols:2.15, t:[6.5, 7.3, 8.1, 8.9, 9.8, 10.6, 11.4, 12.3, 13.1, 14.0, 14.9, 15.8, 16.7, 17.6, 18.5, 19.4, 20.3, 21.2, 22.2, 23.1, 24.0, 25.0] },
+    { gas:'60/40', vols:3.5833, t:[10.8, 12.2, 13.5, 14.9, 16.3, 17.7, 19.1, 20.5, 21.9, 23.4, 24.8, 26.3, 27.8, 29.3, 30.8, 32.3, 33.8, 35.4, 36.9, 38.5, 40.1, 41.7] },
   ]},
-  { brand:'Cruzcampo', rows:[
-    { gas:'CO2', vols:null, t:[13,14,14,15,16,17,18,19,20,21,22,22,23,24,25,26,27,28,29,30,31,32] },
-    { gas:'60/40', vols:2.2, t:[22,23,25,26,27,29,30,31,33,34,36,37,39,40,42,43,45,46,48,50,51,53] }
+  { brand:'Cruzcampo', vols:2.2, spec:'Confirmed', rows:[
+    { gas:'CO2', vols:2.2, t:[7.0, 7.8, 8.6, 9.5, 10.3, 11.2, 12.0, 12.9, 13.8, 14.7, 15.6, 16.4, 17.4, 18.3, 19.2, 20.1, 21.0, 22.0, 22.9, 23.9, 24.9, 25.8] },
+    { gas:'60/40', vols:3.6667, t:[11.7, 13.0, 14.4, 15.8, 17.2, 18.6, 20.1, 21.5, 23.0, 24.4, 25.9, 27.4, 28.9, 30.4, 32.0, 33.5, 35.1, 36.6, 38.2, 39.8, 41.4, 43.1] },
   ]},
-  { brand:'Estrella Damm', rows:[
-    { gas:'CO2', vols:null, t:[15,16,17,18,19,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35] },
-    { gas:'60/40', vols:2.4, t:[25,26,28,29,31,32,34,35,37,38,40,41,43,45,46,48,50,51,53,55,57,59], warn:[19,20,21] }
+  { brand:'Estrella Damm', vols:2.4, spec:'Confirmed', rows:[
+    { gas:'CO2', vols:2.4, t:[9.0, 9.9, 10.8, 11.7, 12.6, 13.5, 14.4, 15.4, 16.3, 17.2, 18.2, 19.2, 20.1, 21.1, 22.1, 23.1, 24.1, 25.1, 26.1, 27.1, 28.1, 29.2] },
+    { gas:'60/40', vols:4.0, t:[15.0, 16.5, 18.0, 19.5, 21.0, 22.5, 24.1, 25.6, 27.2, 28.7, 30.3, 31.9, 33.5, 35.2, 36.8, 38.4, 40.1, 41.8, 43.5, 45.2, 46.9, 48.6] },
   ]},
-  { brand:'Grolsch', rows:[
-    { gas:'CO2', vols:null, t:[13,14,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,33,34] },
-    { gas:'60/40', vols:2.5, t:[22,23,25,26,27,29,30,31,33,34,36,38,40,42,43,45,47,48,50,52,55,57], warn:[20,21] }
+  { brand:'Estrella Galicia', vols:2.2, spec:'Confirmed — GK', rows:[
+    { gas:'CO2', vols:2.2, t:[7.0, 7.8, 8.6, 9.5, 10.3, 11.2, 12.0, 12.9, 13.8, 14.7, 15.6, 16.4, 17.4, 18.3, 19.2, 20.1, 21.0, 22.0, 22.9, 23.9, 24.9, 25.8] },
+    { gas:'60/40', vols:3.6667, t:[11.7, 13.0, 14.4, 15.8, 17.2, 18.6, 20.1, 21.5, 23.0, 24.4, 25.9, 27.4, 28.9, 30.4, 32.0, 33.5, 35.1, 36.6, 38.2, 39.8, 41.4, 43.1] },
   ]},
-  { brand:'Guinness', rows:[
-    { gas:'70/30', vols:null, t:[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null] }
+  { brand:'Grolsch', vols:2.5, spec:'Confirmed — Asahi', rows:[
+    { gas:'CO2', vols:2.5, t:[10.0, 10.9, 11.9, 12.8, 13.7, 14.7, 15.6, 16.6, 17.6, 18.5, 19.5, 20.5, 21.5, 22.5, 23.5, 24.5, 25.6, 26.6, 27.6, 28.7, 29.8, 30.8] },
+    { gas:'60/40', vols:4.1667, t:[16.7, 18.2, 19.8, 21.3, 22.9, 24.5, 26.0, 27.6, 29.3, 30.9, 32.5, 34.2, 35.8, 37.5, 39.2, 40.9, 42.6, 44.3, 46.1, 47.8, 49.6, 51.4] },
   ]},
-  { brand:'Heineken', rows:[
-    { gas:'CO2', vols:null, t:[13,14,14,15,16,17,18,19,20,21,22,22,23,24,25,26,27,28,29,30,31,32] },
-    { gas:'60/40', vols:2.2, t:[22,23,25,26,27,29,30,31,33,34,36,37,39,40,42,43,45,46,48,50,51,53] }
+  { brand:'Guinness Draught', vols:1.2, spec:'Confirmed — 70/30 nitro only', rows:[
+    { gas:'CO2', vols:1.2, t:[-3.2, -2.7, -2.2, -1.6, -1.1, -0.6, -0.0, 0.5, 1.1, 1.7, 2.2, 2.8, 3.4, 4.0, 4.6, 5.2, 5.9, 6.5, 7.1, 7.8, 8.4, 9.1] },
+    { gas:'70/30', vols:null, t:[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null] },
   ]},
-  { brand:'Inch\'s', rows:[
-    { gas:'CO2', vols:null, t:[15,16,17,18,19,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35] },
-    { gas:'60/40', vols:2.4, t:[25,26,28,29,31,32,34,35,37,38,40,41,43,45,46,48,50,51,53,55,57,59], warn:[19,20,21] }
+  { brand:'Inch\'s Medium Apple Cider', vols:2.44, spec:'Confirmed', rows:[
+    { gas:'CO2', vols:2.44, t:[9.4, 10.3, 11.2, 12.1, 13.1, 14.0, 14.9, 15.9, 16.8, 17.8, 18.7, 19.7, 20.7, 21.7, 22.7, 23.7, 24.7, 25.7, 26.7, 27.7, 28.8, 29.8] },
+    { gas:'60/40', vols:4.0667, t:[15.7, 17.2, 18.7, 20.2, 21.8, 23.3, 24.9, 26.4, 28.0, 29.6, 31.2, 32.8, 34.5, 36.1, 37.8, 39.4, 41.1, 42.8, 44.5, 46.2, 48.0, 49.7] },
   ]},
-  { brand:'Madri', rows:[
-    { gas:'CO2', vols:null, t:[14,15,16,17,18,18,19,20,21,22,23,24,25,26,27,28,29,29,30,31,32,33] },
-    { gas:'60/40', vols:2.3, t:[23,25,26,28,29,31,32,33,35,36,38,39,41,43,44,46,47,49,50,53,57,60], warn:[19,20,21] }
+  { brand:'Madri Excepcional', vols:2.3, spec:'Confirmed', rows:[
+    { gas:'CO2', vols:2.3, t:[8.0, 8.9, 9.7, 10.6, 11.5, 12.3, 13.2, 14.1, 15.0, 16.0, 16.9, 17.8, 18.7, 19.7, 20.6, 21.6, 22.6, 23.5, 24.5, 25.5, 26.5, 27.5] },
+    { gas:'60/40', vols:3.8333, t:[13.3, 14.8, 16.2, 17.6, 19.1, 20.6, 22.1, 23.6, 25.1, 26.6, 28.1, 29.7, 31.2, 32.8, 34.4, 36.0, 37.6, 39.2, 40.8, 42.5, 44.2, 45.8] },
   ]},
-  { brand:'Moretti', rows:[
-    { gas:'CO2', vols:null, t:[14,15,16,17,18,18,19,20,21,22,23,24,25,26,27,28,29,29,30,31,32,33] },
-    { gas:'60/40', vols:2.3, t:[23,25,26,28,29,31,32,33,35,36,38,39,41,43,44,46,47,49,50,52,53,55], warn:[21] }
+  { brand:'Peroni Nastro Azzurro', vols:2.6, spec:'Confirmed — Innserve', rows:[
+    { gas:'CO2', vols:2.6, t:[11.0, 12.0, 12.9, 13.9, 14.9, 15.8, 16.8, 17.8, 18.8, 19.8, 20.8, 21.9, 22.9, 23.9, 25.0, 26.0, 27.1, 28.1, 29.2, 30.3, 31.4, 32.5] },
+    { gas:'60/40', vols:4.3333, t:[18.4, 20.0, 21.6, 23.2, 24.8, 26.4, 28.0, 29.7, 31.4, 33.0, 34.7, 36.4, 38.1, 39.9, 41.6, 43.4, 45.1, 46.9, 48.7, 50.5, 52.3, 54.1] },
   ]},
-  { brand:'Peroni', rows:[
-    { gas:'CO2', vols:null, t:[17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38] },
-    { gas:'60/40', vols:2.6, t:[28,30,32,34,35,37,38,40,41,43,45,46,48,50,51,53,55,56,58,60,62,64], warn:[16,17,18,19,20,21] }
+  { brand:'Shindigger IPA', vols:2.45, spec:'Approx / training value', rows:[
+    { gas:'CO2', vols:2.45, t:[9.5, 10.4, 11.3, 12.2, 13.2, 14.1, 15.0, 16.0, 16.9, 17.9, 18.9, 19.8, 20.8, 21.8, 22.8, 23.8, 24.8, 25.8, 26.9, 27.9, 28.9, 30.0] },
+    { gas:'60/40', vols:4.0833, t:[15.9, 17.4, 18.9, 20.4, 21.9, 23.5, 25.1, 26.6, 28.2, 29.8, 31.4, 33.0, 34.7, 36.3, 38.0, 39.7, 41.4, 43.1, 44.8, 46.5, 48.2, 50.0] },
   ]},
-  { brand:'Stowford Press', rows:[
-    { gas:'CO2', vols:null, t:[13,14,14,15,16,17,18,19,20,21,22,22,23,24,25,26,27,28,29,30,31,32] },
-    { gas:'60/40', vols:2.2, t:[22,23,25,26,27,29,30,31,33,34,36,37,39,40,42,43,45,46,48,50,51,53] }
+  { brand:'Strongbow', vols:2.8, spec:'Approx / training value', rows:[
+    { gas:'CO2', vols:2.8, t:[13.0, 14.0, 15.1, 16.1, 17.1, 18.2, 19.2, 20.3, 21.3, 22.4, 23.5, 24.5, 25.6, 26.7, 27.8, 29.0, 30.1, 31.2, 32.4, 33.5, 34.6, 35.8] },
+    { gas:'60/40', vols:4.6667, warn:[19, 20, 21], t:[21.7, 23.4, 25.1, 26.8, 28.5, 30.3, 32.0, 33.8, 35.5, 37.3, 39.1, 40.9, 42.7, 44.6, 46.4, 48.3, 50.1, 52.0, 53.9, 55.8, 57.7, 59.7] },
   ]},
-  { brand:'Strongbow Dark Fruit', rows:[
-    { gas:'CO2', vols:null, t:[14,15,16,17,18,18,19,20,21,22,23,24,25,26,26,27,28,29,30,31,32,33] },
-    { gas:'60/40', vols:2.3, t:[23,25,26,28,29,31,32,33,35,36,38,39,41,43,44,46,47,49,50,52,53,55], warn:[21] }
+  { brand:'Strongbow Dark Fruit', vols:2.3, spec:'Confirmed', rows:[
+    { gas:'CO2', vols:2.3, t:[8.0, 8.9, 9.7, 10.6, 11.5, 12.3, 13.2, 14.1, 15.0, 16.0, 16.9, 17.8, 18.7, 19.7, 20.6, 21.6, 22.6, 23.5, 24.5, 25.5, 26.5, 27.5] },
+    { gas:'60/40', vols:3.8333, t:[13.3, 14.8, 16.2, 17.6, 19.1, 20.6, 22.1, 23.6, 25.1, 26.6, 28.1, 29.7, 31.2, 32.8, 34.4, 36.0, 37.6, 39.2, 40.8, 42.5, 44.2, 45.8] },
   ]},
-  { brand:'Strongbow Dark Fruits', rows:[
-    { gas:'CO2', vols:null, t:[14,15,16,17,18,18,19,20,21,22,23,24,25,26,26,27,28,29,30,31,32,33] },
-    { gas:'60/40', vols:2.3, t:[23,25,26,28,29,31,32,33,35,36,38,39,41,43,44,46,47,49,50,52,53,55], warn:[21] }
+  { brand:'Stowford Press', vols:2.2, spec:'Confirmed — Innserve', rows:[
+    { gas:'CO2', vols:2.2, t:[7.0, 7.8, 8.6, 9.5, 10.3, 11.2, 12.0, 12.9, 13.8, 14.7, 15.6, 16.4, 17.4, 18.3, 19.2, 20.1, 21.0, 22.0, 22.9, 23.9, 24.9, 25.8] },
+    { gas:'60/40', vols:3.6667, t:[11.7, 13.0, 14.4, 15.8, 17.2, 18.6, 20.1, 21.5, 23.0, 24.4, 25.9, 27.4, 28.9, 30.4, 32.0, 33.5, 35.1, 36.6, 38.2, 39.8, 41.4, 43.1] },
+  ]},
+  { brand:'Thatchers Gold', vols:2.1, spec:'Approx / training value', rows:[
+    { gas:'CO2', vols:2.1, t:[6.0, 6.8, 7.6, 8.4, 9.2, 10.0, 10.8, 11.7, 12.5, 13.4, 14.2, 15.1, 16.0, 16.8, 17.7, 18.6, 19.5, 20.4, 21.4, 22.3, 23.2, 24.2] },
+    { gas:'60/40', vols:3.5, t:[10.0, 11.3, 12.6, 14.0, 15.3, 16.7, 18.1, 19.5, 20.9, 22.3, 23.7, 25.2, 26.6, 28.1, 29.6, 31.1, 32.6, 34.1, 35.6, 37.1, 38.7, 40.3] },
   ]},
   // ── SECTION 2 — User-reported volumes ──────────────────────────────
-  { brand:'Amstel', userReported:true, source:'DraftMore (industry dispense equipment reference, Denmark): European lager 2.4–2.7 vols (lower/conservative end used)', rows:[
-    { gas:'CO2', vols:2.4, t:[15,16,17,18,19,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35] },
-    { gas:'60/40', vols:2.4, t:[25,27,29,31,32,32,33,35,36,38,40,42,44,45,47,48,50,51,53,55,57,58], warn:[21] }
+  { brand:'Amstel', vols:2.5, userReported:true, source:'DraftMore (industry dispense equipment ref): European lager 2.4–2.7 vols (lower end used)', rows:[
+    { gas:'CO2', vols:2.5, t:[10.0, 10.9, 11.9, 12.8, 13.7, 14.7, 15.6, 16.6, 17.6, 18.5, 19.5, 20.5, 21.5, 22.5, 23.5, 24.5, 25.6, 26.6, 27.6, 28.7, 29.8, 30.8] },
+    { gas:'60/40', vols:4.1667, t:[16.7, 18.2, 19.8, 21.3, 22.9, 24.5, 26.0, 27.6, 29.3, 30.9, 32.5, 34.2, 35.8, 37.5, 39.2, 40.9, 42.6, 44.3, 46.1, 47.8, 49.6, 51.4] },
   ]},
-  { brand:'Aspall', userReported:true, source:'Dry Suffolk cider style; slightly lower carbonation consistent with dry cider style', rows:[
-    { gas:'CO2', vols:2.4, t:[15,16,17,18,19,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35] },
-    { gas:'60/40', vols:2.4, t:[25,27,29,31,32,32,33,35,36,38,40,42,44,45,47,48,50,51,53,55,57,58], warn:[21] }
+  { brand:'Aspall', vols:2.4, userReported:true, source:'Dry Suffolk cider style; consistent across multiple sources', rows:[
+    { gas:'CO2', vols:2.4, t:[9.0, 9.9, 10.8, 11.7, 12.6, 13.5, 14.4, 15.4, 16.3, 17.2, 18.2, 19.2, 20.1, 21.1, 22.1, 23.1, 24.1, 25.1, 26.1, 27.1, 28.1, 29.2] },
+    { gas:'60/40', vols:4.0, t:[15.0, 16.5, 18.0, 19.5, 21.0, 22.5, 24.1, 25.6, 27.2, 28.7, 30.3, 31.9, 33.5, 35.2, 36.8, 38.4, 40.1, 41.8, 43.5, 45.2, 46.9, 48.6] },
   ]},
-  { brand:'Belhaven Twisted Thistle', userReported:true, source:'DraftMore (industry dispense equipment reference, Denmark): Belhaven Twisted Thistle 2.3 vols', rows:[
-    { gas:'CO2', vols:2.3, t:[14,15,16,17,18,18,19,20,21,22,23,24,25,26,26,27,28,29,30,31,32,33] },
-    { gas:'60/40', vols:2.3, t:[23,25,27,29,30,31,32,33,35,36,38,40,42,43,44,45,46,48,50,51,53,55], warn:[21] }
+  { brand:'Belhaven Twisted Thistle', vols:2.3, userReported:true, source:'DraftMore (industry dispense equipment ref): Belhaven Twisted Thistle 2.3 vols', rows:[
+    { gas:'CO2', vols:2.3, t:[8.0, 8.9, 9.7, 10.6, 11.5, 12.3, 13.2, 14.1, 15.0, 16.0, 16.9, 17.8, 18.7, 19.7, 20.6, 21.6, 22.6, 23.5, 24.5, 25.5, 26.5, 27.5] },
+    { gas:'60/40', vols:3.8333, t:[13.3, 14.8, 16.2, 17.6, 19.1, 20.6, 22.1, 23.6, 25.1, 26.6, 28.1, 29.7, 31.2, 32.8, 34.4, 36.0, 37.6, 39.2, 40.8, 42.5, 44.2, 45.8] },
   ]},
-  { brand:'Bud Light', userReported:true, source:'DraftMore (industry dispense equipment reference, Denmark): Bud/Bud Light 2.6 vols; American Homebrewers Association forum — multiple consistent user reports', rows:[
-    { gas:'CO2', vols:2.6, t:[17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38] },
-    { gas:'60/40', vols:2.6, t:[28,30,32,34,36,37,38,40,41,43,45,47,49,50,52,53,55,56,58,60,62,63], warn:[16,17,18,19,20,21] }
+  { brand:'Bud Light', vols:2.6, userReported:true, source:'DraftMore (industry dispense equipment ref): Bud/Bud Light 2.6 vols', rows:[
+    { gas:'CO2', vols:2.6, t:[11.0, 12.0, 12.9, 13.9, 14.9, 15.8, 16.8, 17.8, 18.8, 19.8, 20.8, 21.9, 22.9, 23.9, 25.0, 26.0, 27.1, 28.1, 29.2, 30.3, 31.4, 32.5] },
+    { gas:'60/40', vols:4.3333, t:[18.4, 20.0, 21.6, 23.2, 24.8, 26.4, 28.0, 29.7, 31.4, 33.0, 34.7, 36.4, 38.1, 39.9, 41.6, 43.4, 45.1, 46.9, 48.7, 50.5, 52.3, 54.1] },
   ]},
-  { brand:'Budweiser', userReported:true, source:'The Drinks Business — independent physical CO₂ measurement test (2017): measured 2.7 vols; American Homebrewers Association forum — multiple consistent user reports', rows:[
-    { gas:'CO2', vols:2.7, t:[18,19,20,21,22,23,24,25,26,27,28,29,31,32,32,34,34,36,36,38,39,40] },
-    { gas:'60/40', vols:2.7, t:[30,32,34,36,37,39,40,41,43,44,46,49,51,53,54,55,57,59,60,63,65,67], warn:[11,12,13,14,15,16,17,18,19,20,21] }
+  { brand:'Budweiser', vols:2.7, userReported:true, source:'The Drinks Business independent physical test (2017): measured 2.7 vols; AHA forum — multiple consistent user reports', rows:[
+    { gas:'CO2', vols:2.7, t:[12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0, 19.0, 20.1, 21.1, 22.1, 23.2, 24.3, 25.3, 26.4, 27.5, 28.6, 29.7, 30.8, 31.9, 33.0, 34.1] },
+    { gas:'60/40', vols:4.5, warn:[21], t:[20.1, 21.7, 23.3, 25.0, 26.7, 28.3, 30.0, 31.7, 33.4, 35.2, 36.9, 38.7, 40.4, 42.2, 44.0, 45.8, 47.6, 49.5, 51.3, 53.2, 55.0, 56.9] },
   ]},
-  { brand:'Bulmers', userReported:true, source:'Same recipe as Magners outside Ireland — identical vols applied', rows:[
-    { gas:'CO2', vols:2.5, t:[16,17,18,19,20,21,22,22,24,24,26,26,28,28,30,30,32,32,34,34,36,36] },
-    { gas:'60/40', vols:2.5, t:[27,29,31,33,34,35,36,37,39,40,42,44,46,48,49,50,52,54,55,57,59,61], warn:[21] }
+  { brand:'Bulmers', vols:2.5, userReported:true, source:'Same recipe as Magners outside Ireland — identical vols applied', rows:[
+    { gas:'CO2', vols:2.5, t:[10.0, 10.9, 11.9, 12.8, 13.7, 14.7, 15.6, 16.6, 17.6, 18.5, 19.5, 20.5, 21.5, 22.5, 23.5, 24.5, 25.6, 26.6, 27.6, 28.7, 29.8, 30.8] },
+    { gas:'60/40', vols:4.1667, t:[16.7, 18.2, 19.8, 21.3, 22.9, 24.5, 26.0, 27.6, 29.3, 30.9, 32.5, 34.2, 35.8, 37.5, 39.2, 40.9, 42.6, 44.3, 46.1, 47.8, 49.6, 51.4] },
   ]},
-  { brand:'Carlsberg', userReported:true, source:'DraftMore (industry dispense equipment reference, Denmark): Carlsberg alle typer 2.6–2.75 vols (lower end used)', rows:[
-    { gas:'CO2', vols:2.6, t:[17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38] },
-    { gas:'60/40', vols:2.6, t:[28,30,32,34,36,37,38,40,41,43,45,47,49,50,52,53,55,56,58,60,62,63], warn:[16,17,18,19,20,21] }
+  { brand:'Carlsberg', vols:2.6, userReported:true, source:'DraftMore (industry dispense equipment ref): Carlsberg alle typer 2.6–2.75 vols (lower end used)', rows:[
+    { gas:'CO2', vols:2.6, t:[11.0, 12.0, 12.9, 13.9, 14.9, 15.8, 16.8, 17.8, 18.8, 19.8, 20.8, 21.9, 22.9, 23.9, 25.0, 26.0, 27.1, 28.1, 29.2, 30.3, 31.4, 32.5] },
+    { gas:'60/40', vols:4.3333, t:[18.4, 20.0, 21.6, 23.2, 24.8, 26.4, 28.0, 29.7, 31.4, 33.0, 34.7, 36.4, 38.1, 39.9, 41.6, 43.4, 45.1, 46.9, 48.7, 50.5, 52.3, 54.1] },
   ]},
-  { brand:'Coors / Coors Light', userReported:true, source:'DraftMore (industry dispense equipment reference, Denmark): Coors/Coors Light 2.8 vols; The Drinks Business — independent physical CO₂ measurement test (2017)', rows:[
-    { gas:'CO2', vols:2.8, t:[19,20,21,22,23,24,25,26,27,28,29,31,32,33,34,35,36,37,38,39,41,42] },
-    { gas:'60/40', vols:2.8, t:[32,34,36,38,39,40,41,43,44,46,48,51,54,55,56,58,60,61,63,65,68,70], warn:[11,12,13,14,15,16,17,18,19,20,21] }
+  { brand:'Chang', vols:2.6, userReported:true, source:'AHA forum — multiple consistent user reports; consistent with American/Asian lager range', rows:[
+    { gas:'CO2', vols:2.6, t:[11.0, 12.0, 12.9, 13.9, 14.9, 15.8, 16.8, 17.8, 18.8, 19.8, 20.8, 21.9, 22.9, 23.9, 25.0, 26.0, 27.1, 28.1, 29.2, 30.3, 31.4, 32.5] },
+    { gas:'60/40', vols:4.3333, t:[18.4, 20.0, 21.6, 23.2, 24.8, 26.4, 28.0, 29.7, 31.4, 33.0, 34.7, 36.4, 38.1, 39.9, 41.6, 43.4, 45.1, 46.9, 48.7, 50.5, 52.3, 54.1] },
   ]},
-  { brand:'Corona', userReported:true, source:'American Homebrewers Association forum — multiple consistent user reports; consistent with European lager range on DraftMore (industry dispense equipment reference, Denmark)', rows:[
-    { gas:'CO2', vols:2.6, t:[17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38] },
-    { gas:'60/40', vols:2.6, t:[28,30,32,34,36,37,38,40,41,43,45,47,49,50,52,53,55,56,58,60,62,63], warn:[16,17,18,19,20,21] }
+  { brand:'Coors / Coors Light', vols:2.8, userReported:true, source:'DraftMore (industry dispense equipment ref): Coors/Coors Light 2.8 vols; The Drinks Business independent physical test (2017)', rows:[
+    { gas:'CO2', vols:2.8, t:[13.0, 14.0, 15.1, 16.1, 17.1, 18.2, 19.2, 20.3, 21.3, 22.4, 23.5, 24.5, 25.6, 26.7, 27.8, 29.0, 30.1, 31.2, 32.4, 33.5, 34.6, 35.8] },
+    { gas:'60/40', vols:4.6667, warn:[19, 20, 21], t:[21.7, 23.4, 25.1, 26.8, 28.5, 30.3, 32.0, 33.8, 35.5, 37.3, 39.1, 40.9, 42.7, 44.6, 46.4, 48.3, 50.1, 52.0, 53.9, 55.8, 57.7, 59.7] },
   ]},
-  { brand:'DAB', userReported:true, source:'DraftMore (industry dispense equipment reference, Denmark): DAB 2.4 vols', rows:[
-    { gas:'CO2', vols:2.4, t:[15,16,17,18,19,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35] },
-    { gas:'60/40', vols:2.4, t:[25,27,29,31,32,32,33,35,36,38,40,42,44,45,47,48,50,51,53,55,57,58], warn:[21] }
+  { brand:'Corona', vols:2.6, userReported:true, source:'AHA forum — multiple consistent user reports; consistent with European lager on DraftMore', rows:[
+    { gas:'CO2', vols:2.6, t:[11.0, 12.0, 12.9, 13.9, 14.9, 15.8, 16.8, 17.8, 18.8, 19.8, 20.8, 21.9, 22.9, 23.9, 25.0, 26.0, 27.1, 28.1, 29.2, 30.3, 31.4, 32.5] },
+    { gas:'60/40', vols:4.3333, t:[18.4, 20.0, 21.6, 23.2, 24.8, 26.4, 28.0, 29.7, 31.4, 33.0, 34.7, 36.4, 38.1, 39.9, 41.6, 43.4, 45.1, 46.9, 48.7, 50.5, 52.3, 54.1] },
   ]},
-  { brand:'Erdinger Weissbier', userReported:true, source:'DraftMore (industry dispense equipment reference, Denmark): German Wheat beer 3.3–3.6 vols; Brew Your Own magazine (peer-reviewed brewing publication)', rows:[
-    { gas:'CO2', vols:3.4, t:[25,26,27,28,29,30,31,32,33,34,36,39,41,42,43,44,45,46,47,49,52,54], warn:[10,11,12,13,14,15,16,17,18,19,20,21] },
-    { gas:'60/40', vols:3.4, t:[42,44,46,48,49,50,51,53,54,56,60,64,69,70,71,73,74,76,78,82,86,90], warn:[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21] }
+  { brand:'DAB', vols:2.4, userReported:true, source:'DraftMore (industry dispense equipment ref): DAB 2.4 vols', rows:[
+    { gas:'CO2', vols:2.4, t:[9.0, 9.9, 10.8, 11.7, 12.6, 13.5, 14.4, 15.4, 16.3, 17.2, 18.2, 19.2, 20.1, 21.1, 22.1, 23.1, 24.1, 25.1, 26.1, 27.1, 28.1, 29.2] },
+    { gas:'60/40', vols:4.0, t:[15.0, 16.5, 18.0, 19.5, 21.0, 22.5, 24.1, 25.6, 27.2, 28.7, 30.3, 31.9, 33.5, 35.2, 36.8, 38.4, 40.1, 41.8, 43.5, 45.2, 46.9, 48.6] },
   ]},
-  { brand:'European Stout', userReported:true, source:'DraftMore (industry dispense equipment reference, Denmark): European Stout 2.3–2.6 vols (mid-point used)', rows:[
-    { gas:'CO2', vols:2.45, t:[16,17,18,19,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36] },
-    { gas:'60/40', vols:2.45, t:[26,28,30,32,33,34,34,36,37,39,41,43,45,46,48,49,51,53,54,56,58,60], warn:[21] }
+  { brand:'Erdinger Weissbier', vols:3.4, userReported:true, source:'DraftMore (industry dispense equipment ref): German Wheat beer 3.3–3.6 vols', rows:[
+    { gas:'CO2', vols:3.4, t:[19.0, 20.2, 21.4, 22.6, 23.9, 25.1, 26.3, 27.6, 28.8, 30.1, 31.3, 32.6, 33.9, 35.2, 36.5, 37.8, 39.1, 40.4, 41.7, 43.0, 44.4, 45.7] },
+    { gas:'60/40', vols:5.6667, warn:[12, 13, 14, 15, 16, 17, 18, 19, 20, 21], t:[31.7, 33.7, 35.7, 37.7, 39.8, 41.8, 43.9, 45.9, 48.0, 50.1, 52.2, 54.3, 56.5, 58.6, 60.8, 62.9, 65.1, 67.3, 69.5, 71.7, 74.0, 76.2] },
   ]},
-  { brand:'Foster\'s', userReported:true, source:'DraftMore (industry dispense equipment reference, Denmark): Fosters 2.75 vols', rows:[
-    { gas:'CO2', vols:2.75, t:[18,20,20,22,22,24,24,26,26,28,29,30,31,32,33,34,35,36,37,38,40,41] },
-    { gas:'60/40', vols:2.75, t:[31,33,35,37,38,39,41,42,44,45,47,50,52,54,55,57,58,60,62,64,66,68], warn:[11,12,13,14,15,16,17,18,19,20,21] }
+  { brand:'European Stout', vols:2.45, userReported:true, source:'DraftMore (industry dispense equipment ref): European Stout 2.3–2.6 vols (mid used)', rows:[
+    { gas:'CO2', vols:2.45, t:[9.5, 10.4, 11.3, 12.2, 13.2, 14.1, 15.0, 16.0, 16.9, 17.9, 18.9, 19.8, 20.8, 21.8, 22.8, 23.8, 24.8, 25.8, 26.9, 27.9, 28.9, 30.0] },
+    { gas:'60/40', vols:4.0833, t:[15.9, 17.4, 18.9, 20.4, 21.9, 23.5, 25.1, 26.6, 28.2, 29.8, 31.4, 33.0, 34.7, 36.3, 38.0, 39.7, 41.4, 43.1, 44.8, 46.5, 48.2, 50.0] },
   ]},
-  { brand:'Fuller\'s London Pride', userReported:true, source:'DraftMore (industry dispense equipment reference, Denmark): Fullers London Pride 2.2 vols', rows:[
-    { gas:'CO2', vols:2.2, t:[13,14,14,15,16,17,18,19,20,21,22,22,23,24,25,26,27,28,29,30,31,32] },
-    { gas:'60/40', vols:2.2, t:[22,23,24,26,27,28,30,31,33,34,36,37,39,40,42,43,45,46,48,50,52,53] }
+  { brand:'Foster\'s', vols:2.75, userReported:true, source:'DraftMore (industry dispense equipment ref): Fosters 2.75 vols', rows:[
+    { gas:'CO2', vols:2.75, t:[12.5, 13.5, 14.5, 15.5, 16.6, 17.6, 18.6, 19.6, 20.7, 21.7, 22.8, 23.9, 25.0, 26.0, 27.1, 28.2, 29.3, 30.4, 31.6, 32.7, 33.8, 35.0] },
+    { gas:'60/40', vols:4.5833, warn:[20, 21], t:[20.9, 22.6, 24.2, 25.9, 27.6, 29.3, 31.0, 32.7, 34.5, 36.2, 38.0, 39.8, 41.6, 43.4, 45.2, 47.0, 48.9, 50.7, 52.6, 54.5, 56.4, 58.3] },
   ]},
-  { brand:'Hofbräu', userReported:true, source:'DraftMore (industry dispense equipment reference, Denmark): Hofbrau 2.5–2.6 vols (mid-point used)', rows:[
-    { gas:'CO2', vols:2.55, t:[16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37] },
-    { gas:'60/40', vols:2.55, t:[28,30,31,33,35,36,37,38,40,41,43,45,47,49,50,52,53,55,57,59,60,62], warn:[21] }
+  { brand:'Fuller\'s London Pride', vols:2.2, userReported:true, source:'DraftMore (industry dispense equipment ref): Fullers London Pride 2.2 vols', rows:[
+    { gas:'CO2', vols:2.2, t:[7.0, 7.8, 8.6, 9.5, 10.3, 11.2, 12.0, 12.9, 13.8, 14.7, 15.6, 16.4, 17.4, 18.3, 19.2, 20.1, 21.0, 22.0, 22.9, 23.9, 24.9, 25.8] },
+    { gas:'60/40', vols:3.6667, t:[11.7, 13.0, 14.4, 15.8, 17.2, 18.6, 20.1, 21.5, 23.0, 24.4, 25.9, 27.4, 28.9, 30.4, 32.0, 33.5, 35.1, 36.6, 38.2, 39.8, 41.4, 43.1] },
   ]},
-  { brand:'Hoegaarden', userReported:true, source:'DraftMore (industry dispense equipment reference, Denmark): Hoegaarden 2.95–3.0 vols (upper end used)', rows:[
-    { gas:'CO2', vols:3.0, t:[21,22,23,24,25,26,27,28,29,30,32,33,35,36,37,38,39,40,41,43,44,46], warn:[21] },
-    { gas:'60/40', vols:3.0, t:[35,37,39,41,42,44,45,46,48,49,52,55,59,60,61,63,65,66,68,71,74,77], warn:[12,13,14,15,16,17,18,19,20,21] }
+  { brand:'Heineken', vols:2.7, userReported:true, source:'DraftMore (industry dispense equipment ref): Heineken 2.7 vols', rows:[
+    { gas:'CO2', vols:2.7, t:[12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0, 19.0, 20.1, 21.1, 22.1, 23.2, 24.3, 25.3, 26.4, 27.5, 28.6, 29.7, 30.8, 31.9, 33.0, 34.1] },
+    { gas:'60/40', vols:4.5, warn:[21], t:[20.1, 21.7, 23.3, 25.0, 26.7, 28.3, 30.0, 31.7, 33.4, 35.2, 36.9, 38.7, 40.4, 42.2, 44.0, 45.8, 47.6, 49.5, 51.3, 53.2, 55.0, 56.9] },
   ]},
-  { brand:'Killian\'s Irish Red', userReported:true, source:'DraftMore (industry dispense equipment reference, Denmark): Killians Irish Red 2.75 vols', rows:[
-    { gas:'CO2', vols:2.75, t:[18,20,20,22,22,24,24,26,26,28,29,30,31,32,33,34,35,36,37,38,40,41] },
-    { gas:'60/40', vols:2.75, t:[31,33,35,37,38,39,41,42,44,45,47,50,52,54,55,57,58,60,62,64,66,68], warn:[11,12,13,14,15,16,17,18,19,20,21] }
+  { brand:'Hofbräu', vols:2.55, userReported:true, source:'DraftMore (industry dispense equipment ref): Hofbrau 2.5–2.6 vols (mid used)', rows:[
+    { gas:'CO2', vols:2.55, t:[10.5, 11.5, 12.4, 13.3, 14.3, 15.3, 16.2, 17.2, 18.2, 19.2, 20.2, 21.2, 22.2, 23.2, 24.2, 25.3, 26.3, 27.4, 28.4, 29.5, 30.6, 31.7] },
+    { gas:'60/40', vols:4.25, t:[17.5, 19.1, 20.7, 22.2, 23.8, 25.4, 27.0, 28.7, 30.3, 32.0, 33.6, 35.3, 37.0, 38.7, 40.4, 42.1, 43.9, 45.6, 47.4, 49.2, 51.0, 52.8] },
   ]},
-  { brand:'Kirin', userReported:true, source:'DraftMore (industry dispense equipment reference, Denmark): Kirin 2.7 vols', rows:[
-    { gas:'CO2', vols:2.7, t:[18,19,20,21,22,23,24,25,26,27,28,29,31,32,32,34,34,36,36,38,39,40] },
-    { gas:'60/40', vols:2.7, t:[30,32,34,36,37,39,40,41,43,44,46,49,51,53,54,55,57,59,60,63,65,67], warn:[11,12,13,14,15,16,17,18,19,20,21] }
+  { brand:'Hoegaarden', vols:3.0, userReported:true, source:'DraftMore (industry dispense equipment ref): Hoegaarden 2.95–3.0 vols (upper end used)', rows:[
+    { gas:'CO2', vols:3.0, t:[15.0, 16.1, 17.2, 18.3, 19.4, 20.5, 21.6, 22.7, 23.8, 25.0, 26.1, 27.2, 28.4, 29.6, 30.7, 31.9, 33.1, 34.3, 35.5, 36.7, 37.9, 39.1] },
+    { gas:'60/40', vols:5.0, warn:[16, 17, 18, 19, 20, 21], t:[25.1, 26.9, 28.7, 30.5, 32.3, 34.1, 36.0, 37.8, 39.7, 41.6, 43.5, 45.4, 47.3, 49.3, 51.2, 53.2, 55.1, 57.1, 59.1, 61.1, 63.2, 65.2] },
   ]},
-  { brand:'König Ludwig Dunkel', userReported:true, source:'DraftMore (industry dispense equipment reference, Denmark): König Ludwig Dunkel 2.5–2.75 vols (mid-point used)', rows:[
-    { gas:'CO2', vols:2.6, t:[17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38] },
-    { gas:'60/40', vols:2.6, t:[28,30,32,34,36,37,38,40,41,43,45,47,49,50,52,53,55,56,58,60,62,63], warn:[16,17,18,19,20,21] }
+  { brand:'John Smith\'s Extra Smooth', vols:1.7, userReported:true, source:'Smooth ale / nitro style — 70/30 or 60/40', rows:[
+    { gas:'CO2', vols:1.7, t:[1.9, 2.6, 3.3, 3.9, 4.6, 5.3, 6.0, 6.7, 7.5, 8.2, 8.9, 9.7, 10.4, 11.2, 11.9, 12.7, 13.5, 14.3, 15.1, 15.9, 16.7, 17.5] },
+    { gas:'60/40', vols:2.8333, t:[3.2, 4.3, 5.4, 6.6, 7.7, 8.9, 10.0, 11.2, 12.4, 13.6, 14.9, 16.1, 17.3, 18.6, 19.9, 21.2, 22.5, 23.8, 25.1, 26.4, 27.8, 29.1] },
   ]},
-  { brand:'König Ludwig Weissbier', userReported:true, source:'DraftMore (industry dispense equipment reference, Denmark): König Ludwig Weissbier 2.75–2.9 vols (lower end used)', rows:[
-    { gas:'CO2', vols:2.8, t:[19,20,21,22,23,24,25,26,27,28,29,31,32,33,34,35,36,37,38,39,41,42] },
-    { gas:'60/40', vols:2.8, t:[32,34,36,38,39,40,41,43,44,46,48,51,54,55,56,58,60,61,63,65,68,70], warn:[11,12,13,14,15,16,17,18,19,20,21] }
+  { brand:'Killian\'s Irish Red', vols:2.75, userReported:true, source:'DraftMore (industry dispense equipment ref): Killians Irish Red 2.75 vols', rows:[
+    { gas:'CO2', vols:2.75, t:[12.5, 13.5, 14.5, 15.5, 16.6, 17.6, 18.6, 19.6, 20.7, 21.7, 22.8, 23.9, 25.0, 26.0, 27.1, 28.2, 29.3, 30.4, 31.6, 32.7, 33.8, 35.0] },
+    { gas:'60/40', vols:4.5833, warn:[20, 21], t:[20.9, 22.6, 24.2, 25.9, 27.6, 29.3, 31.0, 32.7, 34.5, 36.2, 38.0, 39.8, 41.6, 43.4, 45.2, 47.0, 48.9, 50.7, 52.6, 54.5, 56.4, 58.3] },
   ]},
-  { brand:'Kölsch', userReported:true, source:'DraftMore (industry dispense equipment reference, Denmark): Kölsch 2.7 vols', rows:[
-    { gas:'CO2', vols:2.7, t:[18,19,20,21,22,23,24,25,26,27,28,29,31,32,32,34,34,36,36,38,39,40] },
-    { gas:'60/40', vols:2.7, t:[30,32,34,36,37,39,40,41,43,44,46,49,51,53,54,55,57,59,60,63,65,67], warn:[11,12,13,14,15,16,17,18,19,20,21] }
+  { brand:'Kirin', vols:2.7, userReported:true, source:'DraftMore (industry dispense equipment ref): Kirin 2.7 vols', rows:[
+    { gas:'CO2', vols:2.7, t:[12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0, 19.0, 20.1, 21.1, 22.1, 23.2, 24.3, 25.3, 26.4, 27.5, 28.6, 29.7, 30.8, 31.9, 33.0, 34.1] },
+    { gas:'60/40', vols:4.5, warn:[21], t:[20.1, 21.7, 23.3, 25.0, 26.7, 28.3, 30.0, 31.7, 33.4, 35.2, 36.9, 38.7, 40.4, 42.2, 44.0, 45.8, 47.6, 49.5, 51.3, 53.2, 55.0, 56.9] },
   ]},
-  { brand:'Kopparberg', userReported:true, source:'Fruit cider style; consistent across multiple independent sources; American Homebrewers Association forum — multiple consistent user reports', rows:[
-    { gas:'CO2', vols:2.7, t:[18,19,20,21,22,23,24,25,26,27,28,29,31,32,32,34,34,36,36,38,39,40] },
-    { gas:'60/40', vols:2.7, t:[30,32,34,36,37,39,40,41,43,44,46,49,51,53,54,55,57,59,60,63,65,67], warn:[11,12,13,14,15,16,17,18,19,20,21] }
+  { brand:'König Ludwig Dunkel', vols:2.6, userReported:true, source:'DraftMore (industry dispense equipment ref): König Ludwig Dunkel 2.5–2.75 vols (mid used)', rows:[
+    { gas:'CO2', vols:2.6, t:[11.0, 12.0, 12.9, 13.9, 14.9, 15.8, 16.8, 17.8, 18.8, 19.8, 20.8, 21.9, 22.9, 23.9, 25.0, 26.0, 27.1, 28.1, 29.2, 30.3, 31.4, 32.5] },
+    { gas:'60/40', vols:4.3333, t:[18.4, 20.0, 21.6, 23.2, 24.8, 26.4, 28.0, 29.7, 31.4, 33.0, 34.7, 36.4, 38.1, 39.9, 41.6, 43.4, 45.1, 46.9, 48.7, 50.5, 52.3, 54.1] },
   ]},
-  { brand:'Kronenbourg 1664', userReported:true, source:'European lager style; consistent across multiple independent sources', rows:[
-    { gas:'CO2', vols:2.5, t:[16,17,18,19,20,21,22,22,24,24,26,26,28,28,30,30,32,32,34,34,36,36] },
-    { gas:'60/40', vols:2.5, t:[27,29,31,33,34,35,36,37,39,40,42,44,46,48,49,50,52,54,55,57,59,61], warn:[21] }
+  { brand:'König Ludwig Weissbier', vols:2.8, userReported:true, source:'DraftMore (industry dispense equipment ref): König Ludwig Weissbier 2.75–2.9 vols (lower end used)', rows:[
+    { gas:'CO2', vols:2.8, t:[13.0, 14.0, 15.1, 16.1, 17.1, 18.2, 19.2, 20.3, 21.3, 22.4, 23.5, 24.5, 25.6, 26.7, 27.8, 29.0, 30.1, 31.2, 32.4, 33.5, 34.6, 35.8] },
+    { gas:'60/40', vols:4.6667, warn:[19, 20, 21], t:[21.7, 23.4, 25.1, 26.8, 28.5, 30.3, 32.0, 33.8, 35.5, 37.3, 39.1, 40.9, 42.7, 44.6, 46.4, 48.3, 50.1, 52.0, 53.9, 55.8, 57.7, 59.7] },
   ]},
-  { brand:'Labatt', userReported:true, source:'DraftMore (industry dispense equipment reference, Denmark): Labatt 2.7 vols', rows:[
-    { gas:'CO2', vols:2.7, t:[18,19,20,21,22,23,24,25,26,27,28,29,31,32,32,34,34,36,36,38,39,40] },
-    { gas:'60/40', vols:2.7, t:[30,32,34,36,37,39,40,41,43,44,46,49,51,53,54,55,57,59,60,63,65,67], warn:[11,12,13,14,15,16,17,18,19,20,21] }
+  { brand:'Kölsch (style)', vols:2.7, userReported:true, source:'DraftMore (industry dispense equipment ref): Kölsch 2.7 vols', rows:[
+    { gas:'CO2', vols:2.7, t:[12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0, 19.0, 20.1, 21.1, 22.1, 23.2, 24.3, 25.3, 26.4, 27.5, 28.6, 29.7, 30.8, 31.9, 33.0, 34.1] },
+    { gas:'60/40', vols:4.5, warn:[21], t:[20.1, 21.7, 23.3, 25.0, 26.7, 28.3, 30.0, 31.7, 33.4, 35.2, 36.9, 38.7, 40.4, 42.2, 44.0, 45.8, 47.6, 49.5, 51.3, 53.2, 55.0, 56.9] },
   ]},
-  { brand:'Leffe Blonde', userReported:true, source:'DraftMore (industry dispense equipment reference, Denmark): Leffe Blond 2.5 vols', rows:[
-    { gas:'CO2', vols:2.5, t:[16,17,18,19,20,21,22,22,24,24,26,26,28,28,30,30,32,32,34,34,36,36] },
-    { gas:'60/40', vols:2.5, t:[27,29,31,33,34,35,36,37,39,40,42,44,46,48,49,50,52,54,55,57,59,61], warn:[21] }
+  { brand:'Kopparberg', vols:2.7, userReported:true, source:'Fruit cider style; consistent across multiple sources; AHA forum — multiple consistent user reports', rows:[
+    { gas:'CO2', vols:2.7, t:[12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0, 19.0, 20.1, 21.1, 22.1, 23.2, 24.3, 25.3, 26.4, 27.5, 28.6, 29.7, 30.8, 31.9, 33.0, 34.1] },
+    { gas:'60/40', vols:4.5, warn:[21], t:[20.1, 21.7, 23.3, 25.0, 26.7, 28.3, 30.0, 31.7, 33.4, 35.2, 36.9, 38.7, 40.4, 42.2, 44.0, 45.8, 47.6, 49.5, 51.3, 53.2, 55.0, 56.9] },
   ]},
-  { brand:'Leffe (standard)', userReported:true, source:'DraftMore (industry dispense equipment reference, Denmark): Leffe 2.4 vols', rows:[
-    { gas:'CO2', vols:2.4, t:[15,16,17,18,19,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35] },
-    { gas:'60/40', vols:2.4, t:[25,27,29,31,32,32,33,35,36,38,40,42,44,45,47,48,50,51,53,55,57,58], warn:[21] }
+  { brand:'Kronenbourg 1664', vols:2.5, userReported:true, source:'European lager style; consistent across multiple sources', rows:[
+    { gas:'CO2', vols:2.5, t:[10.0, 10.9, 11.9, 12.8, 13.7, 14.7, 15.6, 16.6, 17.6, 18.5, 19.5, 20.5, 21.5, 22.5, 23.5, 24.5, 25.6, 26.6, 27.6, 28.7, 29.8, 30.8] },
+    { gas:'60/40', vols:4.1667, t:[16.7, 18.2, 19.8, 21.3, 22.9, 24.5, 26.0, 27.6, 29.3, 30.9, 32.5, 34.2, 35.8, 37.5, 39.2, 40.9, 42.6, 44.3, 46.1, 47.8, 49.6, 51.4] },
   ]},
-  { brand:'Löwenbräu', userReported:true, source:'DraftMore (industry dispense equipment reference, Denmark): Lowenbrau 2.7 vols', rows:[
-    { gas:'CO2', vols:2.7, t:[18,19,20,21,22,23,24,25,26,27,28,29,31,32,32,34,34,36,36,38,39,40] },
-    { gas:'60/40', vols:2.7, t:[30,32,34,36,37,39,40,41,43,44,46,49,51,53,54,55,57,59,60,63,65,67], warn:[11,12,13,14,15,16,17,18,19,20,21] }
+  { brand:'Labatt', vols:2.7, userReported:true, source:'DraftMore (industry dispense equipment ref): Labatt 2.7 vols', rows:[
+    { gas:'CO2', vols:2.7, t:[12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0, 19.0, 20.1, 21.1, 22.1, 23.2, 24.3, 25.3, 26.4, 27.5, 28.6, 29.7, 30.8, 31.9, 33.0, 34.1] },
+    { gas:'60/40', vols:4.5, warn:[21], t:[20.1, 21.7, 23.3, 25.0, 26.7, 28.3, 30.0, 31.7, 33.4, 35.2, 36.9, 38.7, 40.4, 42.2, 44.0, 45.8, 47.6, 49.5, 51.3, 53.2, 55.0, 56.9] },
   ]},
-  { brand:'Magners', userReported:true, source:'Traditional apple cider style; consistent across multiple independent sources', rows:[
-    { gas:'CO2', vols:2.5, t:[16,17,18,19,20,21,22,22,24,24,26,26,28,28,30,30,32,32,34,34,36,36] },
-    { gas:'60/40', vols:2.5, t:[27,29,31,33,34,35,36,37,39,40,42,44,46,48,49,50,52,54,55,57,59,61], warn:[21] }
+  { brand:'Leffe Blonde', vols:2.5, userReported:true, source:'DraftMore (industry dispense equipment ref): Leffe Blond 2.5 vols', rows:[
+    { gas:'CO2', vols:2.5, t:[10.0, 10.9, 11.9, 12.8, 13.7, 14.7, 15.6, 16.6, 17.6, 18.5, 19.5, 20.5, 21.5, 22.5, 23.5, 24.5, 25.6, 26.6, 27.6, 28.7, 29.8, 30.8] },
+    { gas:'60/40', vols:4.1667, t:[16.7, 18.2, 19.8, 21.3, 22.9, 24.5, 26.0, 27.6, 29.3, 30.9, 32.5, 34.2, 35.8, 37.5, 39.2, 40.9, 42.6, 44.3, 46.1, 47.8, 49.6, 51.4] },
   ]},
-  { brand:'Miller Genuine Draft', userReported:true, source:'DraftMore (industry dispense equipment reference, Denmark): Miller Genuine Draft 2.7 vols', rows:[
-    { gas:'CO2', vols:2.7, t:[18,19,20,21,22,23,24,25,26,27,28,29,31,32,32,34,34,36,36,38,39,40] },
-    { gas:'60/40', vols:2.7, t:[30,32,34,36,37,39,40,41,43,44,46,49,51,53,54,55,57,59,60,63,65,67], warn:[11,12,13,14,15,16,17,18,19,20,21] }
+  { brand:'Leffe (standard)', vols:2.4, userReported:true, source:'DraftMore (industry dispense equipment ref): Leffe 2.4 vols', rows:[
+    { gas:'CO2', vols:2.4, t:[9.0, 9.9, 10.8, 11.7, 12.6, 13.5, 14.4, 15.4, 16.3, 17.2, 18.2, 19.2, 20.1, 21.1, 22.1, 23.1, 24.1, 25.1, 26.1, 27.1, 28.1, 29.2] },
+    { gas:'60/40', vols:4.0, t:[15.0, 16.5, 18.0, 19.5, 21.0, 22.5, 24.1, 25.6, 27.2, 28.7, 30.3, 31.9, 33.5, 35.2, 36.8, 38.4, 40.1, 41.8, 43.5, 45.2, 46.9, 48.6] },
   ]},
-  { brand:'Miller Lite', userReported:true, source:'DraftMore (industry dispense equipment reference, Denmark): Miller Lite 2.7 vols', rows:[
-    { gas:'CO2', vols:2.7, t:[18,19,20,21,22,23,24,25,26,27,28,29,31,32,32,34,34,36,36,38,39,40] },
-    { gas:'60/40', vols:2.7, t:[30,32,34,36,37,39,40,41,43,44,46,49,51,53,54,55,57,59,60,63,65,67], warn:[11,12,13,14,15,16,17,18,19,20,21] }
+  { brand:'Löwenbräu', vols:2.7, userReported:true, source:'DraftMore (industry dispense equipment ref): Lowenbrau 2.7 vols', rows:[
+    { gas:'CO2', vols:2.7, t:[12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0, 19.0, 20.1, 21.1, 22.1, 23.2, 24.3, 25.3, 26.4, 27.5, 28.6, 29.7, 30.8, 31.9, 33.0, 34.1] },
+    { gas:'60/40', vols:4.5, warn:[21], t:[20.1, 21.7, 23.3, 25.0, 26.7, 28.3, 30.0, 31.7, 33.4, 35.2, 36.9, 38.7, 40.4, 42.2, 44.0, 45.8, 47.6, 49.5, 51.3, 53.2, 55.0, 56.9] },
   ]},
-  { brand:'Newcastle Brown Ale', userReported:true, source:'DraftMore (industry dispense equipment reference, Denmark): Newcastle Brown Ale 2.2 vols; American Homebrewers Association forum — multiple consistent user reports', rows:[
-    { gas:'CO2', vols:2.2, t:[13,14,14,15,16,17,18,19,20,21,22,22,23,24,25,26,27,28,29,30,31,32] },
-    { gas:'60/40', vols:2.2, t:[22,23,24,26,27,28,30,31,33,34,36,37,39,40,42,43,45,46,48,50,52,53] }
+  { brand:'Magners', vols:2.5, userReported:true, source:'Traditional apple cider; consistent across multiple sources', rows:[
+    { gas:'CO2', vols:2.5, t:[10.0, 10.9, 11.9, 12.8, 13.7, 14.7, 15.6, 16.6, 17.6, 18.5, 19.5, 20.5, 21.5, 22.5, 23.5, 24.5, 25.6, 26.6, 27.6, 28.7, 29.8, 30.8] },
+    { gas:'60/40', vols:4.1667, t:[16.7, 18.2, 19.8, 21.3, 22.9, 24.5, 26.0, 27.6, 29.3, 30.9, 32.5, 34.2, 35.8, 37.5, 39.2, 40.9, 42.6, 44.3, 46.1, 47.8, 49.6, 51.4] },
   ]},
-  { brand:'Old Mout Cider', userReported:true, source:'Fruit cider style; consistent with mid-range fruit cider carbonation', rows:[
-    { gas:'CO2', vols:2.6, t:[17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38] },
-    { gas:'60/40', vols:2.6, t:[28,30,32,34,36,37,38,40,41,43,45,47,49,50,52,53,55,56,58,60,62,63], warn:[16,17,18,19,20,21] }
+  { brand:'Miller Genuine Draft', vols:2.7, userReported:true, source:'DraftMore (industry dispense equipment ref): Miller Genuine Draft 2.7 vols', rows:[
+    { gas:'CO2', vols:2.7, t:[12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0, 19.0, 20.1, 21.1, 22.1, 23.2, 24.3, 25.3, 26.4, 27.5, 28.6, 29.7, 30.8, 31.9, 33.0, 34.1] },
+    { gas:'60/40', vols:4.5, warn:[21], t:[20.1, 21.7, 23.3, 25.0, 26.7, 28.3, 30.0, 31.7, 33.4, 35.2, 36.9, 38.7, 40.4, 42.2, 44.0, 45.8, 47.6, 49.5, 51.3, 53.2, 55.0, 56.9] },
   ]},
-  { brand:'Paulaner Weissbier', userReported:true, source:'DraftMore (industry dispense equipment reference, Denmark): German Wheat beer 3.3–3.6 vols; Brew Your Own magazine (peer-reviewed brewing publication)', rows:[
-    { gas:'CO2', vols:3.4, t:[25,26,27,28,29,30,31,32,33,34,36,39,41,42,43,44,45,46,47,49,52,54], warn:[10,11,12,13,14,15,16,17,18,19,20,21] },
-    { gas:'60/40', vols:3.4, t:[42,44,46,48,49,50,51,53,54,56,60,64,69,70,71,73,74,76,78,82,86,90], warn:[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21] }
+  { brand:'Miller Lite', vols:2.7, userReported:true, source:'DraftMore (industry dispense equipment ref): Miller Lite 2.7 vols', rows:[
+    { gas:'CO2', vols:2.7, t:[12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0, 19.0, 20.1, 21.1, 22.1, 23.2, 24.3, 25.3, 26.4, 27.5, 28.6, 29.7, 30.8, 31.9, 33.0, 34.1] },
+    { gas:'60/40', vols:4.5, warn:[21], t:[20.1, 21.7, 23.3, 25.0, 26.7, 28.3, 30.0, 31.7, 33.4, 35.2, 36.9, 38.7, 40.4, 42.2, 44.0, 45.8, 47.6, 49.5, 51.3, 53.2, 55.0, 56.9] },
   ]},
-  { brand:'Pilsner Urquell', userReported:true, source:'DraftMore (industry dispense equipment reference, Denmark): Pilsener Urquell 2.6 vols; American Homebrewers Association forum — multiple consistent user reports', rows:[
-    { gas:'CO2', vols:2.6, t:[17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38] },
-    { gas:'60/40', vols:2.6, t:[28,30,32,34,36,37,38,40,41,43,45,47,49,50,52,53,55,56,58,60,62,63], warn:[16,17,18,19,20,21] }
+  { brand:'Murphy\'s Irish Stout', vols:1.2, userReported:true, source:'Nitro stout — same profile as Guinness; 70/30 gas', rows:[
+    { gas:'CO2', vols:1.2, t:[-3.2, -2.7, -2.2, -1.6, -1.1, -0.6, -0.0, 0.5, 1.1, 1.7, 2.2, 2.8, 3.4, 4.0, 4.6, 5.2, 5.9, 6.5, 7.1, 7.8, 8.4, 9.1] },
+    { gas:'60/40', vols:2.0, t:[-5.3, -4.5, -3.6, -2.7, -1.8, -0.9, -0.0, 0.9, 1.8, 2.8, 3.7, 4.7, 5.7, 6.7, 7.7, 8.7, 9.8, 10.8, 11.9, 13.0, 14.1, 15.2] },
   ]},
-  { brand:'Rekorderlig', userReported:true, source:'Fruit cider style; consistent with Kopparberg; American Homebrewers Association forum — multiple consistent user reports', rows:[
-    { gas:'CO2', vols:2.7, t:[18,19,20,21,22,23,24,25,26,27,28,29,31,32,32,34,34,36,36,38,39,40] },
-    { gas:'60/40', vols:2.7, t:[30,32,34,36,37,39,40,41,43,44,46,49,51,53,54,55,57,59,60,63,65,67], warn:[11,12,13,14,15,16,17,18,19,20,21] }
+  { brand:'Newcastle Brown Ale', vols:2.2, userReported:true, source:'DraftMore (industry dispense equipment ref): Newcastle Brown Ale 2.2 vols; AHA forum — multiple consistent user reports', rows:[
+    { gas:'CO2', vols:2.2, t:[7.0, 7.8, 8.6, 9.5, 10.3, 11.2, 12.0, 12.9, 13.8, 14.7, 15.6, 16.4, 17.4, 18.3, 19.2, 20.1, 21.0, 22.0, 22.9, 23.9, 24.9, 25.8] },
+    { gas:'60/40', vols:3.6667, t:[11.7, 13.0, 14.4, 15.8, 17.2, 18.6, 20.1, 21.5, 23.0, 24.4, 25.9, 27.4, 28.9, 30.4, 32.0, 33.5, 35.1, 36.6, 38.2, 39.8, 41.4, 43.1] },
   ]},
-  { brand:'Samuel Adams', userReported:true, source:'DraftMore (industry dispense equipment reference, Denmark): Samuel Adams 2.6 vols; American Homebrewers Association forum — multiple consistent user reports', rows:[
-    { gas:'CO2', vols:2.6, t:[17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38] },
-    { gas:'60/40', vols:2.6, t:[28,30,32,34,36,37,38,40,41,43,45,47,49,50,52,53,55,56,58,60,62,63], warn:[16,17,18,19,20,21] }
+  { brand:'Old Mout Cider', vols:2.6, userReported:true, source:'Fruit cider style; consistent with mid-range fruit cider carbonation', rows:[
+    { gas:'CO2', vols:2.6, t:[11.0, 12.0, 12.9, 13.9, 14.9, 15.8, 16.8, 17.8, 18.8, 19.8, 20.8, 21.9, 22.9, 23.9, 25.0, 26.0, 27.1, 28.1, 29.2, 30.3, 31.4, 32.5] },
+    { gas:'60/40', vols:4.3333, t:[18.4, 20.0, 21.6, 23.2, 24.8, 26.4, 28.0, 29.7, 31.4, 33.0, 34.7, 36.4, 38.1, 39.9, 41.6, 43.4, 45.1, 46.9, 48.7, 50.5, 52.3, 54.1] },
   ]},
-  { brand:'San Miguel', userReported:true, source:'European pilsner style; American Homebrewers Association forum — multiple consistent user reports; consistent across multiple independent sources', rows:[
-    { gas:'CO2', vols:2.5, t:[16,17,18,19,20,21,22,22,24,24,26,26,28,28,30,30,32,32,34,34,36,36] },
-    { gas:'60/40', vols:2.5, t:[27,29,31,33,34,35,36,37,39,40,42,44,46,48,49,50,52,54,55,57,59,61], warn:[21] }
+  { brand:'Paulaner Weissbier', vols:3.4, userReported:true, source:'DraftMore (industry dispense equipment ref): German Wheat beer 3.3–3.6 vols', rows:[
+    { gas:'CO2', vols:3.4, t:[19.0, 20.2, 21.4, 22.6, 23.9, 25.1, 26.3, 27.6, 28.8, 30.1, 31.3, 32.6, 33.9, 35.2, 36.5, 37.8, 39.1, 40.4, 41.7, 43.0, 44.4, 45.7] },
+    { gas:'60/40', vols:5.6667, warn:[12, 13, 14, 15, 16, 17, 18, 19, 20, 21], t:[31.7, 33.7, 35.7, 37.7, 39.8, 41.8, 43.9, 45.9, 48.0, 50.1, 52.2, 54.3, 56.5, 58.6, 60.8, 62.9, 65.1, 67.3, 69.5, 71.7, 74.0, 76.2] },
   ]},
-  { brand:'Schneider Weisse', userReported:true, source:'DraftMore (industry dispense equipment reference, Denmark): Schneider Weisse 3.3–3.6 vols; Brew Your Own magazine (peer-reviewed brewing publication)', rows:[
-    { gas:'CO2', vols:3.4, t:[25,26,27,28,29,30,31,32,33,34,36,39,41,42,43,44,45,46,47,49,52,54], warn:[10,11,12,13,14,15,16,17,18,19,20,21] },
-    { gas:'60/40', vols:3.4, t:[42,44,46,48,49,50,51,53,54,56,60,64,69,70,71,73,74,76,78,82,86,90], warn:[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21] }
+  { brand:'Pilsner Urquell', vols:2.6, userReported:true, source:'DraftMore (industry dispense equipment ref): Pilsener Urquell 2.6 vols; AHA forum — multiple consistent user reports', rows:[
+    { gas:'CO2', vols:2.6, t:[11.0, 12.0, 12.9, 13.9, 14.9, 15.8, 16.8, 17.8, 18.8, 19.8, 20.8, 21.9, 22.9, 23.9, 25.0, 26.0, 27.1, 28.1, 29.2, 30.3, 31.4, 32.5] },
+    { gas:'60/40', vols:4.3333, t:[18.4, 20.0, 21.6, 23.2, 24.8, 26.4, 28.0, 29.7, 31.4, 33.0, 34.7, 36.4, 38.1, 39.9, 41.6, 43.4, 45.1, 46.9, 48.7, 50.5, 52.3, 54.1] },
   ]},
-  { brand:'Sierra Nevada', userReported:true, source:'DraftMore (industry dispense equipment reference, Denmark): Sierra Nevada all beers 2.6–2.7 vols (lower end used); American Homebrewers Association forum — multiple consistent user reports', rows:[
-    { gas:'CO2', vols:2.6, t:[17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38] },
-    { gas:'60/40', vols:2.6, t:[28,30,32,34,36,37,38,40,41,43,45,47,49,50,52,53,55,56,58,60,62,63], warn:[16,17,18,19,20,21] }
+  { brand:'Rekorderlig', vols:2.7, userReported:true, source:'Fruit cider style; consistent with Kopparberg; AHA forum — multiple consistent user reports', rows:[
+    { gas:'CO2', vols:2.7, t:[12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0, 19.0, 20.1, 21.1, 22.1, 23.2, 24.3, 25.3, 26.4, 27.5, 28.6, 29.7, 30.8, 31.9, 33.0, 34.1] },
+    { gas:'60/40', vols:4.5, warn:[21], t:[20.1, 21.7, 23.3, 25.0, 26.7, 28.3, 30.0, 31.7, 33.4, 35.2, 36.9, 38.7, 40.4, 42.2, 44.0, 45.8, 47.6, 49.5, 51.3, 53.2, 55.0, 56.9] },
   ]},
-  { brand:'Stella Artois', userReported:true, source:'DraftMore (industry dispense equipment reference, Denmark): 2.5–2.6 vols (lower end used); The Drinks Business — independent physical CO₂ measurement test (2017)', rows:[
-    { gas:'CO2', vols:2.5, t:[16,17,18,19,20,21,22,22,24,24,26,26,28,28,30,30,32,32,34,34,36,36] },
-    { gas:'60/40', vols:2.5, t:[27,29,31,33,34,35,36,37,39,40,42,44,46,48,49,50,52,54,55,57,59,61], warn:[21] }
+  { brand:'Samuel Adams Boston Lager', vols:2.6, userReported:true, source:'DraftMore (industry dispense equipment ref): Samuel Adams 2.6 vols; AHA forum — multiple consistent user reports', rows:[
+    { gas:'CO2', vols:2.6, t:[11.0, 12.0, 12.9, 13.9, 14.9, 15.8, 16.8, 17.8, 18.8, 19.8, 20.8, 21.9, 22.9, 23.9, 25.0, 26.0, 27.1, 28.1, 29.2, 30.3, 31.4, 32.5] },
+    { gas:'60/40', vols:4.3333, t:[18.4, 20.0, 21.6, 23.2, 24.8, 26.4, 28.0, 29.7, 31.4, 33.0, 34.7, 36.4, 38.1, 39.9, 41.6, 43.4, 45.1, 46.9, 48.7, 50.5, 52.3, 54.1] },
   ]},
-  { brand:'Thatchers Gold', userReported:true, source:'Traditional dry apple cider style; consistent with Magners/Bulmers range', rows:[
-    { gas:'CO2', vols:2.5, t:[16,17,18,19,20,21,22,22,24,24,26,26,28,28,30,30,32,32,34,34,36,36] },
-    { gas:'60/40', vols:2.5, t:[27,29,31,33,34,35,36,37,39,40,42,44,46,48,49,50,52,54,55,57,59,61], warn:[21] }
+  { brand:'San Miguel', vols:2.5, userReported:true, source:'European pilsner style; consistent across multiple sources', rows:[
+    { gas:'CO2', vols:2.5, t:[10.0, 10.9, 11.9, 12.8, 13.7, 14.7, 15.6, 16.6, 17.6, 18.5, 19.5, 20.5, 21.5, 22.5, 23.5, 24.5, 25.6, 26.6, 27.6, 28.7, 29.8, 30.8] },
+    { gas:'60/40', vols:4.1667, t:[16.7, 18.2, 19.8, 21.3, 22.9, 24.5, 26.0, 27.6, 29.3, 30.9, 32.5, 34.2, 35.8, 37.5, 39.2, 40.9, 42.6, 44.3, 46.1, 47.8, 49.6, 51.4] },
   ]},
-  { brand:'Tuborg', userReported:true, source:'DraftMore (industry dispense equipment reference, Denmark): Tuborg alle typer 2.6–2.75 vols (lower end used)', rows:[
-    { gas:'CO2', vols:2.6, t:[17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38] },
-    { gas:'60/40', vols:2.6, t:[28,30,32,34,36,37,38,40,41,43,45,47,49,50,52,53,55,56,58,60,62,63], warn:[16,17,18,19,20,21] }
+  { brand:'Schneider Weisse', vols:3.4, userReported:true, source:'DraftMore (industry dispense equipment ref): Sneider Weisse 3.3–3.6 vols', rows:[
+    { gas:'CO2', vols:3.4, t:[19.0, 20.2, 21.4, 22.6, 23.9, 25.1, 26.3, 27.6, 28.8, 30.1, 31.3, 32.6, 33.9, 35.2, 36.5, 37.8, 39.1, 40.4, 41.7, 43.0, 44.4, 45.7] },
+    { gas:'60/40', vols:5.6667, warn:[12, 13, 14, 15, 16, 17, 18, 19, 20, 21], t:[31.7, 33.7, 35.7, 37.7, 39.8, 41.8, 43.9, 45.9, 48.0, 50.1, 52.2, 54.3, 56.5, 58.6, 60.8, 62.9, 65.1, 67.3, 69.5, 71.7, 74.0, 76.2] },
   ]},
-  { brand:'Weihenstephan Pilsner', userReported:true, source:'DraftMore (industry dispense equipment reference, Denmark): Weihenstephan Pilsner and Lager 2.5–2.75 vols (lower end used)', rows:[
-    { gas:'CO2', vols:2.6, t:[17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38] },
-    { gas:'60/40', vols:2.6, t:[28,30,32,34,36,37,38,40,41,43,45,47,49,50,52,53,55,56,58,60,62,63], warn:[16,17,18,19,20,21] }
+  { brand:'Sierra Nevada', vols:2.6, userReported:true, source:'DraftMore (industry dispense equipment ref): Sierra Nevada all beers 2.6–2.7 vols (lower end used)', rows:[
+    { gas:'CO2', vols:2.6, t:[11.0, 12.0, 12.9, 13.9, 14.9, 15.8, 16.8, 17.8, 18.8, 19.8, 20.8, 21.9, 22.9, 23.9, 25.0, 26.0, 27.1, 28.1, 29.2, 30.3, 31.4, 32.5] },
+    { gas:'60/40', vols:4.3333, t:[18.4, 20.0, 21.6, 23.2, 24.8, 26.4, 28.0, 29.7, 31.4, 33.0, 34.7, 36.4, 38.1, 39.9, 41.6, 43.4, 45.1, 46.9, 48.7, 50.5, 52.3, 54.1] },
   ]},
-  { brand:'Weihenstephan Wheat', userReported:true, source:'DraftMore (industry dispense equipment reference, Denmark): Weihenstephan Wheat beer 2.75–2.85 vols (lower end used)', rows:[
-    { gas:'CO2', vols:2.8, t:[19,20,21,22,23,24,25,26,27,28,29,31,32,33,34,35,36,37,38,39,41,42] },
-    { gas:'60/40', vols:2.8, t:[32,34,36,38,39,40,41,43,44,46,48,51,54,55,56,58,60,61,63,65,68,70], warn:[11,12,13,14,15,16,17,18,19,20,21] }
+  { brand:'Stella Artois', vols:2.5, userReported:true, source:'DraftMore (industry dispense equipment ref): 2.5–2.6 vols (lower end used); The Drinks Business independent physical test (2017)', rows:[
+    { gas:'CO2', vols:2.5, t:[10.0, 10.9, 11.9, 12.8, 13.7, 14.7, 15.6, 16.6, 17.6, 18.5, 19.5, 20.5, 21.5, 22.5, 23.5, 24.5, 25.6, 26.6, 27.6, 28.7, 29.8, 30.8] },
+    { gas:'60/40', vols:4.1667, t:[16.7, 18.2, 19.8, 21.3, 22.9, 24.5, 26.0, 27.6, 29.3, 30.9, 32.5, 34.2, 35.8, 37.5, 39.2, 40.9, 42.6, 44.3, 46.1, 47.8, 49.6, 51.4] },
   ]},
-  { brand:'Weston\'s Old Rosie', userReported:true, source:'Cloudy farmhouse cider style; lower carbonation consistent with traditional style', rows:[
-    { gas:'CO2', vols:2.3, t:[14,15,16,17,18,18,19,20,21,22,23,24,25,26,26,27,28,29,30,31,32,33] },
-    { gas:'60/40', vols:2.3, t:[23,25,27,29,30,31,32,33,35,36,38,40,42,43,44,45,46,48,50,51,53,55], warn:[21] }
+  { brand:'Tetley Smoothflow', vols:1.7, userReported:true, source:'Smooth ale / nitro style — 70/30 gas', rows:[
+    { gas:'CO2', vols:1.7, t:[1.9, 2.6, 3.3, 3.9, 4.6, 5.3, 6.0, 6.7, 7.5, 8.2, 8.9, 9.7, 10.4, 11.2, 11.9, 12.7, 13.5, 14.3, 15.1, 15.9, 16.7, 17.5] },
+    { gas:'60/40', vols:2.8333, t:[3.2, 4.3, 5.4, 6.6, 7.7, 8.9, 10.0, 11.2, 12.4, 13.6, 14.9, 16.1, 17.3, 18.6, 19.9, 21.2, 22.5, 23.8, 25.1, 26.4, 27.8, 29.1] },
   ]},
-  { brand:'Westmalle Dubbel', userReported:true, source:'DraftMore (industry dispense equipment reference, Denmark): Westmalle Mørk (Trappist) 2.2–2.3 vols (mid-point used)', rows:[
-    { gas:'CO2', vols:2.25, t:[14,14,15,16,17,18,18,20,20,22,22,23,24,25,26,26,28,28,30,30,32,32] },
-    { gas:'60/40', vols:2.25, t:[23,24,26,27,29,30,31,32,34,35,37,39,40,41,43,44,46,47,49,51,52,54], warn:[21] }
+  { brand:'Tuborg', vols:2.6, userReported:true, source:'DraftMore (industry dispense equipment ref): Tuborg alle typer 2.6–2.75 vols (lower end used)', rows:[
+    { gas:'CO2', vols:2.6, t:[11.0, 12.0, 12.9, 13.9, 14.9, 15.8, 16.8, 17.8, 18.8, 19.8, 20.8, 21.9, 22.9, 23.9, 25.0, 26.0, 27.1, 28.1, 29.2, 30.3, 31.4, 32.5] },
+    { gas:'60/40', vols:4.3333, t:[18.4, 20.0, 21.6, 23.2, 24.8, 26.4, 28.0, 29.7, 31.4, 33.0, 34.7, 36.4, 38.1, 39.9, 41.6, 43.4, 45.1, 46.9, 48.7, 50.5, 52.3, 54.1] },
+  ]},
+  { brand:'Weihenstephan Pilsner', vols:2.6, userReported:true, source:'DraftMore (industry dispense equipment ref): Weihenstephan Pilsner 2.5–2.75 vols (lower end used)', rows:[
+    { gas:'CO2', vols:2.6, t:[11.0, 12.0, 12.9, 13.9, 14.9, 15.8, 16.8, 17.8, 18.8, 19.8, 20.8, 21.9, 22.9, 23.9, 25.0, 26.0, 27.1, 28.1, 29.2, 30.3, 31.4, 32.5] },
+    { gas:'60/40', vols:4.3333, t:[18.4, 20.0, 21.6, 23.2, 24.8, 26.4, 28.0, 29.7, 31.4, 33.0, 34.7, 36.4, 38.1, 39.9, 41.6, 43.4, 45.1, 46.9, 48.7, 50.5, 52.3, 54.1] },
+  ]},
+  { brand:'Weihenstephan Wheat', vols:2.8, userReported:true, source:'DraftMore (industry dispense equipment ref): Weihenstephan Wheat 2.75–2.85 vols (lower end used)', rows:[
+    { gas:'CO2', vols:2.8, t:[13.0, 14.0, 15.1, 16.1, 17.1, 18.2, 19.2, 20.3, 21.3, 22.4, 23.5, 24.5, 25.6, 26.7, 27.8, 29.0, 30.1, 31.2, 32.4, 33.5, 34.6, 35.8] },
+    { gas:'60/40', vols:4.6667, warn:[19, 20, 21], t:[21.7, 23.4, 25.1, 26.8, 28.5, 30.3, 32.0, 33.8, 35.5, 37.3, 39.1, 40.9, 42.7, 44.6, 46.4, 48.3, 50.1, 52.0, 53.9, 55.8, 57.7, 59.7] },
+  ]},
+  { brand:'Weston\'s Old Rosie', vols:2.3, userReported:true, source:'Cloudy farmhouse cider style; lower carbonation consistent with style', rows:[
+    { gas:'CO2', vols:2.3, t:[8.0, 8.9, 9.7, 10.6, 11.5, 12.3, 13.2, 14.1, 15.0, 16.0, 16.9, 17.8, 18.7, 19.7, 20.6, 21.6, 22.6, 23.5, 24.5, 25.5, 26.5, 27.5] },
+    { gas:'60/40', vols:3.8333, t:[13.3, 14.8, 16.2, 17.6, 19.1, 20.6, 22.1, 23.6, 25.1, 26.6, 28.1, 29.7, 31.2, 32.8, 34.4, 36.0, 37.6, 39.2, 40.8, 42.5, 44.2, 45.8] },
+  ]},
+  { brand:'Westmalle Dubbel', vols:2.25, userReported:true, source:'DraftMore (industry dispense equipment ref): Westmalle Mørk (Trappist) 2.2–2.3 vols (mid used)', rows:[
+    { gas:'CO2', vols:2.25, t:[7.5, 8.3, 9.2, 10.0, 10.9, 11.8, 12.6, 13.5, 14.4, 15.3, 16.2, 17.1, 18.0, 19.0, 19.9, 20.8, 21.8, 22.8, 23.7, 24.7, 25.7, 26.7] },
+    { gas:'60/40', vols:3.75, t:[12.5, 13.9, 15.3, 16.7, 18.2, 19.6, 21.1, 22.5, 24.0, 25.5, 27.0, 28.5, 30.1, 31.6, 33.2, 34.7, 36.3, 37.9, 39.5, 41.2, 42.8, 44.4] },
   ]},
 ];
 
@@ -2525,6 +3114,33 @@ let locations = [];
 let locIdCounter = 0;
 let activeTab = 'event';
 
+function prerSave() {
+  const data = {
+    eventName: (document.getElementById('eventName')||{}).value || '',
+    venue: (document.getElementById('venue')||{}).value || '',
+    eventDate: (document.getElementById('eventDate')||{}).value || '',
+    arrivalTime: (document.getElementById('arrivalTime')||{}).value || '',
+    eventNotes: (document.getElementById('eventNotes')||{}).value || '',
+    locations, locIdCounter, activeTab,
+  };
+  try { localStorage.setItem('bx_prereport', JSON.stringify(data)); } catch(e) {}
+}
+
+function prerLoad() {
+  try {
+    const raw = localStorage.getItem('bx_prereport');
+    if (!raw) return;
+    const data = JSON.parse(raw);
+    ['eventName','venue','eventDate','arrivalTime','eventNotes'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el && data[id] !== undefined) el.value = data[id];
+    });
+    if (data.locations) locations = data.locations;
+    if (data.locIdCounter) locIdCounter = data.locIdCounter;
+    if (data.activeTab) activeTab = data.activeTab;
+  } catch(e) {}
+}
+
 function switchTab(tab) {
   activeTab = tab;
   document.getElementById('tabEvent').style.display = tab === 'event' ? 'block' : 'none';
@@ -2536,6 +3152,7 @@ function switchTab(tab) {
 function renderTabBar() {
   const bar = document.getElementById('tabBar');
   if (!bar) return;
+  prerSave();
   const evtName = (document.getElementById('eventName')||{}).value || 'Event';
   const mkBtn = (label, tab, isActive) => {
     const style = `padding:8px 14px;border-radius:20px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;white-space:nowrap;transition:all 0.15s;background:${isActive?'var(--pink)':'var(--card)'};color:${isActive?'#fff':'var(--muted)'};border:0.5px solid ${isActive?'var(--pink)':'var(--border)'}`;
@@ -2728,11 +3345,11 @@ function removeMachine(locId, mIdx) {
 
 function setLocField(id, field, val) {
   const loc = locations.find(l => l.id === id);
-  if (loc) loc[field] = val;
+  if (loc) { loc[field] = val; prerSave(); }
 }
 function setMachineField(locId, mIdx, field, val) {
   const loc = locations.find(l => l.id === locId);
-  if (loc && loc.machines[mIdx]) loc.machines[mIdx][field] = val;
+  if (loc && loc.machines[mIdx]) { loc.machines[mIdx][field] = val; prerSave(); }
 }
 function setPill(locId, field, val, groupCls) {
   setLocField(locId, field, val);
@@ -2814,6 +3431,7 @@ function closeClear() { document.getElementById('clearModal').classList.remove('
 function clearAll() {
   ['eventName','venue','eventDate','arrivalTime','eventNotes'].forEach(id => { const el = document.getElementById(id); if(el) el.value=''; });
   locations=[]; locIdCounter=0; activeTab='event';
+  try { localStorage.removeItem('bx_prereport'); } catch(e) {}
   document.getElementById('tabEvent').style.display = 'block';
   document.getElementById('locationTabContent').style.display = 'none';
   renderTabBar(); closeClear();
