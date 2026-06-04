@@ -685,7 +685,7 @@ header {
 
 <!-- ══════════════════════════════ SUBMISSION SCREEN ══════════════════════════════ -->
 <div id="perSubmittingPage" style="display:none;position:fixed;inset:0;background:var(--bg);z-index:200;display:none;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:32px;text-align:center">
-  <div id="perSubmitIcon" style="font-size:56px;line-height:1">⏳</div>
+  <div id="perSubmitIcon" style="font-size:56px;line-height:1;display:none"></div>
   <div id="perSubmitTitle" style="font-size:22px;font-weight:700;color:var(--text)">Submitting…</div>
   <div id="perSubmitSub" style="font-size:14px;color:var(--muted);max-width:280px;line-height:1.5"></div>
   <button id="perSubmitHomeBtn" onclick="perSubmitDone()" style="display:none;margin-top:12px;padding:14px 40px;background:var(--pink);color:#fff;border:none;border-radius:var(--radius);font-size:15px;font-weight:700;font-family:inherit;cursor:pointer">Return to Home</button>
@@ -2181,7 +2181,7 @@ function showPage(id) {
 }
 
 /* ── POST EVENT REPORT ─────────────────────────────────── */
-const PER_WEBHOOK = 'https://script.google.com/macros/s/AKfycbwIeWE_Rh0Ii3fkHPnMhAZgrwvMPUruqUgkSKKWuKAjbjN58pFjD77CWQuBnKJJ3f7NZA/exec';
+const PER_WEBHOOK = 'https://script.google.com/macros/s/AKfycbzrCHSxXqwPfax7PEIoPrciaMZ-gKLgXRglwMPgl3GkwLZ6gP-uNjelZPNKdkBZwJOe4g/exec';
 const PER_DRIVE_FOLDER = '1nj8_tle6eS7vxsPvn8VDUhjhEc5QEBFI';
 
 const perYNState = {};
@@ -2244,13 +2244,35 @@ function perInit() {
 
 function perVal(id) { return (document.getElementById(id)?.value || '').trim(); }
 
-function perShowSubmitting(title, sub, icon) {
+function perShowSubmitting(title, sub) {
   const pg = document.getElementById('perSubmittingPage');
-  document.getElementById('perSubmitIcon').textContent = icon || '⏳';
   document.getElementById('perSubmitTitle').textContent = title;
   document.getElementById('perSubmitSub').textContent = sub || '';
   document.getElementById('perSubmitHomeBtn').style.display = 'none';
   pg.style.display = 'flex';
+}
+
+function perResetForm() {
+  // Clear all text inputs and textareas
+  ['per_name','per_email','per_event','per_date','per_customer_feedback','per_client_feedback',
+   'per_issues_arrival','per_issues_during','per_issues_resolved','per_parts','per_notes',
+   'per_location_suggest'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+  // Clear checkboxes and selects
+  ['per_foh','per_boh','per_fohboh'].forEach(id => { const el = document.getElementById(id); if(el) el.checked = false; });
+  ['per_foh_qty','per_boh_qty','per_fohboh_qty'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+  // Clear yes/no buttons
+  Object.keys(perYNState).forEach(k => delete perYNState[k]);
+  document.querySelectorAll('.per-yn-btn').forEach(b => b.classList.remove('active'));
+  // Clear rating buttons
+  document.querySelectorAll('.per-rating-btn').forEach(b => b.classList.remove('active'));
+  // Clear photos
+  perPhotoFiles = [];
+  const preview = document.getElementById('per_photo_preview');
+  if (preview) preview.innerHTML = '';
+  const status = document.getElementById('per_photo_status');
+  if (status) status.textContent = '';
+  const input = document.getElementById('per_photos');
+  if (input) input.value = '';
 }
 
 function perSubmitDone() {
@@ -2286,13 +2308,12 @@ async function perSubmit() {
     fohbohTrained ? `FOH & BOH trained (×${fohbohQty||'?'})` : (fohbohQty ? `FOH & BOH not trained (×${fohbohQty})` : ''),
   ].filter(Boolean).join(', ') || 'None recorded';
 
-  // Show submitting screen
-  perShowSubmitting('Submitting…', 'Please keep this screen open', '⏳');
+  perShowSubmitting('Submitting...', 'Please keep this screen open');
 
-  // Upload photos first if any
+  // Upload photos if any
   let photoLinks = '';
   if (perPhotoFiles.length) {
-    perShowSubmitting('Uploading photos…', `Uploading ${perPhotoFiles.length} photo${perPhotoFiles.length > 1 ? 's' : ''} — please wait`, '📸');
+    perShowSubmitting('Submitting...', `Uploading ${perPhotoFiles.length} photo${perPhotoFiles.length > 1 ? 's' : ''} — please wait`);
     try {
       await Promise.all(perPhotoFiles.map(async (file) => {
         const base64 = await new Promise(res => {
@@ -2303,7 +2324,7 @@ async function perSubmit() {
         await fetch(PER_WEBHOOK, {
           method: 'POST', mode: 'no-cors',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action: 'uploadPhoto', filename: file.name, mimeType: file.type, data: base64, folderId: PER_DRIVE_FOLDER, event: perVal('per_event'), date }),
+          body: JSON.stringify({ action: 'uploadPhoto', filename: file.name, mimeType: file.type, data: base64, folderId: PER_DRIVE_FOLDER, event, date }),
         });
       }));
       photoLinks = `${perPhotoFiles.length} photo(s) uploaded to Drive`;
@@ -2338,7 +2359,7 @@ async function perSubmit() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
-    document.getElementById('perSubmitIcon').textContent = '✅';
+    perResetForm();
     document.getElementById('perSubmitTitle').textContent = 'Submitted';
     document.getElementById('perSubmitSub').textContent = `${event} — ${date}`;
     document.getElementById('perSubmitHomeBtn').style.display = 'block';
