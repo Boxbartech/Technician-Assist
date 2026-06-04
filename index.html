@@ -600,6 +600,10 @@ header {
       <textarea id="per_issues_during" class="per-textarea" rows="2" placeholder="Describe any issues, or leave blank"></textarea>
     </div>
     <div class="per-row">
+      <label class="per-field-label">How were they resolved?</label>
+      <textarea id="per_issues_resolved" class="per-textarea" rows="2" placeholder="Describe how issues were resolved, or leave blank"></textarea>
+    </div>
+    <div class="per-row">
       <label class="per-field-label">Was this escalated to the wider events team?</label>
       <div style="display:flex;gap:8px;margin-top:2px">
         <button id="per_escalated_yes" class="per-yn-btn" onclick="perToggleYN('per_escalated','yes')">Yes</button>
@@ -672,13 +676,20 @@ header {
 
   <!-- Submit -->
   <div style="margin:16px 12px 0;display:flex;flex-direction:column;gap:10px">
-    <button onclick="perSubmit()" style="width:100%;padding:15px;background:var(--pink);color:#fff;border:none;border-radius:var(--radius);font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;letter-spacing:0.2px">Submit Report</button>
-    <div id="per_success" style="display:none;background:rgba(52,199,89,0.12);border:0.5px solid rgba(52,199,89,0.4);border-radius:var(--radius);padding:14px;text-align:center;color:#34c759;font-weight:600;font-size:14px">Report submitted successfully</div>
+    <button onclick="perSubmit()" id="perSubmitBtn" style="width:100%;padding:15px;background:var(--pink);color:#fff;border:none;border-radius:var(--radius);font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;letter-spacing:0.2px">Submit Report</button>
     <div id="per_error" style="display:none;background:rgba(255,69,58,0.10);border:0.5px solid rgba(255,69,58,0.3);border-radius:var(--radius);padding:14px;text-align:center;color:#ff453a;font-weight:600;font-size:14px"></div>
   </div>
 
 </div>
 </div><!-- /postEventPage -->
+
+<!-- ══════════════════════════════ SUBMISSION SCREEN ══════════════════════════════ -->
+<div id="perSubmittingPage" style="display:none;position:fixed;inset:0;background:var(--bg);z-index:200;display:none;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:32px;text-align:center">
+  <div id="perSubmitIcon" style="font-size:56px;line-height:1">⏳</div>
+  <div id="perSubmitTitle" style="font-size:22px;font-weight:700;color:var(--text)">Submitting…</div>
+  <div id="perSubmitSub" style="font-size:14px;color:var(--muted);max-width:280px;line-height:1.5"></div>
+  <button id="perSubmitHomeBtn" onclick="perSubmitDone()" style="display:none;margin-top:12px;padding:14px 40px;background:var(--pink);color:#fff;border:none;border-radius:var(--radius);font-size:15px;font-weight:700;font-family:inherit;cursor:pointer">Return to Home</button>
+</div>
 
 <!-- ══════════════════════════════ TOOLKIT PAGE ══════════════════════════════ -->
 <div id="toolkitPage">
@@ -2170,7 +2181,7 @@ function showPage(id) {
 }
 
 /* ── POST EVENT REPORT ─────────────────────────────────── */
-const PER_WEBHOOK = 'https://script.google.com/macros/s/AKfycbzBYJf9Zxv14Z2to2ISkY2ULYpj3qYtuNwzAYgaOZBVZ8W6D3AHk9GyQeToRZ6n9bsXBw/exec';
+const PER_WEBHOOK = 'https://script.google.com/macros/s/AKfycbwIeWE_Rh0Ii3fkHPnMhAZgrwvMPUruqUgkSKKWuKAjbjN58pFjD77CWQuBnKJJ3f7NZA/exec';
 const PER_DRIVE_FOLDER = '1nj8_tle6eS7vxsPvn8VDUhjhEc5QEBFI';
 
 const perYNState = {};
@@ -2233,11 +2244,22 @@ function perInit() {
 
 function perVal(id) { return (document.getElementById(id)?.value || '').trim(); }
 
+function perShowSubmitting(title, sub, icon) {
+  const pg = document.getElementById('perSubmittingPage');
+  document.getElementById('perSubmitIcon').textContent = icon || '⏳';
+  document.getElementById('perSubmitTitle').textContent = title;
+  document.getElementById('perSubmitSub').textContent = sub || '';
+  document.getElementById('perSubmitHomeBtn').style.display = 'none';
+  pg.style.display = 'flex';
+}
+
+function perSubmitDone() {
+  document.getElementById('perSubmittingPage').style.display = 'none';
+  showPage('homePage');
+}
+
 async function perSubmit() {
-  const btn = document.querySelector('#postEventPage button[onclick="perSubmit()"]');
-  const successEl = document.getElementById('per_success');
   const errorEl = document.getElementById('per_error');
-  successEl.style.display = 'none';
   errorEl.style.display = 'none';
 
   const name = perVal('per_name');
@@ -2264,38 +2286,34 @@ async function perSubmit() {
     fohbohTrained ? `FOH & BOH trained (×${fohbohQty||'?'})` : (fohbohQty ? `FOH & BOH not trained (×${fohbohQty})` : ''),
   ].filter(Boolean).join(', ') || 'None recorded';
 
+  // Show submitting screen
+  perShowSubmitting('Submitting…', 'Please keep this screen open', '⏳');
+
   // Upload photos first if any
   let photoLinks = '';
   if (perPhotoFiles.length) {
-    document.getElementById('per_photo_status').textContent = `Uploading ${perPhotoFiles.length} photo${perPhotoFiles.length > 1 ? 's' : ''}…`;
+    perShowSubmitting('Uploading photos…', `Uploading ${perPhotoFiles.length} photo${perPhotoFiles.length > 1 ? 's' : ''} — please wait`, '📸');
     try {
-      const uploads = await Promise.all(perPhotoFiles.map(async (file) => {
+      await Promise.all(perPhotoFiles.map(async (file) => {
         const base64 = await new Promise(res => {
           const r = new FileReader();
           r.onload = () => res(r.result.split(',')[1]);
           r.readAsDataURL(file);
         });
-        const resp = await fetch(PER_WEBHOOK, {
-          method: 'POST',
-          mode: 'no-cors',
+        await fetch(PER_WEBHOOK, {
+          method: 'POST', mode: 'no-cors',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ action: 'uploadPhoto', filename: file.name, mimeType: file.type, data: base64, folderId: PER_DRIVE_FOLDER, event: perVal('per_event'), date }),
         });
-        return file.name;
       }));
-      photoLinks = `${uploads.length} photo(s) uploaded to Drive folder`;
-      document.getElementById('per_photo_status').textContent = 'Photos uploaded';
+      photoLinks = `${perPhotoFiles.length} photo(s) uploaded to Drive`;
     } catch(e) {
       photoLinks = 'Photo upload failed';
-      document.getElementById('per_photo_status').textContent = 'Photo upload failed — continuing with report';
     }
   }
 
   const payload = {
-    date,
-    name,
-    email,
-    event,
+    date, name, email, event,
     busy_event: perYNState['busy_event'] || '',
     busy_bars: perYNState['busy_bars'] || '',
     location_score: perYNState['location_score'] || '',
@@ -2306,6 +2324,7 @@ async function perSubmit() {
     line_cleaned: perYNState['per_lineclean'] || '',
     issues_arrival: perVal('per_issues_arrival'),
     issues_during: perVal('per_issues_during'),
+    issues_resolved: perVal('per_issues_resolved'),
     escalated: perYNState['per_escalated'] || '',
     parts_used: perVal('per_parts'),
     staff_briefed: perYNState['per_briefed'] || '',
@@ -2313,25 +2332,21 @@ async function perSubmit() {
     photos: photoLinks,
   };
 
-  btn.textContent = 'Submitting…';
-  btn.disabled = true;
-
   try {
     await fetch(PER_WEBHOOK, {
-      method: 'POST',
-      mode: 'no-cors',
+      method: 'POST', mode: 'no-cors',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
-    successEl.style.display = 'block';
-    successEl.scrollIntoView({ behavior:'smooth', block:'center' });
-    btn.textContent = 'Submit Report';
-    btn.disabled = false;
+    document.getElementById('perSubmitIcon').textContent = '✅';
+    document.getElementById('perSubmitTitle').textContent = 'Submitted';
+    document.getElementById('perSubmitSub').textContent = `${event} — ${date}`;
+    document.getElementById('perSubmitHomeBtn').style.display = 'block';
   } catch(e) {
+    document.getElementById('perSubmittingPage').style.display = 'none';
     errorEl.textContent = 'Submission failed — check your connection and try again.';
     errorEl.style.display = 'block';
-    btn.textContent = 'Submit Report';
-    btn.disabled = false;
+    errorEl.scrollIntoView({ behavior:'smooth', block:'center' });
   }
 }
 
