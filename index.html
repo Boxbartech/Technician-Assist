@@ -318,7 +318,7 @@ header {
   </svg>
   <div class="header-left">
     <h1>Boxbar Technician Assist</h1>
-    <p style="opacity:0.7;font-size:10px;letter-spacing:0.3px">Early beta</p>
+    <p style="opacity:0.7;font-size:10px;letter-spacing:0.3px">Early Beta v1</p>
   </div>
 </header>
 
@@ -435,10 +435,11 @@ header {
 
   <div class="actions-area">
     <div class="btn-row">
-      <button class="action-btn btn-ghost" onclick="showEventPreview()">👁 Preview</button>
+      <button class="action-btn btn-ghost" onclick="showEventPreview()">Preview</button>
       <button class="action-btn btn-clear" onclick="openClear()">🗑 Clear all</button>
     </div>
-    <button class="action-btn btn-copy" onclick="copyEventReport()">📋 Copy Event to Clipboard</button>
+    <button class="action-btn btn-copy" onclick="preSubmitReport()" style="margin-bottom:6px">Submit to Sheet</button>
+    <button class="action-btn btn-copy" onclick="copyEventReport()">Copy Event</button>
   </div>
 </div>
 
@@ -468,7 +469,7 @@ header {
       <div class="preview-text" id="previewText"></div>
     </div>
     <div class="preview-foot">
-      <button class="action-btn btn-copy" id="previewCopyBtn" style="width:100%">📋 Copy</button>
+      <button class="action-btn btn-copy" id="previewCopyBtn" style="width:100%">Copy</button>
     </div>
   </div>
 </div>
@@ -623,15 +624,15 @@ header {
   <div class="per-card" style="margin:0 12px">
     <div class="per-row">
       <label class="per-field-label">How busy was the event? <span class="per-field-hint">1 = quiet · 10 = packed</span></label>
-      <div id="per_busy_event" style="display:flex;gap:5px;justify-content:space-between;margin-top:2px"></div>
+      <div id="per_busy_event" style="display:grid;grid-template-columns:repeat(10,1fr);gap:4px;margin-top:2px"></div>
     </div>
     <div class="per-row">
       <label class="per-field-label">How busy were the other bars? <span class="per-field-hint">1 = quiet · 10 = packed</span></label>
-      <div id="per_busy_bars" style="display:flex;gap:5px;justify-content:space-between;margin-top:2px"></div>
+      <div id="per_busy_bars" style="display:grid;grid-template-columns:repeat(10,1fr);gap:4px;margin-top:2px"></div>
     </div>
     <div class="per-row">
       <label class="per-field-label">How good was the machine location for passing trade? <span class="per-field-hint">1 = very bad · 10 = perfect</span></label>
-      <div id="per_location_score" style="display:flex;gap:5px;justify-content:space-between;margin-top:2px"></div>
+      <div id="per_location_score" style="display:grid;grid-template-columns:repeat(10,1fr);gap:4px;margin-top:2px"></div>
     </div>
   </div>
 
@@ -685,8 +686,13 @@ header {
 </div>
 </div><!-- /postEventPage -->
 
-<!-- ══════════════════════════════ SUBMISSION SCREEN ══════════════════════════════ -->
-<div id="perSubmittingPage" style="display:none;position:fixed;inset:0;background:var(--bg);z-index:200;display:none;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:32px;text-align:center">
+<!-- ══════════════════════════════ PRE-EVENT SUBMITTING SCREEN ══════════════════════════════ -->
+<div id="preSubmittingPage" style="display:none;position:fixed;inset:0;background:var(--bg);z-index:200;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:32px;text-align:center">
+  <div id="preSubmitTitle" style="font-size:22px;font-weight:700;color:var(--text)">Submitting...</div>
+  <div id="preSubmitSub" style="font-size:14px;color:var(--muted);max-width:280px;line-height:1.5"></div>
+  <button id="preSubmitDoneBtn" onclick="preSubmitDone()" style="display:none;margin-top:12px;padding:14px 40px;background:var(--pink);color:#fff;border:none;border-radius:var(--radius);font-size:15px;font-weight:700;font-family:inherit;cursor:pointer">Done</button>
+</div>
+<div id="perSubmittingPage" style="display:none;position:fixed;inset:0;background:var(--bg);z-index:200;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:32px;text-align:center">
   <div id="perSubmitIcon" style="font-size:56px;line-height:1;display:none"></div>
   <div id="perSubmitTitle" style="font-size:22px;font-weight:700;color:var(--text)">Submitting…</div>
   <div id="perSubmitSub" style="font-size:14px;color:var(--muted);max-width:280px;line-height:1.5"></div>
@@ -892,6 +898,13 @@ header {
   <button class="back-btn" onclick="goHome()">‹ Home</button>
 </header>
 
+<div style="margin:10px 12px 4px;position:relative">
+  <input id="manualSearch" type="search" placeholder="Search manual…" oninput="manualSearchFilter(this.value)"
+    style="width:100%;box-sizing:border-box;background:var(--card);border:0.5px solid var(--border);border-radius:var(--radius);padding:11px 14px 11px 38px;font-size:15px;font-family:inherit;color:var(--text);outline:none">
+  <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:16px;pointer-events:none;color:var(--muted)">⌕</span>
+</div>
+<div id="manualSearchResults" style="display:none;margin:0 12px 8px"></div>
+<div id="manualIndex">
 <div class="section-label">The Beer System</div>
 <div class="group">
   <div class="manual-row" onclick="goToComponent('gas')"><span class="manual-row-label">Gas</span><span class="manual-row-chevron">›</span></div>
@@ -929,6 +942,7 @@ header {
 </div>
 
 <div style="height:32px"></div>
+</div><!-- /manualIndex -->
 </div><!-- /manualPage -->
 
 <!-- ══════════════════════════════ COMPONENT DETAIL PAGE ══════════════════════════════ -->
@@ -1307,6 +1321,7 @@ const tsTree = [
       {label:'Is the keg empty?', hts:['HT-03'], manual:'keg'},
       {label:'Is the gas bottle empty? Look at the bottle pressure gauge on the primary — near zero means empty.', hts:['HT-04'], manual:'gas'},
       {label:'Is the gas turned off at the bottle? The bottle valve should be open anticlockwise.', hts:['HT-05'], manual:'gas'},
+      {label:'Could there be an airlock in the line? Detach the coupler and unplug fittings starting from the solenoid backwards until product flows — that fitting is where the airlock was. Plug back in to release it.', hts:['HT-56'], manual:'beerlines'},
       {label:'Is the secondary regulator turned off? The small lever underneath should point down.', hts:['HT-06'], manual:'gas'},
       {label:'Is there a kink in the beer line? Trace the full run from coupler to machine.', hts:['HT-07'], manual:'beerlines'},
       {label:'Could the line be frozen? If the cooler was left running after a line clean, water may have frozen.', hts:['HT-08'], manual:'beerlines'},
@@ -1386,12 +1401,12 @@ const tsTree = [
     { id:'3A', label:'One Tap Not Pouring, Fobbing, Slow or Underpouring',
       note:'If one tap has an issue and the other pours correctly, everything upstream is ruled out — gas, keg, FOB, cooler, and python are shared and fine. The fault is specific to that tap\'s side, from the solenoid downward.',
       causes:[
-      
       {label:'Is the solenoid on that side dirty or not opening correctly?', hts:['HT-35','HT-36','HT-37'], manual:'solenoid'},
       {label:'Is the tap dangling too high above the cup? Too much distance between nozzle and cup causes fobbing on that tap only.', hts:['HT-18'], manual:'actuator'},
       {label:'Are the tap or nozzle dirty on that side?', hts:['HT-19'], manual:'solenoid'},
       {label:'Is the restriction on that tap too short or too long? Each tap has its own restriction set independently.', hts:['HT-17'], manual:'python'},
       {label:'Is there a kinked or scored beer line on that tap\'s side? Trace from the solenoid back toward the python.', hts:['HT-07','HT-21'], manual:'beerlines'},
+      {label:'Could there be an airlock in that tap\'s line? Detach the coupler and unplug fittings starting from the solenoid backwards until product flows — that fitting is where the airlock was. Plug back in to release it.', hts:['HT-56'], manual:'beerlines'},
       {label:'Is a fitting leaking or not holding on that tap\'s line?', hts:['HT-22','HT-23','HT-24'], manual:'beerlines'},
       {label:'Has calibration been run on that tap specifically? Each tap is calibrated independently.', hts:['HT-39'], manual:'software'},
     ]},
@@ -1474,6 +1489,7 @@ const tsTree = [
     { id:'6A', label:'Not Draining', causes:[
       {label:'Is the drain line blocked?', hts:['HT-30'], manual:'beerlines'},
       {label:'Is the drain line kinked?', hts:['HT-07'], manual:'beerlines'},
+      {label:'Could there be an airlock causing a back-pressure pocket? Unplug the drain fitting at the machine end to release it, then reconnect.', hts:['HT-56'], manual:'beerlines'},
     ]},
     { id:'6B', label:'Drain Connection Leaking', causes:[
       {label:'Is the drain pipe fully pushed into the fitting?', hts:['HT-22'], manual:'beerlines'},
@@ -2038,6 +2054,14 @@ const tsHowTo = {
     'Reattach the washer and confirm it is hand-tight.',
     'Reconnect the keg and check for leaks.',
   ]},
+  'HT-56':{ title:'How to Locate and Clear an Airlock', steps:[
+    'Detach the coupler from the keg and turn off gas at the bottle.',
+    'Starting at the solenoid, unplug the beer line from the first fitting.',
+    'Wait a second — if product does not flow out, plug back in and move to the next fitting back toward the keg.',
+    'Continue unplugging fittings one by one, moving back along the line.',
+    'When product flows from a fitting, that is where the airlock was — plugging the fitting back in releases the pocket of air.',
+    'Reconnect the coupler, turn gas back on, and test the pour.',
+  ]},
 };
 
 
@@ -2054,8 +2078,118 @@ function goToReport() {
   renderLocationTabs();
   switchTab(activeTab);
 }
+function manualSearchFilter(q) {
+  const lq = q.trim().toLowerCase();
+  const index = document.getElementById('manualIndex');
+  const results = document.getElementById('manualSearchResults');
+  if (!lq) {
+    index.style.display = '';
+    results.style.display = 'none';
+    results.innerHTML = '';
+    return;
+  }
+  index.style.display = 'none';
+  results.style.display = 'block';
+
+  // Keyword synonyms — maps search terms to additional match terms
+  const synonyms = {
+    'line clean': ['clean beer lines', 'line clean', 'cleaning keg', 'flojet'],
+    'clean line': ['clean beer lines', 'line clean'],
+    'fob': ['fob detector', 'cellar buoy'],
+    'cellar buoy': ['fob detector'],
+    'airlock': ['airlock', 'air lock'],
+    'keg change': ['change a keg', 'keg'],
+    'gas leak': ['gas fitting leak', 'gas gauge leak'],
+    'solenoid': ['solenoid', 'valve'],
+    'pressure': ['psi', 'regulator', 'gas pressure'],
+    'psi': ['pressure', 'regulator', 'equilibrium'],
+    'foam': ['fobbing', 'foam', 'head'],
+    'not pouring': ['nothing pouring', 'not pouring', 'fob'],
+    'fitting': ['fitting', 'john guest'],
+    'internet': ['connectivity', 'internet', 'wifi', 'network'],
+    'payment': ['payments', 'viva', 'payment'],
+    'calibrat': ['calibrate', 'pour time', 'opt time'],
+    'clean': ['clean', 'cleaning'],
+    'frozen': ['frozen', 'defrost'],
+    'kink': ['kinked', 'kink'],
+    'drain': ['drain', 'drainage'],
+    'cooler': ['cooler', 'cooling', 'temperature', 'water bath'],
+    'platform': ['platform', 'shield', 'actuator'],
+    'coupler': ['coupler', 'attach', 'reseat'],
+    'regulator': ['regulator', 'secondary', 'primary', 'pressure'],
+    'restriction': ['restriction', 'python', 'line length'],
+  };
+
+  function scoreHit(text, query) {
+    const t = text.toLowerCase();
+    if (t.includes(query)) return 2; // direct match
+    // Check synonyms
+    const syns = synonyms[query] || [];
+    for (const s of syns) { if (t.includes(s)) return 1; }
+    // Check if all words in query appear in text
+    const words = query.split(/\s+/).filter(w => w.length > 2);
+    if (words.length > 1 && words.every(w => t.includes(w))) return 1;
+    return 0;
+  }
+
+  const hits = [];
+  const seen = new Set();
+
+  // Search HT titles and steps
+  Object.entries(tsHowTo).forEach(([code, ht]) => {
+    if (seen.has('ht:'+code)) return;
+    const titleScore = scoreHit(ht.title, lq);
+    let stepScore = 0;
+    const allSteps = [
+      ...(ht.steps || []),
+      ...((ht.sections||[]).flatMap(s => s.steps||[])),
+    ];
+    allSteps.forEach(s => { if (scoreHit(s, lq) > 0) stepScore = 1; });
+    const score = titleScore * 2 + stepScore;
+    if (score > 0) {
+      seen.add('ht:'+code);
+      hits.push({ type:'ht', label: ht.title, code, score });
+    }
+  });
+
+  // Search component manual sections
+  Object.entries(componentData).forEach(([key, comp]) => {
+    if (seen.has('comp:'+key)) return;
+    const score = scoreHit(comp.title, lq);
+    if (score > 0) {
+      seen.add('comp:'+key);
+      hits.push({ type:'manual', label: comp.title, key, score });
+    }
+  });
+
+  // Sort by score descending
+  hits.sort((a,b) => b.score - a.score);
+
+  if (!hits.length) {
+    results.innerHTML = '<div style="padding:14px;text-align:center;color:var(--muted);font-size:14px">No results found</div>';
+    return;
+  }
+
+  results.innerHTML = `<div style="background:var(--card);border:0.5px solid var(--border);border-radius:var(--radius);overflow:hidden">` +
+    hits.map((h, i) => {
+      const isLast = i === hits.length - 1;
+      const border = isLast ? '' : 'border-bottom:0.5px solid var(--border);';
+      if (h.type === 'ht') {
+        return `<div onclick="showSingleHt('${h.code}','','','')" style="${border}display:flex;align-items:center;justify-content:space-between;padding:13px 14px;cursor:pointer">
+          <div><div style="font-size:14px;font-weight:600;color:var(--text)">${h.label}</div><div style="font-size:12px;color:var(--muted);margin-top:2px">How-to guide</div></div>
+          <span style="color:var(--muted);font-size:18px">›</span></div>`;
+      } else {
+        return `<div onclick="goToComponent('${h.key}')" style="${border}display:flex;align-items:center;justify-content:space-between;padding:13px 14px;cursor:pointer">
+          <div><div style="font-size:14px;font-weight:600;color:var(--text)">${h.label}</div><div style="font-size:12px;color:var(--muted);margin-top:2px">Manual section</div></div>
+          <span style="color:var(--muted);font-size:18px">›</span></div>`;
+      }
+    }).join('') + '</div>';
+}
+
 function goToManual() {
   showPage('manualPage');
+  const s = document.getElementById('manualSearch');
+  if (s) { s.value = ''; manualSearchFilter(''); }
 }
 function goToComponent(id) {
   const data = componentData[id];
@@ -2177,8 +2311,71 @@ function showPage(id) {
   if (id === 'toolkitPage') tkRender();
 }
 
-/* ── POST EVENT REPORT ─────────────────────────────────── */
-const PER_WEBHOOK = 'https://script.google.com/macros/s/AKfycbzrCHSxXqwPfax7PEIoPrciaMZ-gKLgXRglwMPgl3GkwLZ6gP-uNjelZPNKdkBZwJOe4g/exec';
+/* ── PRE-EVENT SHEET SUBMISSION ──────────────────────── */
+async function preSubmitReport() {
+  const eventName = gv('eventName');
+  const date = gv('eventDate');
+  if (!eventName || !date) {
+    alert('Please fill in Event name and Date before submitting.');
+    return;
+  }
+
+  const pg = document.getElementById('preSubmittingPage');
+  document.getElementById('preSubmitTitle').textContent = 'Submitting...';
+  document.getElementById('preSubmitSub').textContent = 'Please keep this screen open';
+  document.getElementById('preSubmitDoneBtn').style.display = 'none';
+  pg.style.display = 'flex';
+
+  // Build location data
+  const locData = locations.map(loc => ({
+    name: loc.name || '',
+    machineType: loc.machineType || '',
+    productTemp: loc.productTemp || '',
+    freshKegs: loc.freshKegs || '',
+    internet: loc.internet || '',
+    testPayment: loc.testPayment || '',
+    staffTrained: loc.staffTrained || '',
+    staffCount: loc.staffCount || '',
+    notes: loc.notes || '',
+    machines: loc.machines.map(m => ({
+      name: m.name || '',
+      product: m.product || '',
+      psi: m.psi || '',
+      tap1: m.tap1 || '',
+      tap2: m.tap2 || '',
+      notes: m.notes || '',
+    })),
+  }));
+
+  const payload = {
+    action: 'preEvent',
+    event: eventName,
+    venue: gv('venue'),
+    date,
+    arrivalTime: gv('arrivalTime'),
+    eventNotes: gv('eventNotes'),
+    locations: locData,
+  };
+
+  try {
+    await fetch(PER_WEBHOOK, {
+      method: 'POST', mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    document.getElementById('preSubmitTitle').textContent = 'Submitted';
+    document.getElementById('preSubmitSub').textContent = `${eventName} — ${date}`;
+    document.getElementById('preSubmitDoneBtn').style.display = 'block';
+  } catch(e) {
+    pg.style.display = 'none';
+    alert('Submission failed — check your connection and try again.');
+  }
+}
+
+function preSubmitDone() {
+  document.getElementById('preSubmittingPage').style.display = 'none';
+}
+const PER_WEBHOOK = 'https://script.google.com/macros/s/AKfycbwp-wnITI6orCiN5g4l1Mc95bIpCNgpLi0meQfoqxtIju0ZlqMr1NiNf-tGQUPuvZrBjA/exec';
 const PER_DRIVE_FOLDER = '1nj8_tle6eS7vxsPvn8VDUhjhEc5QEBFI';
 
 const perYNState = {};
@@ -2223,6 +2420,7 @@ function perBuildRating(containerId, fieldKey) {
     btn.textContent = i;
     btn.dataset.val = i;
     btn.className = 'per-rating-btn';
+    btn.style.width = '100%';
     btn.onclick = () => {
       el.querySelectorAll('button').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
@@ -2516,8 +2714,7 @@ function tkRenderTools() {
   if (!el) return;
   el.innerHTML = data.items && data.items.length ? data.items.map((item, i) => `
     <div style="display:flex;align-items:center;gap:10px;background:var(--card);border:0.5px solid var(--border);border-radius:10px;padding:11px 14px">
-      <input type="checkbox" ${item.checked?'checked':''} onchange="tkToggleItem(${i})" style="width:20px;height:20px;accent-color:var(--pink);cursor:pointer;flex-shrink:0">
-      <span style="flex:1;font-size:14px;color:var(--text);${item.checked?'text-decoration:line-through;color:var(--muted)':''}">${item.name}</span>
+      <span style="flex:1;font-size:14px;color:var(--text)">${item.name}</span>
       <button onclick="tkRemoveItem(${i})" style="background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;padding:0;line-height:1">×</button>
     </div>`).join('') : '';
 }
@@ -3432,6 +3629,21 @@ function buildLocationHTML(loc) {
           oninput="setLocField(${loc.id},'name',this.value);renderTabBar()">
         <button class="remove-loc-btn" onclick="removeLocation(${loc.id})">✕</button>
       </div>
+      <div class="loc-details" style="border-top:none">
+        <div class="field-row">
+          <span class="field-label">Machine type</span>
+          <div class="select-wrap">
+            <select onchange="setLocField(${loc.id},'machineType',this.value)" class="field-select">
+              <option value="">Select…</option>
+              <option value="Gen 1 Three Bank" ${loc.machineType==='Gen 1 Three Bank'?'selected':''}>Gen 1 Three Bank</option>
+              <option value="Gen 2 Three Bank" ${loc.machineType==='Gen 2 Three Bank'?'selected':''}>Gen 2 Three Bank</option>
+              <option value="Container" ${loc.machineType==='Container'?'selected':''}>Container</option>
+              <option value="Wall Installation" ${loc.machineType==='Wall Installation'?'selected':''}>Wall Installation</option>
+            </select>
+            <span class="select-caret">›</span>
+          </div>
+        </div>
+      </div>
 
       <div class="loc-details">
         <div class="field-row">
@@ -3485,7 +3697,14 @@ function buildLocationHTML(loc) {
       </div>
 
       <div class="machines-wrap">
-        <div class="machines-label">Machines</div>
+        <div class="machines-label" style="display:flex;align-items:center;justify-content:space-between">
+          <span>Machines</span>
+          <div style="display:flex;gap:6px;align-items:center">
+            <input id="applyProduct_${loc.id}" type="text" placeholder="Product" style="width:110px;background:var(--card2);border:0.5px solid var(--border);border-radius:6px;padding:5px 8px;font-size:13px;font-family:inherit;color:var(--text);outline:none">
+            <input id="applyPSI_${loc.id}" type="number" step="0.5" placeholder="PSI" style="width:52px;background:var(--card2);border:0.5px solid var(--border);border-radius:6px;padding:5px 6px;font-size:13px;font-family:inherit;color:var(--text);outline:none;text-align:center">
+            <button onclick="applyToAll(${loc.id})" style="background:var(--pink-light);color:var(--pink);border:0.5px solid var(--pink-border);border-radius:6px;padding:5px 10px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;white-space:nowrap">Apply all</button>
+          </div>
+        </div>
         ${machines}
         <div class="machines-footer">
           <button class="add-machine-btn" onclick="addMachine(${loc.id})">＋ Add Machine</button>
@@ -3494,9 +3713,10 @@ function buildLocationHTML(loc) {
 
       <div class="actions-area" style="margin-top:10px">
         <div class="btn-row">
-          <button class="action-btn btn-ghost" onclick="showSingleLocPreview(${loc.id})">👁 Preview</button>
-          <button class="action-btn btn-copy" onclick="copySingleLoc(${loc.id})">📋 Copy</button>
+          <button class="action-btn btn-ghost" onclick="showSingleLocPreview(${loc.id})">Preview</button>
+          <button class="action-btn btn-copy" onclick="copySingleLoc(${loc.id})">Copy</button>
         </div>
+        <button class="action-btn btn-copy" onclick="preSubmitReport()" style="margin-bottom:6px">Submit to Sheet</button>
         <button class="action-btn" style="background:#25D366;color:#fff;border:none;width:100%;margin-top:6px" onclick="shareLocWhatsApp(${loc.id})">Share on WhatsApp</button>
       </div>
     </div>`;
@@ -3538,7 +3758,30 @@ function removeLocation(id) {
 function addMachine(locId) {
   const loc = locations.find(l => l.id === locId);
   if (!loc) return;
-  loc.machines.push(makeMachine(loc.machines.length + 1));
+  // Autofill next number based on last machine's name
+  const lastMachine = loc.machines[loc.machines.length - 1];
+  let nextName = '';
+  if (lastMachine && lastMachine.name) {
+    const match = lastMachine.name.match(/^([A-Za-z]*)(\d+)$/);
+    if (match) nextName = match[1] + (parseInt(match[2]) + 1);
+  }
+  const m = makeMachine(loc.machines.length + 1);
+  m.name = nextName;
+  loc.machines.push(m);
+  prerSave();
+  renderLocationTabs();
+}
+
+function applyToAll(locId) {
+  const loc = locations.find(l => l.id === locId);
+  if (!loc) return;
+  const product = document.getElementById(`applyProduct_${locId}`)?.value.trim();
+  const psi = document.getElementById(`applyPSI_${locId}`)?.value.trim();
+  loc.machines.forEach(m => {
+    if (product) m.product = product;
+    if (psi) m.psi = psi;
+  });
+  prerSave();
   renderLocationTabs();
 }
 
