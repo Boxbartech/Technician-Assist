@@ -2424,7 +2424,6 @@ async function preSubmitReport() {
     document.getElementById('preSubmitTitle').textContent = 'Report submitted';
     document.getElementById('preSubmitSub').innerHTML = `${eventName}<br>${date}`;
     document.getElementById('preSubmitDoneBtn').style.display = 'block';
-    clearAll();
   } catch(e) {
     pg.style.display = 'none';
     alert('Submission failed — check your connection and try again.');
@@ -2565,12 +2564,21 @@ function perShowPartsPicker() {
   const parts = perGetAllParts();
   if (!parts.length) { dd.style.display = 'none'; return; }
   dd.style.display = 'block';
-  dd.innerHTML = parts.map(p => `
-    <div onclick="perAddPartUsed('${p.replace(/'/g,"\\'")}');this.parentElement.style.display='none'"
+  dd.innerHTML = parts.map((p, i) => `
+    <div data-pidx="${i}"
       style="padding:11px 14px;font-size:14px;color:var(--text);border-bottom:0.5px solid var(--border);cursor:pointer"
       onmouseover="this.style.background='var(--card)'" onmouseout="this.style.background=''">
       ${p}
     </div>`).join('');
+  // Store parts list on the dropdown for safe retrieval
+  dd._partsList = parts;
+  dd.onclick = (e) => {
+    const row = e.target.closest('[data-pidx]');
+    if (!row) return;
+    const name = dd._partsList[parseInt(row.dataset.pidx)];
+    if (name) perAddPartUsed(name);
+    dd.style.display = 'none';
+  };
 }
 
 function perAddPartUsed(name) {
@@ -2589,15 +2597,24 @@ function perRenderPartsUsed() {
   const el = document.getElementById('per_parts_picker');
   if (!el) return;
   const entries = Object.entries(perPartsUsed);
-  el.innerHTML = entries.length ? entries.map(([name, qty]) => `
-    <div style="display:flex;align-items:center;gap:10px;background:var(--card2);border:0.5px solid var(--border);border-radius:10px;padding:9px 12px">
+  el.innerHTML = entries.length ? entries.map(([name, qty], i) => `
+    <div style="display:flex;align-items:center;gap:10px;background:var(--card2);border:0.5px solid var(--border);border-radius:10px;padding:9px 12px" data-part="${i}">
       <span style="flex:1;font-size:14px;color:var(--text)">${name}</span>
       <div style="display:flex;align-items:center;gap:0;border:0.5px solid var(--border);border-radius:8px;overflow:hidden;background:var(--card)">
-        <button onclick="perAdjustPartUsed('${name.replace(/'/g,"\\'")}', -1)" style="width:30px;height:30px;background:none;border:none;color:var(--text);font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center">−</button>
+        <button data-action="dec" data-part="${i}" style="width:30px;height:30px;background:none;border:none;color:var(--text);font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center">−</button>
         <span style="width:28px;text-align:center;font-size:14px;font-weight:700;color:var(--text)">${qty}</span>
-        <button onclick="perAdjustPartUsed('${name.replace(/'/g,"\\'")}', 1)" style="width:30px;height:30px;background:none;border:none;color:var(--text);font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center">+</button>
+        <button data-action="inc" data-part="${i}" style="width:30px;height:30px;background:none;border:none;color:var(--text);font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center">+</button>
       </div>
     </div>`).join('') : '';
+  // Use event delegation — safe for all part name characters
+  el._entries = entries;
+  el.onclick = (e) => {
+    const btn = e.target.closest('[data-action]');
+    if (!btn) return;
+    const idx = parseInt(btn.dataset.part);
+    const name = el._entries[idx][0];
+    perAdjustPartUsed(name, btn.dataset.action === 'inc' ? 1 : -1);
+  };
 }
 
 function perDeductPartsFromToolkit() {
@@ -2746,6 +2763,7 @@ async function perSubmit() {
     await fetch(PER_WEBHOOK, { method:'POST', mode:'no-cors', headers:{'Content-Type':'application/json'}, body: JSON.stringify(postPayload) });
     perDeductPartsFromToolkit();
     perResetForm();
+    clearAll(); // wipe pre-event report too now both are done
     if (perDotInterval) { clearInterval(perDotInterval); perDotInterval = null; }
     document.getElementById('perSubmitDotWrap').style.display = 'none';
     document.getElementById('perSubmitTitle').textContent = 'Report submitted';
