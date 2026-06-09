@@ -2436,7 +2436,7 @@ async function preSubmitReport() {
 function preSubmitDone() {
   document.getElementById('preSubmittingPage').style.display = 'none';
 }
-const PER_WEBHOOK = 'https://script.google.com/macros/s/AKfycbzD01SzomF5__FaOe7z50dGNkiUObxqgv5KIWUQ6EDVZwBgZlUAUaRFzTxUTIdxPQE95w/exec';
+const PER_WEBHOOK = 'https://script.google.com/macros/s/AKfycbyBjEflCcsQYoNlCDeXVp-izOFSgwUBQW8lDilFcT021QxPhDUK3bGIbjWF65rb6RXRsA/exec';
 const PER_DRIVE_FOLDER = '1nj8_tle6eS7vxsPvn8VDUhjhEc5QEBFI';
 
 const perYNState = {};
@@ -2493,17 +2493,20 @@ function perBuildRating(containerId, fieldKey) {
 
 function perInitFromPre() {
   perInit();
-  // Auto-fill from pre-event report if available
   const eventName = gv('eventName');
-  const venue = gv('venue');
   const date = gv('eventDate');
+  const dateEnd = gv('eventDateEnd');
   if (eventName) {
-    const eventEl = document.getElementById('per_event');
-    if (eventEl && !eventEl.value) eventEl.value = eventName + (venue ? ' — ' + venue : '');
+    const el = document.getElementById('per_event');
+    if (el && !el.value) el.value = eventName;
   }
   if (date) {
-    const dateEl = document.getElementById('per_date');
-    if (dateEl && !dateEl.value) dateEl.value = date;
+    const el = document.getElementById('per_date');
+    if (el && !el.value) el.value = date;
+  }
+  if (dateEnd) {
+    const el = document.getElementById('per_date_end');
+    if (el && !el.value) el.value = dateEnd;
   }
 }
 
@@ -2695,7 +2698,7 @@ async function perSubmit() {
   // Build pre-event payload from stored data
   const postPayload = {
     action: 'postEvent',
-    event: perVal('per_event') || gv('eventName'),
+    event: gv('eventName') || perVal('per_event'),
     date: date,
     dateEnd: perVal('per_date_end'),
     technician: name,
