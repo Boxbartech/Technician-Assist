@@ -318,7 +318,7 @@ header {
   </svg>
   <div class="header-left">
     <h1>Boxbar Technician Assist</h1>
-    <p style="opacity:0.7;font-size:10px;letter-spacing:0.3px">Early Beta v2.1</p>
+    <p style="opacity:0.7;font-size:10px;letter-spacing:0.3px">Early Beta v2</p>
   </div>
 </header>
 
@@ -539,13 +539,17 @@ header {
   <div class="section-label">Event</div>
   <div class="per-card" style="margin:0 12px">
     <div class="per-row">
-      <label class="per-field-label">Event / Venue</label>
-      <input id="per_event" type="text" class="per-input" placeholder="Event or venue name">
+      <label class="per-field-label">Event</label>
+      <input id="per_event" oninput="perSaveLocal()" type="text" class="per-input" placeholder="Event name">
+    </div>
+    <div class="per-row">
+      <label class="per-field-label">Venue</label>
+      <input id="per_venue" type="text" class="per-input" placeholder="Venue name">
     </div>
     <div class="per-row">
       <label class="per-field-label">Date</label>
       <div style="display:flex;gap:8px;align-items:center">
-        <input id="per_date" type="date" class="per-input" style="flex:1;color-scheme:dark">
+        <input id="per_date" onchange="perSaveLocal()" type="date" class="per-input" style="flex:1;color-scheme:dark">
         <button onclick="perSetToday()" style="background:var(--pink-light);color:var(--pink);border:0.5px solid var(--pink-border);border-radius:10px;padding:11px 14px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;white-space:nowrap;flex-shrink:0">Today</button>
       </div>
     </div>
@@ -582,37 +586,19 @@ header {
   <div class="section-label">Staff</div>
   <div class="per-card" style="margin:0 12px">
     <div class="per-row">
-      <label class="per-field-label" style="margin-bottom:10px">Staff provided</label>
+      <label class="per-field-label" style="margin-bottom:8px">Staff trained</label>
       <div style="display:flex;flex-direction:column;gap:8px">
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--card2);border-radius:10px">
-          <div style="display:flex;align-items:center;gap:10px">
-            <input type="checkbox" id="per_foh" style="width:20px;height:20px;accent-color:var(--pink);cursor:pointer;flex-shrink:0">
-            <div><div style="font-size:14px;font-weight:600;color:var(--text)">FOH</div><div style="font-size:12px;color:var(--muted)">Trained</div></div>
-          </div>
-          <select id="per_foh_qty" style="background:var(--card);border:0.5px solid var(--border);border-radius:8px;padding:6px 10px;font-size:14px;font-family:inherit;color:var(--text);outline:none;-webkit-appearance:none">
-            <option value="">Qty</option>
-            <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option>
-          </select>
+        <div style="display:flex;align-items:center;justify-content:space-between;background:var(--card2);border-radius:10px;padding:10px 14px">
+          <span style="font-size:14px;font-weight:600;color:var(--text)">BOH</span>
+          <input id="per_qty_boh" type="number" min="0" placeholder="Qty" oninput="perSaveLocal()" style="width:72px;background:var(--card);border:0.5px solid var(--border);border-radius:8px;padding:7px 10px;font-size:14px;font-family:inherit;color:var(--text);outline:none;text-align:center">
         </div>
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--card2);border-radius:10px">
-          <div style="display:flex;align-items:center;gap:10px">
-            <input type="checkbox" id="per_boh" style="width:20px;height:20px;accent-color:var(--pink);cursor:pointer;flex-shrink:0">
-            <div><div style="font-size:14px;font-weight:600;color:var(--text)">BOH</div><div style="font-size:12px;color:var(--muted)">Trained</div></div>
-          </div>
-          <select id="per_boh_qty" style="background:var(--card);border:0.5px solid var(--border);border-radius:8px;padding:6px 10px;font-size:14px;font-family:inherit;color:var(--text);outline:none;-webkit-appearance:none">
-            <option value="">Qty</option>
-            <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option>
-          </select>
+        <div style="display:flex;align-items:center;justify-content:space-between;background:var(--card2);border-radius:10px;padding:10px 14px">
+          <span style="font-size:14px;font-weight:600;color:var(--text)">FOH</span>
+          <input id="per_qty_foh" type="number" min="0" placeholder="Qty" oninput="perSaveLocal()" style="width:72px;background:var(--card);border:0.5px solid var(--border);border-radius:8px;padding:7px 10px;font-size:14px;font-family:inherit;color:var(--text);outline:none;text-align:center">
         </div>
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--card2);border-radius:10px">
-          <div style="display:flex;align-items:center;gap:10px">
-            <input type="checkbox" id="per_fohboh" style="width:20px;height:20px;accent-color:var(--pink);cursor:pointer;flex-shrink:0">
-            <div><div style="font-size:14px;font-weight:600;color:var(--text)">FOH &amp; BOH</div><div style="font-size:12px;color:var(--muted)">Trained</div></div>
-          </div>
-          <select id="per_fohboh_qty" style="background:var(--card);border:0.5px solid var(--border);border-radius:8px;padding:6px 10px;font-size:14px;font-family:inherit;color:var(--text);outline:none;-webkit-appearance:none">
-            <option value="">Qty</option>
-            <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option>
-          </select>
+        <div style="display:flex;align-items:center;justify-content:space-between;background:var(--card2);border-radius:10px;padding:10px 14px">
+          <span style="font-size:14px;font-weight:600;color:var(--text)">FOH &amp; BOH</span>
+          <input id="per_qty_fohboh" type="number" min="0" placeholder="Qty" oninput="perSaveLocal()" style="width:72px;background:var(--card);border:0.5px solid var(--border);border-radius:8px;padding:7px 10px;font-size:14px;font-family:inherit;color:var(--text);outline:none;text-align:center">
         </div>
       </div>
     </div>
@@ -2404,8 +2390,8 @@ async function preSubmitReport() {
     freshKegs: loc.freshKegs || '',
     internet: loc.internet || '',
     testPayment: loc.testPayment || '',
-    staffTrained: loc.staffTrained || '',
-    staffCount: loc.staffCount || '',
+    staffTrained: [loc.staffBOH ? `BOH ×${loc.staffBOH}` : '', loc.staffFOH ? `FOH ×${loc.staffFOH}` : '', loc.staffFOHBOH ? `FOH & BOH ×${loc.staffFOHBOH}` : ''].filter(Boolean).join(', '),
+    staffCount: '',
     notes: loc.notes || '',
     machines: loc.machines.map(m => ({
       name: m.name || '',
@@ -2469,6 +2455,41 @@ function perHandlePhotos(input) {
   status.textContent = files.length ? `${files.length} photo${files.length > 1 ? 's' : ''} selected` : '';
 }
 
+let perStaffType = '';
+const perStaffQtys = { FOH: '', BOH: '', 'FOH & BOH': '' };
+
+function perSaveLocal() {
+  try {
+    const ids = ['per_name','per_email','per_event','per_venue','per_date','per_date_end',
+      'per_customer_feedback','per_client_feedback','per_issues_arrival','per_issues_during',
+      'per_issues_resolved','per_parts','per_notes','per_qty_boh','per_qty_foh','per_qty_fohboh'];
+    const vals = {};
+    ids.forEach(id => { const el = document.getElementById(id); if(el) vals[id] = el.value; });
+    localStorage.setItem('bx_postreport', JSON.stringify({ vals, ynState: perYNState }));
+  } catch(e) {}
+}
+
+function perLoadLocal() {
+  try {
+    const raw = localStorage.getItem('bx_postreport');
+    if (!raw) return;
+    const { vals, ynState } = JSON.parse(raw);
+    if (vals) Object.entries(vals).forEach(([id, val]) => { const el = document.getElementById(id); if(el) el.value = val; });
+    if (ynState) Object.assign(perYNState, ynState);
+    // Rebuild ratings with restored values
+    perBuildRating('per_busy_event', 'busy_event');
+    perBuildRating('per_busy_bars', 'busy_bars');
+    perBuildRating('per_location_score', 'location_score');
+    // Restore YN button states
+    Object.entries(perYNState).forEach(([key, val]) => {
+      if (typeof val !== 'number') {
+        const btn = document.getElementById(key + '_' + val);
+        if (btn) btn.classList.add('active');
+      }
+    });
+  } catch(e) {}
+}
+
 function perSetToday() {
   const d = new Date();
   const pad = n => String(n).padStart(2,'0');
@@ -2481,6 +2502,7 @@ function perToggleYN(field, val) {
     const btn = document.getElementById(`${field}_${v}`);
     if (btn) btn.classList.toggle('active', v === val);
   });
+  perSaveLocal();
 }
 
 function perBuildRating(containerId, fieldKey) {
@@ -2493,10 +2515,12 @@ function perBuildRating(containerId, fieldKey) {
     btn.dataset.val = i;
     btn.className = 'per-rating-btn';
     btn.style.width = '100%';
+    if (perYNState[fieldKey] === i) btn.classList.add('active');
     btn.onclick = () => {
       el.querySelectorAll('button').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       perYNState[fieldKey] = i;
+      perSaveLocal();
     };
     el.appendChild(btn);
   }
@@ -2504,25 +2528,19 @@ function perBuildRating(containerId, fieldKey) {
 
 function perInitFromPre() {
   perInit();
+  perLoadLocal(); // restore any saved state first
+  // Then auto-fill from pre-event if fields still empty
   const eventName = gv('eventName');
+  const venue = gv('venue');
   const date = gv('eventDate');
   const dateEnd = gv('eventDateEnd');
-  if (eventName) {
-    const el = document.getElementById('per_event');
-    if (el && !el.value) el.value = eventName;
-  }
-  if (date) {
-    const el = document.getElementById('per_date');
-    if (el && !el.value) el.value = date;
-  }
-  if (dateEnd) {
-    const el = document.getElementById('per_date_end');
-    if (el && !el.value) el.value = dateEnd;
-  }
+  if (eventName) { const el = document.getElementById('per_event'); if (el && !el.value) el.value = eventName; }
+  if (venue)     { const el = document.getElementById('per_venue'); if (el && !el.value) el.value = venue; }
+  if (date)      { const el = document.getElementById('per_date');  if (el && !el.value) el.value = date; }
+  if (dateEnd)   { const el = document.getElementById('per_date_end'); if (el && !el.value) el.value = dateEnd; }
 }
 
 function perInit() {
-  perSetToday();
   perBuildRating('per_busy_event', 'busy_event');
   perBuildRating('per_busy_bars', 'busy_bars');
   perBuildRating('per_location_score', 'location_score');
@@ -2616,7 +2634,7 @@ function perShowSubmitting(title, sub) {
 
 function perResetForm() {
   // Clear all text inputs and textareas
-  ['per_name','per_email','per_event','per_date','per_date_end','per_customer_feedback','per_client_feedback',
+  ['per_name','per_email','per_event','per_venue','per_date','per_date_end','per_customer_feedback','per_client_feedback',
    'per_issues_arrival','per_issues_during','per_issues_resolved','per_parts','per_notes',
    'per_location_suggest'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
   // Clear checkboxes and selects
@@ -2627,8 +2645,10 @@ function perResetForm() {
   document.querySelectorAll('.per-yn-btn').forEach(b => b.classList.remove('active'));
   // Clear rating buttons
   document.querySelectorAll('.per-rating-btn').forEach(b => b.classList.remove('active'));
-  // Clear parts picker
-  perPartsUsed = {};
+  perStaffType = '';
+  ['per_qty_boh','per_qty_foh','per_qty_fohboh'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+  // Clear localStorage
+  try { localStorage.removeItem('bx_postreport'); } catch(e) {}
   perRenderPartsUsed();
   const dd = document.getElementById('per_parts_dropdown');
   if (dd) dd.style.display = 'none';
@@ -2661,17 +2681,12 @@ async function perSubmit() {
     return;
   }
 
-  const fohTrained = document.getElementById('per_foh').checked;
-  const bohTrained = document.getElementById('per_boh').checked;
-  const fohbohTrained = document.getElementById('per_fohboh').checked;
-  const fohQty = document.getElementById('per_foh_qty').value;
-  const bohQty = document.getElementById('per_boh_qty').value;
-  const fohbohQty = document.getElementById('per_fohboh_qty').value;
-  const staffStr = [
-    fohTrained ? `FOH trained (×${fohQty||'?'})` : (fohQty ? `FOH not trained (×${fohQty})` : ''),
-    bohTrained ? `BOH trained (×${bohQty||'?'})` : (bohQty ? `BOH not trained (×${bohQty})` : ''),
-    fohbohTrained ? `FOH & BOH trained (×${fohbohQty||'?'})` : (fohbohQty ? `FOH & BOH not trained (×${fohbohQty})` : ''),
-  ].filter(Boolean).join(', ') || 'None recorded';
+  const staffParts = [
+    document.getElementById('per_qty_boh')?.value ? `BOH ×${document.getElementById('per_qty_boh').value}` : '',
+    document.getElementById('per_qty_foh')?.value ? `FOH ×${document.getElementById('per_qty_foh').value}` : '',
+    document.getElementById('per_qty_fohboh')?.value ? `FOH & BOH ×${document.getElementById('per_qty_fohboh').value}` : '',
+  ].filter(Boolean);
+  const staffStr = staffParts.length ? staffParts.join(', ') : 'None recorded';
 
   perShowSubmitting('Submitting');
 
@@ -2702,6 +2717,7 @@ async function perSubmit() {
   const postPayload = {
     action: 'postEvent',
     event: gv('eventName') || perVal('per_event'),
+    venue: gv('venue') || perVal('per_venue'),
     date: date,
     dateEnd: perVal('per_date_end'),
     technician: name,
@@ -3776,17 +3792,25 @@ function buildLocationHTML(loc) {
             <button class="pill ${loc.testPayment==='Fail'?'active':''}" data-val="Fail" onclick="setPill(${loc.id},'testPayment','Fail','pay')">Fail</button>
           </div>
         </div>
-        <div class="field-row pill-row" style="align-items:center">
-          <span class="field-label">Staff trained</span>
-          <div style="flex:1;display:flex;align-items:center;justify-content:flex-end;gap:6px;flex-wrap:wrap">
-            <div class="pill-group staff_${loc.id}">
-              <button class="pill ${loc.staffTrained==='FOH'?'active':''}" data-val="FOH" onclick="setPill(${loc.id},'staffTrained','FOH','staff')">FOH</button>
-              <button class="pill ${loc.staffTrained==='FOH & BOH'?'active':''}" data-val="FOH & BOH" onclick="setPill(${loc.id},'staffTrained','FOH & BOH','staff')">FOH &amp; BOH</button>
-              <button class="pill ${loc.staffTrained==='N/A'?'active':''}" data-val="N/A" onclick="setPill(${loc.id},'staffTrained','N/A','staff')">N/A</button>
-            </div>
-            <input type="number" min="0" placeholder="Qty" value="${esc(loc.staffCount)}"
-              oninput="setLocField(${loc.id},'staffCount',this.value)"
-              style="width:52px;border:0.5px solid var(--border);border-radius:6px;background:var(--card2);color:var(--text);font-size:13px;font-family:inherit;padding:5px 6px;text-align:center;outline:none">
+        <div class="field-row" style="flex-direction:column;align-items:stretch;gap:8px;padding:10px 14px">
+          <span class="field-label" style="margin-bottom:2px">Staff trained</span>
+          <div style="display:flex;align-items:center;justify-content:space-between;background:var(--card2);border-radius:8px;padding:8px 12px">
+            <span style="font-size:13px;font-weight:600;color:var(--text)">BOH</span>
+            <input type="number" min="0" placeholder="Qty" value="${esc(loc.staffBOH)}"
+              oninput="setLocField(${loc.id},'staffBOH',this.value)"
+              style="width:64px;border:0.5px solid var(--border);border-radius:6px;background:var(--card);color:var(--text);font-size:13px;font-family:inherit;padding:5px 6px;text-align:center;outline:none">
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;background:var(--card2);border-radius:8px;padding:8px 12px">
+            <span style="font-size:13px;font-weight:600;color:var(--text)">FOH</span>
+            <input type="number" min="0" placeholder="Qty" value="${esc(loc.staffFOH)}"
+              oninput="setLocField(${loc.id},'staffFOH',this.value)"
+              style="width:64px;border:0.5px solid var(--border);border-radius:6px;background:var(--card);color:var(--text);font-size:13px;font-family:inherit;padding:5px 6px;text-align:center;outline:none">
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;background:var(--card2);border-radius:8px;padding:8px 12px">
+            <span style="font-size:13px;font-weight:600;color:var(--text)">FOH &amp; BOH</span>
+            <input type="number" min="0" placeholder="Qty" value="${esc(loc.staffFOHBOH)}"
+              oninput="setLocField(${loc.id},'staffFOHBOH',this.value)"
+              style="width:64px;border:0.5px solid var(--border);border-radius:6px;background:var(--card);color:var(--text);font-size:13px;font-family:inherit;padding:5px 6px;text-align:center;outline:none">
           </div>
         </div>
         <div style="border-top:0.5px solid var(--border)">
@@ -3834,7 +3858,7 @@ function addLocation() {
     return;
   }
   const id = ++locIdCounter;
-  locations.push({ id, name:'', internet:'', staffTrained:'', staffCount:'', freshKegs:'', productTemp:'', testPayment:'', notes:'', machines:[makeMachine(1),makeMachine(2),makeMachine(3)] });
+  locations.push({ id, name:'', internet:'', staffBOH:'', staffFOH:'', staffFOHBOH:'', freshKegs:'', productTemp:'', testPayment:'', notes:'', machines:[makeMachine(1),makeMachine(2),makeMachine(3)] });
   activeTab = id;
   document.getElementById('tabEvent').style.display = 'none';
   document.getElementById('locationTabContent').style.display = 'block';
