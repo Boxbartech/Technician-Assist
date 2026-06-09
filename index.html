@@ -400,8 +400,8 @@ header {
 
 <!-- TAB BAR -->
 <div style="margin:10px 12px 6px;display:flex;gap:8px">
-  <button onclick="preSubmitReport()" style="flex:1;padding:10px;background:var(--pink);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer">Submit Pre-Event Report</button>
-  <button onclick="openClear()" style="padding:10px 14px;background:rgba(255,59,48,0.1);color:#ff3b30;border:0.5px solid rgba(255,59,48,0.3);border-radius:8px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;white-space:nowrap">Clear</button>
+  <button onclick="preSubmitReport()" style="flex:1;padding:12px;background:var(--pink);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;letter-spacing:0.2px;box-shadow:0 2px 8px rgba(233,30,140,0.35)">Submit Pre-Event Report</button>
+  <button onclick="openClear()" style="padding:12px 14px;background:rgba(255,59,48,0.1);color:#ff3b30;border:0.5px solid rgba(255,59,48,0.3);border-radius:8px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;white-space:nowrap">Clear</button>
 </div>
 <div style="margin:0 12px 0;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none">
   <div id="tabBar" style="display:flex;gap:6px;padding-bottom:2px;min-width:max-content">
@@ -2424,6 +2424,7 @@ async function preSubmitReport() {
     document.getElementById('preSubmitTitle').textContent = 'Report submitted';
     document.getElementById('preSubmitSub').innerHTML = `${eventName}<br>${date}`;
     document.getElementById('preSubmitDoneBtn').style.display = 'block';
+    clearAll();
   } catch(e) {
     pg.style.display = 'none';
     alert('Submission failed — check your connection and try again.');
@@ -2652,6 +2653,7 @@ function perResetForm() {
   perRenderPartsUsed();
   const dd = document.getElementById('per_parts_dropdown');
   if (dd) dd.style.display = 'none';
+  perPhotoFiles = [];
   const preview = document.getElementById('per_photo_preview');
   if (preview) preview.innerHTML = '';
   const status = document.getElementById('per_photo_status');
@@ -3754,6 +3756,7 @@ function buildLocationHTML(loc) {
               <option value="Gen 2 Three Bank" ${loc.machineType==='Gen 2 Three Bank'?'selected':''}>Gen 2 Three Bank</option>
               <option value="Container" ${loc.machineType==='Container'?'selected':''}>Container</option>
               <option value="Wall Installation" ${loc.machineType==='Wall Installation'?'selected':''}>Wall Installation</option>
+              <option value="Spirit Mixer" ${loc.machineType==='Spirit Mixer'?'selected':''}>Spirit Mixer</option>
             </select>
             <span class="select-caret">›</span>
           </div>
@@ -3950,12 +3953,17 @@ function fmtTime(val) {
 function buildSingleLocText(loc) {
   const locName = loc.name || 'Location';
   let r = `📍 ${locName}\n`;
+  if (loc.machineType) r += `Machine Type: ${loc.machineType}\n`;
   r += `Product Temperature: ${loc.productTemp ? loc.productTemp + '°C' : ''}\n`;
   r += `Fresh Kegs: ${loc.freshKegs || ''}\n`;
   r += `Internet: ${loc.internet || ''}\n`;
   r += `Test Payment: ${loc.testPayment || ''}\n`;
-  const staffStr = [loc.staffTrained, loc.staffCount].filter(Boolean).join(' × ');
-  r += `Staff Trained: ${staffStr}\n`;
+  const staffParts = [
+    loc.staffBOH ? `BOH ×${loc.staffBOH}` : '',
+    loc.staffFOH ? `FOH ×${loc.staffFOH}` : '',
+    loc.staffFOHBOH ? `FOH & BOH ×${loc.staffFOHBOH}` : '',
+  ].filter(Boolean);
+  r += `Staff Trained: ${staffParts.join(', ') || ''}\n`;
   r += `Notes: ${loc.notes || ''}\n`;
   loc.machines.forEach(m => {
     r += `-----\n`;
@@ -4007,6 +4015,11 @@ function closeClear() { document.getElementById('clearModal').classList.remove('
 function clearAll() {
   ['eventName','venue','eventDate','eventDateEnd','arrivalTime','eventNotes'].forEach(id => { const el = document.getElementById(id); if(el) el.value=''; });
   locations=[]; locIdCounter=0; activeTab='event';
+  // Clear arrival photos
+  arrivalPhotoFiles = [];
+  const prev = document.getElementById('arrivalPhotoPreview'); if(prev) prev.innerHTML='';
+  const stat = document.getElementById('arrivalPhotoStatus'); if(stat) stat.textContent='';
+  const inp = document.getElementById('arrivalPhotos'); if(inp) inp.value='';
   try { localStorage.removeItem('bx_prereport'); } catch(e) {}
   document.getElementById('tabEvent').style.display = 'block';
   document.getElementById('locationTabContent').style.display = 'none';
