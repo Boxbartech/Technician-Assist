@@ -711,17 +711,26 @@ header {
 </div>
 </div><!-- /postEventPage -->
 
-<!-- ══════════════════════════════ PRE-EVENT SUBMITTING SCREEN ══════════════════════════════ -->
-<div id="preSubmittingPage" style="display:none;position:fixed;inset:0;background:var(--bg);z-index:200;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:32px;text-align:center">
-  <div id="preSubmitTitle" style="font-size:22px;font-weight:700;color:var(--text)">Submitting...</div>
-  <div id="preSubmitSub" style="font-size:14px;color:var(--muted);max-width:280px;line-height:1.5"></div>
-  <button id="preSubmitDoneBtn" onclick="preSubmitDone()" style="display:none;margin-top:12px;padding:14px 40px;background:var(--pink);color:#fff;border:none;border-radius:var(--radius);font-size:15px;font-weight:700;font-family:inherit;cursor:pointer">Done</button>
+<!-- ══════════════════════════════ SUBMITTING SCREENS ══════════════════════════════ -->
+<style>
+@keyframes bbPulse { 0%,100%{opacity:0.3;transform:scale(0.8)} 50%{opacity:1;transform:scale(1)} }
+.bb-dot { width:10px;height:10px;border-radius:50%;background:var(--pink);display:inline-block;margin:0 4px;animation:bbPulse 1.2s ease-in-out infinite; }
+.bb-dot:nth-child(2){animation-delay:0.2s}
+.bb-dot:nth-child(3){animation-delay:0.4s}
+</style>
+
+<div id="preSubmittingPage" style="display:none;position:fixed;inset:0;background:var(--bg);z-index:200;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:40px;text-align:center">
+  <div id="preSubmitTitle" style="font-size:22px;font-weight:700;color:var(--text)">Submitting</div>
+  <div id="preSubmitDotWrap"><span class="bb-dot"></span><span class="bb-dot"></span><span class="bb-dot"></span></div>
+  <div id="preSubmitSub" style="font-size:13px;color:var(--muted);line-height:1.7">Please allow up to 60 seconds<br>Keep this screen open</div>
+  <button id="preSubmitDoneBtn" onclick="preSubmitDone()" style="display:none;margin-top:8px;padding:14px 40px;background:var(--pink);color:#fff;border:none;border-radius:var(--radius);font-size:15px;font-weight:700;font-family:inherit;cursor:pointer">Done</button>
 </div>
-<div id="perSubmittingPage" style="display:none;position:fixed;inset:0;background:var(--bg);z-index:200;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:32px;text-align:center">
-  <div id="perSubmitTitle" style="font-size:22px;font-weight:700;color:var(--text)">Submitting...</div>
-  <div id="perSubmitDots" style="font-size:28px;color:var(--pink);letter-spacing:6px;min-height:36px">.</div>
-  <div id="perSubmitSub" style="font-size:13px;color:var(--muted);max-width:280px;line-height:1.7">Please allow up to 60 seconds<br>Keep this screen open</div>
-  <button id="perSubmitHomeBtn" onclick="perSubmitDone()" style="display:none;margin-top:12px;padding:14px 40px;background:var(--pink);color:#fff;border:none;border-radius:var(--radius);font-size:15px;font-weight:700;font-family:inherit;cursor:pointer">Return to Home</button>
+
+<div id="perSubmittingPage" style="display:none;position:fixed;inset:0;background:var(--bg);z-index:200;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:40px;text-align:center">
+  <div id="perSubmitTitle" style="font-size:22px;font-weight:700;color:var(--text)">Submitting</div>
+  <div id="perSubmitDotWrap"><span class="bb-dot"></span><span class="bb-dot"></span><span class="bb-dot"></span></div>
+  <div id="perSubmitSub" style="font-size:13px;color:var(--muted);line-height:1.7">Please allow up to 60 seconds<br>Keep this screen open</div>
+  <button id="perSubmitHomeBtn" onclick="perSubmitDone()" style="display:none;margin-top:8px;padding:14px 40px;background:var(--pink);color:#fff;border:none;border-radius:var(--radius);font-size:15px;font-weight:700;font-family:inherit;cursor:pointer">Return to Home</button>
 </div>
 
 <!-- ══════════════════════════════ TOOLKIT PAGE ══════════════════════════════ -->
@@ -2368,14 +2377,15 @@ async function preSubmitReport() {
   }
 
   const pg = document.getElementById('preSubmittingPage');
-  document.getElementById('preSubmitTitle').textContent = 'Submitting...';
-  document.getElementById('preSubmitSub').textContent = 'Please keep this screen open';
+  document.getElementById('preSubmitTitle').textContent = 'Submitting';
+  document.getElementById('preSubmitSub').innerHTML = 'Please allow up to 60 seconds<br>Keep this screen open';
   document.getElementById('preSubmitDoneBtn').style.display = 'none';
+  document.getElementById('preSubmitDotWrap').style.display = '';
   pg.style.display = 'flex';
 
   // Upload arrival photos
   if (arrivalPhotoFiles.length) {
-    document.getElementById('preSubmitSub').textContent = `Uploading ${arrivalPhotoFiles.length} arrival photo${arrivalPhotoFiles.length > 1 ? 's' : ''}…`;
+    document.getElementById('preSubmitSub').innerHTML = `Uploading ${arrivalPhotoFiles.length} photo${arrivalPhotoFiles.length > 1 ? 's' : ''}…<br>Please wait`;
     try {
       await Promise.all(arrivalPhotoFiles.map(async (file) => {
         const base64 = await new Promise(res => { const r = new FileReader(); r.onload = () => res(r.result.split(',')[1]); r.readAsDataURL(file); });
@@ -2424,8 +2434,9 @@ async function preSubmitReport() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
+    document.getElementById('preSubmitDotWrap').style.display = 'none';
     document.getElementById('preSubmitTitle').textContent = 'Submitted';
-    document.getElementById('preSubmitSub').textContent = `${eventName} — ${date}`;
+    document.getElementById('preSubmitSub').innerHTML = `${eventName}<br>${date}`;
     document.getElementById('preSubmitDoneBtn').style.display = 'block';
   } catch(e) {
     pg.style.display = 'none';
@@ -2436,7 +2447,7 @@ async function preSubmitReport() {
 function preSubmitDone() {
   document.getElementById('preSubmittingPage').style.display = 'none';
 }
-const PER_WEBHOOK = 'https://script.google.com/macros/s/AKfycbyBjEflCcsQYoNlCDeXVp-izOFSgwUBQW8lDilFcT021QxPhDUK3bGIbjWF65rb6RXRsA/exec';
+const PER_WEBHOOK = 'https://script.google.com/macros/s/AKfycbySUhHUyXOQeVcYtB4oSMTihrCgyvIY92BDljlvfPdPrT6TEPrYikQTOOvqPNF0hASgww/exec';
 const PER_DRIVE_FOLDER = '1nj8_tle6eS7vxsPvn8VDUhjhEc5QEBFI';
 
 const perYNState = {};
@@ -2592,23 +2603,15 @@ function perPartsUsedString() {
   return entries.map(([name, qty]) => `${name} ×${qty}`).join(', ');
 }
 
-let perDotInterval = null;
+let perDotInterval = null; // kept for compatibility
 
 function perShowSubmitting(title, sub) {
   const pg = document.getElementById('perSubmittingPage');
   document.getElementById('perSubmitTitle').textContent = title;
   document.getElementById('perSubmitSub').innerHTML = sub || 'Please allow up to 60 seconds<br>Keep this screen open';
   document.getElementById('perSubmitHomeBtn').style.display = 'none';
+  document.getElementById('perSubmitDotWrap').style.display = '';
   pg.style.display = 'flex';
-  // Dot animation
-  if (perDotInterval) clearInterval(perDotInterval);
-  const dotsEl = document.getElementById('perSubmitDots');
-  if (dotsEl) {
-    const seq = ['.', '. .', '. . .'];
-    let idx = 0;
-    dotsEl.textContent = seq[0];
-    perDotInterval = setInterval(() => { idx = (idx+1) % seq.length; dotsEl.textContent = seq[idx]; }, 500);
-  }
 }
 
 function perResetForm() {
@@ -2670,12 +2673,12 @@ async function perSubmit() {
     fohbohTrained ? `FOH & BOH trained (×${fohbohQty||'?'})` : (fohbohQty ? `FOH & BOH not trained (×${fohbohQty})` : ''),
   ].filter(Boolean).join(', ') || 'None recorded';
 
-  perShowSubmitting('Submitting...', 'Please keep this screen open');
+  perShowSubmitting('Submitting');
 
   // Upload photos if any
   let photoLinks = '';
   if (perPhotoFiles.length) {
-    perShowSubmitting('Submitting...', `Uploading ${perPhotoFiles.length} photo${perPhotoFiles.length > 1 ? 's' : ''} — please wait`);
+    perShowSubmitting('Submitting', `Uploading ${perPhotoFiles.length} photo${perPhotoFiles.length > 1 ? 's' : ''}…<br>Please wait`);
     try {
       await Promise.all(perPhotoFiles.map(async (file) => {
         const base64 = await new Promise(res => {
@@ -2686,7 +2689,7 @@ async function perSubmit() {
         await fetch(PER_WEBHOOK, {
           method: 'POST', mode: 'no-cors',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action: 'uploadPhoto', filename: file.name, mimeType: file.type, data: base64, folderId: PER_DRIVE_FOLDER, event, date }),
+          body: JSON.stringify({ action: 'postPhoto', filename: file.name, mimeType: file.type, data: base64, event, date }),
         });
       }));
       photoLinks = `${perPhotoFiles.length} photo(s) uploaded to Drive`;
@@ -2726,10 +2729,9 @@ async function perSubmit() {
     perDeductPartsFromToolkit();
     perResetForm();
     if (perDotInterval) { clearInterval(perDotInterval); perDotInterval = null; }
-    const dotsEl = document.getElementById('perSubmitDots');
-    if (dotsEl) dotsEl.textContent = '';
+    document.getElementById('perSubmitDotWrap').style.display = 'none';
     document.getElementById('perSubmitTitle').textContent = 'Submitted';
-    document.getElementById('perSubmitSub').innerHTML = `${postPayload.event} — ${date}`;
+    document.getElementById('perSubmitSub').innerHTML = `${postPayload.event}<br>${date}`;
     document.getElementById('perSubmitHomeBtn').style.display = 'block';
   } catch(e) {
     document.getElementById('perSubmittingPage').style.display = 'none';
