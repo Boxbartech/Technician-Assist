@@ -549,6 +549,10 @@ header {
         <button onclick="perSetToday()" style="background:var(--pink-light);color:var(--pink);border:0.5px solid var(--pink-border);border-radius:10px;padding:11px 14px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;white-space:nowrap;flex-shrink:0">Today</button>
       </div>
     </div>
+    <div class="per-row">
+      <label class="per-field-label">End date <span class="per-field-hint">multi-day optional</span></label>
+      <input id="per_date_end" type="date" class="per-input" style="color-scheme:dark">
+    </div>
   </div>
 
   <!-- Setup -->
@@ -713,10 +717,10 @@ header {
   <div id="preSubmitSub" style="font-size:14px;color:var(--muted);max-width:280px;line-height:1.5"></div>
   <button id="preSubmitDoneBtn" onclick="preSubmitDone()" style="display:none;margin-top:12px;padding:14px 40px;background:var(--pink);color:#fff;border:none;border-radius:var(--radius);font-size:15px;font-weight:700;font-family:inherit;cursor:pointer">Done</button>
 </div>
-<div id="perSubmittingPage" style="display:none;position:fixed;inset:0;background:var(--bg);z-index:200;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:32px;text-align:center">
-  <div id="perSubmitIcon" style="font-size:56px;line-height:1;display:none"></div>
-  <div id="perSubmitTitle" style="font-size:22px;font-weight:700;color:var(--text)">Submitting…</div>
-  <div id="perSubmitSub" style="font-size:14px;color:var(--muted);max-width:280px;line-height:1.5"></div>
+<div id="perSubmittingPage" style="display:none;position:fixed;inset:0;background:var(--bg);z-index:200;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:32px;text-align:center">
+  <div id="perSubmitTitle" style="font-size:22px;font-weight:700;color:var(--text)">Submitting...</div>
+  <div id="perSubmitDots" style="font-size:28px;color:var(--pink);letter-spacing:6px;min-height:36px">.</div>
+  <div id="perSubmitSub" style="font-size:13px;color:var(--muted);max-width:280px;line-height:1.7">Please allow up to 60 seconds<br>Keep this screen open</div>
   <button id="perSubmitHomeBtn" onclick="perSubmitDone()" style="display:none;margin-top:12px;padding:14px 40px;background:var(--pink);color:#fff;border:none;border-radius:var(--radius);font-size:15px;font-weight:700;font-family:inherit;cursor:pointer">Return to Home</button>
 </div>
 
@@ -2432,7 +2436,7 @@ async function preSubmitReport() {
 function preSubmitDone() {
   document.getElementById('preSubmittingPage').style.display = 'none';
 }
-const PER_WEBHOOK = 'https://script.google.com/macros/s/AKfycbz12SZqvlLbsbJN0uYX--XCr82-FQsCo_YgOCqCLkaUxezbgFowFZSzQ7JCf1xYmVym/exec';
+const PER_WEBHOOK = 'https://script.google.com/macros/s/AKfycbzD01SzomF5__FaOe7z50dGNkiUObxqgv5KIWUQ6EDVZwBgZlUAUaRFzTxUTIdxPQE95w/exec';
 const PER_DRIVE_FOLDER = '1nj8_tle6eS7vxsPvn8VDUhjhEc5QEBFI';
 
 const perYNState = {};
@@ -2585,17 +2589,28 @@ function perPartsUsedString() {
   return entries.map(([name, qty]) => `${name} ×${qty}`).join(', ');
 }
 
+let perDotInterval = null;
+
 function perShowSubmitting(title, sub) {
   const pg = document.getElementById('perSubmittingPage');
   document.getElementById('perSubmitTitle').textContent = title;
-  document.getElementById('perSubmitSub').textContent = sub || '';
+  document.getElementById('perSubmitSub').innerHTML = sub || 'Please allow up to 60 seconds<br>Keep this screen open';
   document.getElementById('perSubmitHomeBtn').style.display = 'none';
   pg.style.display = 'flex';
+  // Dot animation
+  if (perDotInterval) clearInterval(perDotInterval);
+  const dotsEl = document.getElementById('perSubmitDots');
+  if (dotsEl) {
+    const seq = ['.', '. .', '. . .'];
+    let idx = 0;
+    dotsEl.textContent = seq[0];
+    perDotInterval = setInterval(() => { idx = (idx+1) % seq.length; dotsEl.textContent = seq[idx]; }, 500);
+  }
 }
 
 function perResetForm() {
   // Clear all text inputs and textareas
-  ['per_name','per_email','per_event','per_date','per_customer_feedback','per_client_feedback',
+  ['per_name','per_email','per_event','per_date','per_date_end','per_customer_feedback','per_client_feedback',
    'per_issues_arrival','per_issues_during','per_issues_resolved','per_parts','per_notes',
    'per_location_suggest'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
   // Clear checkboxes and selects
@@ -2678,37 +2693,11 @@ async function perSubmit() {
   }
 
   // Build pre-event payload from stored data
-  const preLocData = locations.map(loc => ({
-    name: loc.name || '',
-    machineType: loc.machineType || '',
-    productTemp: loc.productTemp || '',
-    freshKegs: loc.freshKegs || '',
-    internet: loc.internet || '',
-    testPayment: loc.testPayment || '',
-    staffTrained: loc.staffTrained || '',
-    staffCount: loc.staffCount || '',
-    notes: loc.notes || '',
-    machines: loc.machines.map(m => ({
-      name: m.name || '',
-      product: m.product || '',
-      psi: m.psi || '',
-      tap1: m.tap1 || '',
-      tap2: m.tap2 || '',
-      notes: m.notes || '',
-    })),
-  }));
-
-  const combined = {
-    action: 'combined',
-    // Event info from pre-event
-    event: gv('eventName'),
-    venue: gv('venue'),
-    date: gv('eventDate') || date,
-    dateEnd: gv('eventDateEnd'),
-    arrivalTime: gv('arrivalTime'),
-    eventNotes: gv('eventNotes'),
-    locations: preLocData,
-    // Post-event info
+  const postPayload = {
+    action: 'postEvent',
+    event: perVal('per_event') || gv('eventName'),
+    date: date,
+    dateEnd: perVal('per_date_end'),
     technician: name,
     email,
     busy_event: perYNState['busy_event'] || '',
@@ -2730,15 +2719,18 @@ async function perSubmit() {
   };
 
   try {
-    await fetch(PER_WEBHOOK, { method:'POST', mode:'no-cors', headers:{'Content-Type':'application/json'}, body: JSON.stringify(combined) });
+    await fetch(PER_WEBHOOK, { method:'POST', mode:'no-cors', headers:{'Content-Type':'application/json'}, body: JSON.stringify(postPayload) });
     perDeductPartsFromToolkit();
     perResetForm();
-    clearAll();
+    if (perDotInterval) { clearInterval(perDotInterval); perDotInterval = null; }
+    const dotsEl = document.getElementById('perSubmitDots');
+    if (dotsEl) dotsEl.textContent = '';
     document.getElementById('perSubmitTitle').textContent = 'Submitted';
-    document.getElementById('perSubmitSub').textContent = `${combined.event} — ${combined.date}`;
+    document.getElementById('perSubmitSub').innerHTML = `${postPayload.event} — ${date}`;
     document.getElementById('perSubmitHomeBtn').style.display = 'block';
   } catch(e) {
     document.getElementById('perSubmittingPage').style.display = 'none';
+    if (perDotInterval) { clearInterval(perDotInterval); perDotInterval = null; }
     errorEl.textContent = 'Submission failed — check your connection and try again.';
     errorEl.style.display = 'block';
     errorEl.scrollIntoView({ behavior:'smooth', block:'center' });
