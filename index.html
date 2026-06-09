@@ -399,7 +399,11 @@ header {
 </header>
 
 <!-- TAB BAR -->
-<div style="margin:10px 12px 0;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none">
+<div style="margin:10px 12px 6px;display:flex;gap:8px">
+  <button onclick="preSubmitReport()" style="flex:1;padding:10px;background:var(--pink);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer">Submit Pre-Event Report</button>
+  <button onclick="openClear()" style="padding:10px 14px;background:rgba(255,59,48,0.1);color:#ff3b30;border:0.5px solid rgba(255,59,48,0.3);border-radius:8px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;white-space:nowrap">Clear</button>
+</div>
+<div style="margin:0 12px 0;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none">
   <div id="tabBar" style="display:flex;gap:6px;padding-bottom:2px;min-width:max-content">
     <!-- tabs rendered by JS -->
   </div>
@@ -407,6 +411,11 @@ header {
 
 <!-- ── EVENT TAB ── -->
 <div id="tabEvent">
+
+  <div style="margin:10px 12px 0;background:rgba(233,30,140,0.08);border:0.5px solid var(--pink-border);border-radius:var(--radius);padding:11px 14px">
+    <p style="font-size:13px;color:var(--pink);font-weight:600;line-height:1.5">Upon arrival at the event, complete the form below and share to the events chat, then submit.</p>
+  </div>
+
   <div class="section-label">Event Details</div>
   <div class="group">
     <div class="field-row">
@@ -423,6 +432,10 @@ header {
       <input class="field-input" id="eventDate" type="date">
     </div>
     <div class="field-row">
+      <span class="field-label">End date</span>
+      <input class="field-input" id="eventDateEnd" type="date" placeholder="Multi-day (optional)">
+    </div>
+    <div class="field-row">
       <span class="field-label">Arrival time</span>
       <input class="field-input" id="arrivalTime" type="time" placeholder="HH:MM">
     </div>
@@ -433,12 +446,21 @@ header {
     <textarea class="notes-area" id="eventNotes" placeholder="General event notes, observations, anything to flag…"></textarea>
   </div>
 
+  <div class="section-label">Arrival Photos</div>
+  <div class="group" style="padding:12px 14px">
+    <p style="font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.5">Front and back of each machine, plus anything worth noting on arrival.</p>
+    <input type="file" id="arrivalPhotos" accept="image/*" multiple style="display:none" onchange="handleArrivalPhotos(this)">
+    <button onclick="document.getElementById('arrivalPhotos').click()" style="width:100%;padding:11px;background:var(--card2);border:0.5px dashed var(--border);border-radius:10px;color:var(--muted);font-size:14px;font-weight:600;font-family:inherit;cursor:pointer">Tap to select arrival photos</button>
+    <div id="arrivalPhotoPreview" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"></div>
+    <div id="arrivalPhotoStatus" style="font-size:12px;color:var(--muted);margin-top:4px"></div>
+  </div>
+
   <div class="actions-area">
     <div class="btn-row">
       <button class="action-btn btn-ghost" onclick="showEventPreview()">Preview</button>
-      <button class="action-btn btn-clear" onclick="openClear()">🗑 Clear all</button>
+      <button class="action-btn btn-copy" onclick="copyEventReport()">Copy</button>
     </div>
-    <button class="action-btn btn-copy" onclick="copyEventReport()">Copy Event</button>
+    <button onclick="shareEventWhatsApp()" style="width:100%;padding:13px;background:#25D366;color:#fff;border:none;border-radius:var(--radius);font-size:14px;font-weight:700;font-family:inherit;cursor:pointer">Share to WhatsApp</button>
   </div>
 </div>
 
@@ -2311,6 +2333,28 @@ function showPage(id) {
 }
 
 /* ── PRE-EVENT SHEET SUBMISSION ──────────────────────── */
+const ARRIVAL_FOLDER = '10yHEoYEKCDXDk_1crnzmzImXG0t-Lqen';
+let arrivalPhotoFiles = [];
+
+function handleArrivalPhotos(input) {
+  arrivalPhotoFiles = Array.from(input.files).slice(0, 10);
+  const preview = document.getElementById('arrivalPhotoPreview');
+  const status = document.getElementById('arrivalPhotoStatus');
+  preview.innerHTML = '';
+  arrivalPhotoFiles.forEach(f => {
+    const img = document.createElement('img');
+    img.src = URL.createObjectURL(f);
+    img.style.cssText = 'width:72px;height:72px;object-fit:cover;border-radius:8px;border:0.5px solid var(--border)';
+    preview.appendChild(img);
+  });
+  status.textContent = arrivalPhotoFiles.length ? `${arrivalPhotoFiles.length} photo${arrivalPhotoFiles.length > 1 ? 's' : ''} selected` : '';
+}
+
+function shareEventWhatsApp() {
+  const txt = buildEventReport();
+  window.open('https://wa.me/?text=' + encodeURIComponent(txt), '_blank');
+}
+
 async function preSubmitReport() {
   const eventName = gv('eventName');
   const date = gv('eventDate');
@@ -2325,7 +2369,20 @@ async function preSubmitReport() {
   document.getElementById('preSubmitDoneBtn').style.display = 'none';
   pg.style.display = 'flex';
 
-  // Build location data
+  // Upload arrival photos
+  if (arrivalPhotoFiles.length) {
+    document.getElementById('preSubmitSub').textContent = `Uploading ${arrivalPhotoFiles.length} arrival photo${arrivalPhotoFiles.length > 1 ? 's' : ''}…`;
+    try {
+      await Promise.all(arrivalPhotoFiles.map(async (file) => {
+        const base64 = await new Promise(res => { const r = new FileReader(); r.onload = () => res(r.result.split(',')[1]); r.readAsDataURL(file); });
+        await fetch(PER_WEBHOOK, {
+          method:'POST', mode:'no-cors', headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ action:'arrivalPhoto', filename: file.name, mimeType: file.type, data: base64, folderId: ARRIVAL_FOLDER, event: eventName, date }),
+        });
+      }));
+    } catch(e) {}
+  }
+
   const locData = locations.map(loc => ({
     name: loc.name || '',
     machineType: loc.machineType || '',
@@ -2351,6 +2408,7 @@ async function preSubmitReport() {
     event: eventName,
     venue: gv('venue'),
     date,
+    dateEnd: gv('eventDateEnd'),
     arrivalTime: gv('arrivalTime'),
     eventNotes: gv('eventNotes'),
     locations: locData,
@@ -2374,7 +2432,7 @@ async function preSubmitReport() {
 function preSubmitDone() {
   document.getElementById('preSubmittingPage').style.display = 'none';
 }
-const PER_WEBHOOK = 'https://script.google.com/macros/s/AKfycbzqvRBHdL3lVnrAyjabTaKfaxOSa6LAUl2vf0jWEysFV0qAB4jNzQdPI9RZD4sIvpf3dg/exec';
+const PER_WEBHOOK = 'https://script.google.com/macros/s/AKfycbz12SZqvlLbsbJN0uYX--XCr82-FQsCo_YgOCqCLkaUxezbgFowFZSzQ7JCf1xYmVym/exec';
 const PER_DRIVE_FOLDER = '1nj8_tle6eS7vxsPvn8VDUhjhEc5QEBFI';
 
 const perYNState = {};
@@ -2646,6 +2704,7 @@ async function perSubmit() {
     event: gv('eventName'),
     venue: gv('venue'),
     date: gv('eventDate') || date,
+    dateEnd: gv('eventDateEnd'),
     arrivalTime: gv('arrivalTime'),
     eventNotes: gv('eventNotes'),
     locations: preLocData,
@@ -3890,18 +3949,18 @@ function buildSingleLocText(loc) {
 }
 
 function buildEventReport() {
-  const name  = gv('eventName') || '—';
-  const venue = gv('venue') || '—';
-  const date  = fmtDate(gv('eventDate'));
-  const time  = fmtTime(gv('arrivalTime'));
-  const notes = gv('eventNotes');
-  let r = `🍺 PRE EVENT REPORT\n${'─'.repeat(28)}\n`;
-  r += `Event:    ${name}\n`;
-  r += `Venue:    ${venue}\n`;
-  r += `Date:     ${date}\n`;
-  r += `Arrival:  ${time}\n`;
+  const name    = gv('eventName') || '—';
+  const venue   = gv('venue') || '—';
+  const date    = fmtDate(gv('eventDate'));
+  const dateEnd = gv('eventDateEnd') ? ' – ' + fmtDate(gv('eventDateEnd')) : '';
+  const time    = fmtTime(gv('arrivalTime'));
+  const notes   = gv('eventNotes');
+  let r = `Arrival Info\n-----\n`;
+  r += `Event: ${name}\n`;
+  r += `Venue: ${venue}\n`;
+  r += `Date/s: ${date}${dateEnd}\n`;
+  r += `Arrival time: ${time}\n`;
   if (notes) r += `\nNotes:\n${notes}\n`;
-  r += `${'─'.repeat(28)}\nSent via Boxbar Field Report`;
   return r;
 }
 
@@ -3925,7 +3984,7 @@ function closePreview() { document.getElementById('previewModal').classList.remo
 function openClear() { document.getElementById('clearModal').classList.add('open'); }
 function closeClear() { document.getElementById('clearModal').classList.remove('open'); }
 function clearAll() {
-  ['eventName','venue','eventDate','arrivalTime','eventNotes'].forEach(id => { const el = document.getElementById(id); if(el) el.value=''; });
+  ['eventName','venue','eventDate','eventDateEnd','arrivalTime','eventNotes'].forEach(id => { const el = document.getElementById(id); if(el) el.value=''; });
   locations=[]; locIdCounter=0; activeTab='event';
   try { localStorage.removeItem('bx_prereport'); } catch(e) {}
   document.getElementById('tabEvent').style.display = 'block';
