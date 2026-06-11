@@ -1,6 +1,6 @@
 {
-  "name": "Boxbar Technician Assist",
-  "short_name": "Boxbar",
+  "name": "Boxbar Technicians Assist",
+  "short_name": "Boxbar Technicians Assist",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#111111",
