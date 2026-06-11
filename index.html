@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Boxbar">
+<meta name="apple-mobile-web-app-title" content="Boxbar Technicians Assist">
 <meta name="theme-color" content="#E91E8C">
 <link rel="apple-touch-icon" href="icon.png">
 <link rel="manifest" href="manifest.json">
@@ -353,26 +353,157 @@ header {
       <span class="home-big-label">Troubleshoot</span>
       <div class="home-big-desc">Identify and resolve an issue on site</div>
     </div>
-    <span class="home-big-arr">›</span>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0">
+      <span class="home-big-arr">›</span>
+      <span style="font-size:10px;font-weight:600;color:var(--pink);background:rgba(233,30,140,0.1);border-radius:5px;padding:2px 6px;white-space:nowrap">Early Beta</span>
+    </div>
   </button>
 
-  <button class="home-big-btn" onclick="goToManual()">
+  <button class="home-big-btn home-big-btn--dim" style="cursor:default">
     <div style="flex:1;min-width:0">
-      <span class="home-big-label">Manual</span>
-      <div class="home-big-desc">Learn about the components of the machine</div>
+      <span class="home-big-label" style="color:var(--muted)">Manual</span>
+      <div class="home-big-desc">Coming soon</div>
     </div>
-    <span class="home-big-arr">›</span>
+    <span style="font-size:11px;font-weight:600;color:var(--muted);background:var(--card2);border-radius:6px;padding:3px 7px;flex-shrink:0">Soon</span>
   </button>
 
-  <button class="home-big-btn" onclick="showPage('toolkitPage')">
+  <button class="home-big-btn home-big-btn--dim" style="cursor:default">
     <div style="flex:1;min-width:0">
-      <span class="home-big-label">Toolkit</span>
-      <div class="home-big-desc">Track what's in your toolkit</div>
+      <span class="home-big-label" style="color:var(--muted)">Toolkit</span>
+      <div class="home-big-desc">Coming soon</div>
     </div>
-    <span class="home-big-arr">›</span>
+    <span style="font-size:11px;font-weight:600;color:var(--muted);background:var(--card2);border-radius:6px;padding:3px 7px;flex-shrink:0">Soon</span>
   </button>
+
+  <div style="margin:10px 0 0;display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px">
+    <button onclick="document.getElementById('addToHomeModal').classList.add('open')" style="padding:10px 6px;background:none;border:0.5px solid var(--border);border-radius:var(--radius);color:var(--muted);font-size:10px;font-weight:600;font-family:inherit;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0">
+      <span style="font-size:18px;line-height:1">⊕</span>
+      <span style="text-align:center;line-height:1.2">Add to Home</span>
+    </button>
+    <button onclick="window.open('https://app.connecteam.com','_blank')" style="padding:10px 6px;background:#3A8FD1;color:#fff;border:none;border-radius:var(--radius);font-size:10px;font-weight:600;font-family:inherit;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0">
+      <span style="font-size:18px;line-height:1;font-weight:700">∞</span>
+      <span style="text-align:center;line-height:1.2">Connecteam</span>
+    </button>
+    <button onclick="window.open('https://app.spendesk.com','_blank')" style="padding:10px 6px;background:#6B3FA0;color:#fff;border:none;border-radius:var(--radius);font-size:10px;font-weight:600;font-family:inherit;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0">
+      <span style="font-size:13px;font-weight:700;font-family:monospace;line-height:1">&lt;/&gt;</span>
+      <span style="text-align:center;line-height:1.2">Spendesk</span>
+    </button>
+    <button onclick="window.open('https://app.boxbar.live/dashboard','_blank')" style="padding:10px 6px;background:#111;color:#fff;border:none;border-radius:var(--radius);font-size:10px;font-weight:600;font-family:inherit;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0">
+      <svg width="18" height="18" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0">
+        <rect x="23" y="5" width="63" height="90" fill="white"/>
+        <rect x="23" y="5" width="63" height="10.8" fill="#111"/>
+        <rect x="23" y="84.2" width="63" height="10.8" fill="#111"/>
+        <rect x="23" y="15.8" width="14.8" height="17.1" fill="#111"/>
+        <rect x="23" y="67.1" width="14.8" height="17.1" fill="#111"/>
+        <rect x="37.8" y="32.9" width="18.4" height="34.2" fill="#111"/>
+        <polygon points="63.5,15.8 86,15.8 86,32.9 71.4,32.9 71.4,25.7" fill="#111"/>
+        <polygon points="71.4,32.9 86,32.9 86,50 63.5,50 71.4,41.5" fill="#111"/>
+        <polygon points="63.5,50 86,50 86,67.1 71.4,67.1 71.4,58.5" fill="#111"/>
+        <polygon points="71.4,67.1 86,67.1 86,84.2 63.5,84.2 71.4,76" fill="#111"/>
+      </svg>
+      <span style="text-align:center;line-height:1.2">Boxbar Dash</span>
+    </button>
+  </div>
 
 </div>
+</div>
+
+<!-- Add to Home Screen Modal -->
+<div class="modal-overlay" id="addToHomeModal" style="background:rgba(0,0,0,0.85)" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal-box" style="max-width:340px">
+    <h3 style="margin:0 0 16px;font-size:17px;font-weight:700;color:var(--text)">Add to Home Screen</h3>
+
+    <!-- iOS -->
+    <div id="athIOS" style="display:none">
+      <p style="font-size:13px;color:var(--muted);line-height:1.6;margin:0 0 14px">Follow these steps to add Boxbar to your home screen:</p>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;align-items:center;gap:14px;padding:12px 14px;background:var(--card2);border-radius:12px">
+          <div style="width:36px;height:36px;background:var(--card);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#007AFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+          </div>
+          <div>
+            <div style="font-size:13px;font-weight:600;color:var(--text)">Tap the Share button</div>
+            <div style="font-size:12px;color:var(--muted);margin-top:2px">The box with an arrow at the bottom of Safari</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:14px;padding:12px 14px;background:var(--card2);border-radius:12px">
+          <div style="width:36px;height:36px;background:var(--card);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#007AFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+          </div>
+          <div>
+            <div style="font-size:13px;font-weight:600;color:var(--text)">Scroll down, tap ••• then More</div>
+            <div style="font-size:12px;color:var(--muted);margin-top:2px">Then tap <strong style="color:var(--text)">Add to Home Screen</strong></div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:14px;padding:12px 14px;background:var(--card2);border-radius:12px">
+          <div style="width:36px;height:36px;background:var(--card);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#34C759" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div>
+            <div style="font-size:13px;font-weight:600;color:var(--text)">Tap Add</div>
+            <div style="font-size:12px;color:var(--muted);margin-top:2px">Boxbar will appear on your home screen</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Android -->
+    <div id="athAndroid" style="display:none">
+      <p style="font-size:13px;color:var(--muted);line-height:1.6;margin:0 0 14px">Follow these steps to add Boxbar to your home screen:</p>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;align-items:center;gap:14px;padding:12px 14px;background:var(--card2);border-radius:12px">
+          <div style="width:36px;height:36px;background:var(--card);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#007AFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="1.5" fill="#007AFF" stroke="none"/><circle cx="12" cy="12" r="1.5" fill="#007AFF" stroke="none"/><circle cx="12" cy="19" r="1.5" fill="#007AFF" stroke="none"/></svg>
+          </div>
+          <div>
+            <div style="font-size:13px;font-weight:600;color:var(--text)">Tap the three dots ⋮</div>
+            <div style="font-size:12px;color:var(--muted);margin-top:2px">Top-right corner of Chrome</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:14px;padding:12px 14px;background:var(--card2);border-radius:12px">
+          <div style="width:36px;height:36px;background:var(--card);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#007AFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+          </div>
+          <div>
+            <div style="font-size:13px;font-weight:600;color:var(--text)">Tap Share</div>
+            <div style="font-size:12px;color:var(--muted);margin-top:2px">Then tap <strong style="color:var(--text)">More</strong> in the share sheet</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:14px;padding:12px 14px;background:var(--card2);border-radius:12px">
+          <div style="width:36px;height:36px;background:var(--card);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#007AFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+          </div>
+          <div>
+            <div style="font-size:13px;font-weight:600;color:var(--text)">Tap Add to Home screen</div>
+            <div style="font-size:12px;color:var(--muted);margin-top:2px">Then tap Add to confirm</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Fallback -->
+    <div id="athOther">
+      <p style="font-size:13px;color:var(--muted);line-height:1.6;margin:0 0 14px">Open this page on your phone to install:</p>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;align-items:center;gap:14px;padding:12px 14px;background:var(--card2);border-radius:12px">
+          <span style="font-size:22px;flex-shrink:0">📱</span>
+          <div>
+            <div style="font-size:13px;font-weight:600;color:var(--text)">iPhone</div>
+            <div style="font-size:12px;color:var(--muted);margin-top:2px">Safari → Share button → Add to Home Screen</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:14px;padding:12px 14px;background:var(--card2);border-radius:12px">
+          <span style="font-size:22px;flex-shrink:0">🤖</span>
+          <div>
+            <div style="font-size:13px;font-weight:600;color:var(--text)">Android</div>
+            <div style="font-size:12px;color:var(--muted);margin-top:2px">Chrome → three dots ⋮ → Share → Add to Home screen</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button onclick="document.getElementById('addToHomeModal').classList.remove('open')" style="margin-top:18px;width:100%;padding:13px;background:var(--pink);color:#fff;border:none;border-radius:var(--radius);font-size:14px;font-weight:700;font-family:inherit;cursor:pointer">Got it</button>
+  </div>
 </div>
 
 <!-- ══════════════════════════════ REPORT PAGE ══════════════════════════════ -->
@@ -691,6 +822,7 @@ header {
   <!-- Submit -->
   <div style="margin:16px 12px 0;display:flex;flex-direction:column;gap:10px">
     <button onclick="perSubmit()" id="perSubmitBtn" style="width:100%;padding:15px;background:var(--pink);color:#fff;border:none;border-radius:var(--radius);font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;letter-spacing:0.2px">Submit Report</button>
+    <button onclick="perClearConfirm()" style="width:100%;padding:11px;background:rgba(255,59,48,0.08);color:#ff3b30;border:0.5px solid rgba(255,59,48,0.25);border-radius:var(--radius);font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;margin-top:2px">Clear Report</button>
     <div id="per_error" style="display:none;background:rgba(255,69,58,0.10);border:0.5px solid rgba(255,69,58,0.3);border-radius:var(--radius);padding:14px;text-align:center;color:#ff453a;font-weight:600;font-size:14px"></div>
   </div>
 
@@ -709,7 +841,7 @@ header {
   <div id="preSubmitTitle" style="font-size:20px;font-weight:700;color:var(--text);letter-spacing:0.2px">Submitting report</div>
   <div id="preSubmitDotWrap" style="display:flex;align-items:center;justify-content:center;gap:8px"><span class="bb-dot"></span><span class="bb-dot"></span><span class="bb-dot"></span></div>
   <div id="preSubmitSub" style="font-size:13px;color:var(--muted);line-height:1.8">Please allow up to 60 seconds</div>
-  <button id="preSubmitDoneBtn" onclick="preSubmitDone()" style="display:none;padding:14px 40px;background:var(--pink);color:#fff;border:none;border-radius:var(--radius);font-size:15px;font-weight:700;font-family:inherit;cursor:pointer">Done</button>
+  <button id="preSubmitDoneBtn" onclick="preSubmitDone()" style="display:none;padding:14px 40px;background:var(--pink);color:#fff;border:none;border-radius:var(--radius);font-size:15px;font-weight:700;font-family:inherit;cursor:pointer">Return to Home</button>
 </div>
 
 <div id="perSubmittingPage" style="display:none;position:fixed;inset:0;background:var(--bg);z-index:200;flex-direction:column;align-items:center;justify-content:center;gap:24px;padding:40px;text-align:center">
@@ -798,14 +930,16 @@ header {
 <div class="section-label">Calculator</div>
 <div class="group">
   <!-- Product search -->
-  <div class="field-row" style="position:relative;flex-direction:column;align-items:stretch;padding:10px 14px;gap:0">
-    <label style="font-size:11px;font-weight:700;letter-spacing:0.6px;text-transform:uppercase;color:var(--muted);margin-bottom:6px">Product</label>
-    <input id="calcProductInput" type="text" placeholder="Type to search product…" autocomplete="off" oninput="calcProductSearch(this.value);runCalcUnified()" onfocus="calcProductSearch(this.value)" style="width:100%;background:var(--card2);border:0.5px solid var(--border);border-radius:8px;padding:10px 12px;font-size:14px;font-family:inherit;color:var(--text);outline:none;">
-    <div id="calcDropdown" style="display:none;position:absolute;top:100%;left:14px;right:14px;background:var(--card2);border:0.5px solid var(--border);border-radius:8px;z-index:50;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,0.4)"></div>
+  <div class="field-row" style="position:relative;align-items:flex-start;gap:8px">
+    <span class="field-label" style="padding-top:10px;flex-shrink:0">Product</span>
+    <div style="flex:1;position:relative">
+      <input id="calcProductInput" type="text" placeholder="Search…" autocomplete="off" oninput="calcProductSearch(this.value);runCalcUnified()" onfocus="calcProductSearch(this.value)" style="width:100%;background:var(--card2);border:0.5px solid var(--border);border-radius:8px;padding:9px 12px;font-size:14px;font-family:inherit;color:var(--text);outline:none;">
+      <div id="calcDropdown" style="display:none;position:absolute;top:100%;left:0;right:0;background:var(--card2);border:0.5px solid var(--border);border-radius:8px;z-index:50;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,0.4);margin-top:2px"></div>
+    </div>
   </div>
   <!-- Vols input -->
   <div class="field-row">
-    <span class="field-label">CO₂ vols</span>
+    <span class="field-label" id="calcVolsLabel" style="line-height:1.4">CO₂ vols<br><span style="font-size:11px;font-weight:400;color:var(--muted)">auto-fills from product</span></span>
     <input id="calcVolsInput" type="number" step="0.05" min="1.0" max="4.0" placeholder="e.g. 2.4" oninput="runCalcUnified()" style="width:100px;background:var(--card2);border:0.5px solid var(--border);border-radius:8px;padding:8px 10px;font-size:14px;font-family:inherit;color:var(--text);outline:none;text-align:right">
   </div>
   <!-- Gas type -->
@@ -1010,6 +1144,12 @@ header {
   </div>
   <button class="back-btn" onclick="goHome()">‹ Home</button>
 </header>
+
+<!-- Beta warning -->
+<div style="margin:10px 12px 0;background:rgba(255,149,0,0.1);border:0.5px solid rgba(255,149,0,0.4);border-radius:var(--radius);padding:11px 14px;display:flex;align-items:flex-start;gap:10px">
+  <span style="font-size:16px;flex-shrink:0">⚠️</span>
+  <p style="font-size:13px;color:#ff9500;font-weight:600;line-height:1.5;margin:0">Early Beta — content is being reviewed and expanded. Use as a guide but always apply your own judgement on site.</p>
+</div>
 
 <!-- Search -->
 <div style="padding:12px 12px 6px">
@@ -1277,7 +1417,12 @@ function showSingleHt(htCode, l2id, l1id, manualId) {
   if (!ht) return;
   document.getElementById('tsHtCode').textContent = ht.title;
   document.getElementById('tsHtSubtitle').textContent = '';
-  document.getElementById('tsHtBack').onclick = () => goToL3(l2id, l1id);
+  // Back button — if called from manual search go back to manual, if from troubleshoot go back to L3
+  document.getElementById('tsHtBack').onclick = () => {
+    if (manualId) { goToComponent(manualId); }
+    else if (l2id) { goToL3(l2id, l1id); }
+    else { goToManual(); }
+  };
 
   let html = '';
   if (ht.warning) html += `<div class="ts-escalate" style="margin-bottom:10px">⚠️ ${ht.warning}</div>`;
@@ -2354,6 +2499,11 @@ function shareEventWhatsApp() {
   window.open('https://wa.me/?text=' + encodeURIComponent(txt), '_blank');
 }
 
+function shareEventTeams() {
+  const txt = buildEventReport();
+  window.open('https://teams.microsoft.com/l/chat/0/0?message=' + encodeURIComponent(txt), '_blank');
+}
+
 async function preSubmitReport() {
   const eventName = gv('eventName');
   const date = gv('eventDate');
@@ -2432,6 +2582,7 @@ async function preSubmitReport() {
 
 function preSubmitDone() {
   document.getElementById('preSubmittingPage').style.display = 'none';
+  showPage('homePage');
 }
 const PER_WEBHOOK = 'https://script.google.com/macros/s/AKfycbzC0w94ZevWnQRn7QlTtqTa_O4N8fVZpMNeQQp8p6NSTjNZkVjXAGLJIgBHI0unKXX-TQ/exec';
 const PER_DRIVE_FOLDER = '1nj8_tle6eS7vxsPvn8VDUhjhEc5QEBFI';
@@ -2677,6 +2828,13 @@ function perResetForm() {
   if (status) status.textContent = '';
   const input = document.getElementById('per_photos');
   if (input) input.value = '';
+}
+
+function perClearConfirm() {
+  if (confirm('Clear the post-event report? This cannot be undone.')) {
+    perResetForm();
+    try { localStorage.removeItem('bx_postreport'); } catch(e) {}
+  }
 }
 
 function perSubmitDone() {
@@ -2959,20 +3117,48 @@ function tkClearAll() {
   tkSave(data); tkRender();
 }
 
-document.addEventListener('DOMContentLoaded', tkRender);
+// Detect device for Add to Home Screen instructions
+(function() {
+  const ua = navigator.userAgent;
+  const isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
+  const isAndroid = /Android/.test(ua);
+  document.addEventListener('DOMContentLoaded', () => {
+    if (isIOS) {
+      document.getElementById('athIOS').style.display = 'block';
+      document.getElementById('athAndroid').style.display = 'none';
+      document.getElementById('athOther').style.display = 'none';
+    } else if (isAndroid) {
+      document.getElementById('athIOS').style.display = 'none';
+      document.getElementById('athAndroid').style.display = 'block';
+      document.getElementById('athOther').style.display = 'none';
+    } else {
+      document.getElementById('athIOS').style.display = 'none';
+      document.getElementById('athAndroid').style.display = 'none';
+      document.getElementById('athOther').style.display = 'block';
+    }
+  });
+})();
 
 /* ── PSI CALCULATOR ────────────────────────────────────── */
 let calcSelectedBrand = null;
 
 function calcProductSearch(val) {
   const dropdown = document.getElementById('calcDropdown');
+  const volsLabel = document.getElementById('calcVolsLabel');
   const q = val.trim().toLowerCase();
-  const matches = q ? gasData.filter(b => b.brand.toLowerCase().includes(q)) : gasData;
-  if (!matches.length) { dropdown.style.display = 'none'; return; }
+  if (!q) { dropdown.style.display = 'none'; if(volsLabel) volsLabel.innerHTML = 'CO₂ vols<br><span style="font-size:11px;font-weight:400;color:var(--muted)">auto-fills from product</span>'; return; }
+  const matches = gasData.filter(b => b.brand.toLowerCase().includes(q));
+  if (!matches.length) {
+    dropdown.innerHTML = `<div style="padding:11px 14px;font-size:13px;color:var(--muted)">Product not listed — enter CO₂ vols manually below</div>`;
+    dropdown.style.display = 'block';
+    if(volsLabel) volsLabel.innerHTML = 'CO₂ vols<br><span style="font-size:11px;font-weight:400;color:var(--muted)">product not listed — enter manually</span>';
+    return;
+  }
   dropdown.innerHTML = matches.map(b =>
     `<div onclick="selectCalcBrand('${b.brand.replace(/'/g,"\\'")}');document.getElementById('calcDropdown').style.display='none'" style="padding:11px 14px;font-size:14px;color:var(--text);border-bottom:0.5px solid var(--border);cursor:pointer" onmouseover="this.style.background='var(--card)'" onmouseout="this.style.background=''">${b.brand}</div>`
   ).join('');
   dropdown.style.display = 'block';
+  if(volsLabel) volsLabel.innerHTML = 'CO₂ vols<br><span style="font-size:11px;font-weight:400;color:var(--muted)">auto-fills from product</span>';
 }
 
 function selectCalcBrand(name) {
@@ -3972,41 +4158,42 @@ function buildSingleLocText(loc) {
   const locName = loc.name || 'Location';
   let r = `📍 ${locName}\n`;
   if (loc.machineType) r += `Machine Type: ${loc.machineType}\n`;
-  r += `Product Temperature: ${loc.productTemp ? loc.productTemp + '°C' : ''}\n`;
-  r += `Fresh Kegs: ${loc.freshKegs || ''}\n`;
-  r += `Internet: ${loc.internet || ''}\n`;
-  r += `Test Payment: ${loc.testPayment || ''}\n`;
+  if (loc.productTemp) r += `Product Temp: ${loc.productTemp}°C\n`;
+  if (loc.freshKegs)   r += `Fresh Kegs: ${loc.freshKegs}\n`;
+  if (loc.internet)    r += `Internet: ${loc.internet}\n`;
+  if (loc.testPayment) r += `Test Payment: ${loc.testPayment}\n`;
   const staffParts = [
     loc.staffBOH ? `BOH ×${loc.staffBOH}` : '',
     loc.staffFOH ? `FOH ×${loc.staffFOH}` : '',
     loc.staffFOHBOH ? `FOH & BOH ×${loc.staffFOHBOH}` : '',
   ].filter(Boolean);
-  r += `Staff Trained: ${staffParts.join(', ') || ''}\n`;
-  r += `Notes: ${loc.notes || ''}\n`;
-  loc.machines.forEach(m => {
+  if (staffParts.length) r += `Staff Trained: ${staffParts.join(', ')}\n`;
+  if (loc.notes) r += `Notes: ${loc.notes}\n`;
+  const machines = loc.machines.filter(m => m.name || m.product || m.psi || m.tap1 || m.tap2);
+  machines.forEach(m => {
     r += `-----\n`;
     r += `M${m.name ? ' ' + m.name : ''}\n`;
-    r += `Product: ${m.product || ''}\n`;
-    r += `PSI: ${m.psi || ''}\n`;
-    r += `Tap 1: ${m.tap1 || ''}\n`;
-    r += `Tap 2: ${m.tap2 || ''}\n`;
-    if (m.notes) r += `Notes: ${m.notes}\n`;
+    if (m.product) r += `Product: ${m.product}\n`;
+    if (m.psi)     r += `PSI: ${m.psi}\n`;
+    if (m.tap1)    r += `Tap 1: ${m.tap1}\n`;
+    if (m.tap2)    r += `Tap 2: ${m.tap2}\n`;
+    if (m.notes)   r += `Notes: ${m.notes}\n`;
   });
   return r;
 }
 
 function buildEventReport() {
-  const name    = gv('eventName') || '—';
-  const venue   = gv('venue') || '—';
+  const name    = gv('eventName');
+  const venue   = gv('venue');
   const date    = fmtDate(gv('eventDate'));
   const dateEnd = gv('eventDateEnd') ? ' – ' + fmtDate(gv('eventDateEnd')) : '';
   const time    = fmtTime(gv('arrivalTime'));
   const notes   = gv('eventNotes');
   let r = `Arrival Info\n-----\n`;
-  r += `Event: ${name}\n`;
-  r += `Venue: ${venue}\n`;
-  r += `Date/s: ${date}${dateEnd}\n`;
-  r += `Arrival time: ${time}\n`;
+  if (name)  r += `Event: ${name}\n`;
+  if (venue) r += `Venue: ${venue}\n`;
+  if (date)  r += `Date/s: ${date}${dateEnd}\n`;
+  if (time)  r += `Arrival time: ${time}\n`;
   if (notes) r += `\nNotes:\n${notes}\n`;
   return r;
 }
@@ -4055,6 +4242,13 @@ function shareLocWhatsApp(id) {
   if (!loc) return;
   const text = buildSingleLocText(loc);
   window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
+}
+
+function shareLocTeams(id) {
+  const loc = locations.find(l => l.id === id);
+  if (!loc) return;
+  const text = buildSingleLocText(loc);
+  window.open('https://teams.microsoft.com/l/chat/0/0?message=' + encodeURIComponent(text), '_blank');
 }
 
 
