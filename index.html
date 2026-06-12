@@ -522,12 +522,12 @@ header {
   <div class="section-label">Event Details</div>
   <div class="group">
     <div class="field-row">
-      <span class="field-label">Event</span>
-      <input class="field-input" id="eventName" type="text" placeholder="Event name" oninput="renderTabBar()">
+      <span class="field-label">Venue</span>
+      <input class="field-input" id="venue" list="venuesList" placeholder="Venue name" autocomplete="off" oninput="handleVenueInput(this,'venue')">
     </div>
     <div class="field-row">
-      <span class="field-label">Venue</span>
-      <input class="field-input" id="venue" type="text" placeholder="Venue name">
+      <span class="field-label">Event</span>
+      <input class="field-input" id="eventName" type="text" placeholder="Event name" oninput="renderTabBar()">
     </div>
     <div class="field-row date-row">
       <span class="field-label">Date</span>
@@ -535,15 +535,12 @@ header {
       <input class="field-input" id="eventDate" type="date">
     </div>
     <div class="field-row">
-      <span class="field-label">End date</span>
-      <input class="field-input" id="eventDateEnd" type="date" placeholder="Multi-day (optional)">
-    </div>
-    <div class="field-row">
       <span class="field-label">Arrival time</span>
       <input class="field-input" id="arrivalTime" type="time" placeholder="HH:MM">
     </div>
   </div>
 
+  <datalist id="venuesList"></datalist>
   <div class="section-label">Event Notes</div>
   <div class="group">
     <textarea class="notes-area" id="eventNotes" placeholder="General event notes, observations, anything to flag…"></textarea>
@@ -552,7 +549,7 @@ header {
   <div class="section-label">Arrival Photos</div>
   <div class="group" style="padding:12px 14px">
     <p style="font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.5">Front and back of each machine, plus anything worth noting on arrival.</p>
-    <input type="file" id="arrivalPhotos" accept="image/*" multiple style="display:none" onchange="handleArrivalPhotos(this)">
+    <input type="file" id="arrivalPhotos" accept="image/jpeg,image/png,image/heic,image/webp" multiple style="display:none" onchange="handleArrivalPhotos(this)">
     <button onclick="document.getElementById('arrivalPhotos').click()" style="width:100%;padding:11px;background:var(--card2);border:0.5px dashed var(--border);border-radius:10px;color:var(--muted);font-size:14px;font-weight:600;font-family:inherit;cursor:pointer">Tap to select arrival photos</button>
     <div id="arrivalPhotoPreview" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"></div>
     <div id="arrivalPhotoStatus" style="font-size:12px;color:var(--muted);margin-top:4px"></div>
@@ -625,6 +622,27 @@ header {
 
 <div style="padding:0 0 24px">
 
+  <!-- Event -->
+  <div class="section-label">Event</div>
+  <div class="per-card" style="margin:0 12px">
+    <div class="per-row">
+      <label class="per-field-label">Venue</label>
+      <input id="per_venue" list="perVenuesList" class="per-input" placeholder="Venue name" autocomplete="off" oninput="handleVenueInput(this,'per_venue')">
+      <datalist id="perVenuesList"></datalist>
+    </div>
+    <div class="per-row">
+      <label class="per-field-label">Event</label>
+      <input id="per_event" oninput="perSaveLocal()" type="text" class="per-input" placeholder="Event name">
+    </div>
+    <div class="per-row">
+      <label class="per-field-label">Date</label>
+      <div style="display:flex;gap:8px;align-items:center">
+        <input id="per_date" onchange="perSaveLocal()" type="date" class="per-input" style="flex:1;color-scheme:dark">
+        <button onclick="perSetToday()" style="background:var(--pink-light);color:var(--pink);border:0.5px solid var(--pink-border);border-radius:10px;padding:11px 14px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;white-space:nowrap;flex-shrink:0">Today</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Technician -->
   <div class="section-label">Technician</div>
   <div class="per-card" style="margin:0 12px">
@@ -635,30 +653,6 @@ header {
     <div class="per-row">
       <label class="per-field-label">Email</label>
       <input id="per_email" type="email" class="per-input" placeholder="your@email.com">
-    </div>
-  </div>
-
-  <!-- Event -->
-  <div class="section-label">Event</div>
-  <div class="per-card" style="margin:0 12px">
-    <div class="per-row">
-      <label class="per-field-label">Event</label>
-      <input id="per_event" oninput="perSaveLocal()" type="text" class="per-input" placeholder="Event name">
-    </div>
-    <div class="per-row">
-      <label class="per-field-label">Venue</label>
-      <input id="per_venue" type="text" class="per-input" placeholder="Venue name">
-    </div>
-    <div class="per-row">
-      <label class="per-field-label">Date</label>
-      <div style="display:flex;gap:8px;align-items:center">
-        <input id="per_date" onchange="perSaveLocal()" type="date" class="per-input" style="flex:1;color-scheme:dark">
-        <button onclick="perSetToday()" style="background:var(--pink-light);color:var(--pink);border:0.5px solid var(--pink-border);border-radius:10px;padding:11px 14px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;white-space:nowrap;flex-shrink:0">Today</button>
-      </div>
-    </div>
-    <div class="per-row">
-      <label class="per-field-label">End date <span class="per-field-hint">multi-day optional</span></label>
-      <input id="per_date_end" type="date" class="per-input" style="color-scheme:dark">
     </div>
   </div>
 
@@ -704,6 +698,10 @@ header {
           <input id="per_qty_fohboh" type="number" min="0" placeholder="Qty" oninput="perSaveLocal()" style="width:72px;background:var(--card);border:0.5px solid var(--border);border-radius:8px;padding:7px 10px;font-size:14px;font-family:inherit;color:var(--text);outline:none;text-align:center">
         </div>
       </div>
+    </div>
+    <div class="per-row">
+      <label class="per-field-label">Staff notes</label>
+      <textarea id="per_staff_notes" class="per-textarea" rows="2" placeholder="Any notes about the staff on site" oninput="perSaveLocal()"></textarea>
     </div>
   </div>
 
@@ -767,16 +765,21 @@ header {
   <div class="section-label">Closedown</div>
   <div class="per-card" style="margin:0 12px">
     <div class="per-row">
-      <label class="per-field-label">Were staff briefed on clean down at end of event?</label>
+      <label class="per-field-label">Did staff complete a full close and clean down?</label>
       <div style="display:flex;gap:8px;margin-top:2px">
         <button id="per_briefed_yes" class="per-yn-btn" onclick="perToggleYN('per_briefed','yes')">Yes</button>
         <button id="per_briefed_no" class="per-yn-btn" onclick="perToggleYN('per_briefed','no')">No</button>
       </div>
     </div>
     <div class="per-row">
-      <label class="per-field-label">Staff notes</label>
-      <textarea id="per_staff_notes" class="per-textarea" rows="2" placeholder="Any notes about the staff on site" oninput="perSaveLocal()"></textarea>
+      <label class="per-field-label">Closedown notes</label>
+      <textarea id="per_closedown_notes" class="per-textarea" rows="2" placeholder="Any notes about the closedown" oninput="perSaveLocal()"></textarea>
     </div>
+  </div>
+
+  <!-- Additional Notes -->
+  <div class="section-label">Additional Notes</div>
+  <div class="per-card" style="margin:0 12px">
     <div class="per-row">
       <label class="per-field-label">Additional notes</label>
       <textarea id="per_notes" class="per-textarea" rows="3" placeholder="Anything else worth noting"></textarea>
@@ -788,7 +791,7 @@ header {
   <div class="per-card" style="margin:0 12px">
     <div class="per-row">
       <label class="per-field-label">Event photos <span class="per-field-hint">optional — select up to 5</span></label>
-      <input type="file" id="per_photos" accept="image/*" multiple style="display:none" onchange="perHandlePhotos(this)">
+      <input type="file" id="per_photos" accept="image/jpeg,image/png,image/heic,image/webp" multiple style="display:none" onchange="perHandlePhotos(this)">
       <button onclick="document.getElementById('per_photos').click()" style="margin-top:4px;width:100%;padding:12px;background:var(--card2);border:0.5px dashed var(--border);border-radius:10px;color:var(--muted);font-size:14px;font-weight:600;font-family:inherit;cursor:pointer">Tap to select photos</button>
       <div id="per_photo_preview" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"></div>
       <div id="per_photo_status" style="font-size:12px;color:var(--muted);margin-top:4px"></div>
@@ -2457,7 +2460,7 @@ const ARRIVAL_FOLDER = '10yHEoYEKCDXDk_1crnzmzImXG0t-Lqen';
 let arrivalPhotoFiles = [];
 
 function handleArrivalPhotos(input) {
-  arrivalPhotoFiles = Array.from(input.files).slice(0, 10);
+  arrivalPhotoFiles = Array.from(input.files);
   const preview = document.getElementById('arrivalPhotoPreview');
   const status = document.getElementById('arrivalPhotoStatus');
   preview.innerHTML = '';
@@ -2501,7 +2504,7 @@ async function preSubmitReport() {
     try {
       await Promise.all(arrivalPhotoFiles.map(async (file) => {
         const base64 = await new Promise(res => { const r = new FileReader(); r.onload = () => res(r.result.split(',')[1]); r.readAsDataURL(file); });
-        await fetch(PER_WEBHOOK, {
+        await fetch(PRE_WEBHOOK, {
           method:'POST', mode:'no-cors', headers:{'Content-Type':'application/json'},
           body: JSON.stringify({ action:'arrivalPhoto', filename: file.name, mimeType: file.type, data: base64, folderId: ARRIVAL_FOLDER, event: eventName, date }),
         });
@@ -2534,14 +2537,13 @@ async function preSubmitReport() {
     event: eventName,
     venue: gv('venue'),
     date,
-    dateEnd: gv('eventDateEnd'),
     arrivalTime: gv('arrivalTime'),
     eventNotes: gv('eventNotes'),
     locations: locData,
   };
 
   try {
-    await fetch(PER_WEBHOOK, {
+    await fetch(PRE_WEBHOOK, {
       method: 'POST', mode: 'no-cors',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
@@ -2550,6 +2552,7 @@ async function preSubmitReport() {
     document.getElementById('preSubmitTitle').textContent = 'Report submitted';
     document.getElementById('preSubmitSub').innerHTML = `${eventName}<br>${date}`;
     document.getElementById('preSubmitDoneBtn').style.display = 'block';
+    addVenueIfNew(gv('venue'));
   } catch(e) {
     pg.style.display = 'none';
     alert('Submission failed — check your connection and try again.');
@@ -2560,7 +2563,8 @@ function preSubmitDone() {
   document.getElementById('preSubmittingPage').style.display = 'none';
   showPage('homePage');
 }
-const PER_WEBHOOK = 'https://script.google.com/macros/s/AKfycbzTYeYuL5HrsSie7889ov659Zlr7D7ZImpLBSDkwxNqsy6J2kkZu8_JKBsULMXuApoc1A/exec';
+const PRE_WEBHOOK = 'https://script.google.com/macros/s/AKfycbwhX1HER_0eFx9jTxvuqbiVz0H7X0PYkH5jmo2Mr8t793K8xaragApvDemw_Rj-f8zMtw/exec'; // Pre-event sheet
+const PER_WEBHOOK = 'https://script.google.com/macros/s/AKfycbyT826aGae3Nr3otdb_l45ldVOIqhv9NQSP0rTTYnlep66w0zFfsg4IfmzyYKssU-U-Mg/exec'; // Post-event sheet
 const PER_DRIVE_FOLDER = '1nj8_tle6eS7vxsPvn8VDUhjhEc5QEBFI';
 
 const perYNState = {};
@@ -2587,9 +2591,9 @@ const perStaffQtys = { FOH: '', BOH: '', 'FOH & BOH': '' };
 
 function perSaveLocal() {
   try {
-    const ids = ['per_name','per_email','per_event','per_venue','per_date','per_date_end',
+    const ids = ['per_name','per_email','per_event','per_venue','per_date',
       'per_customer_feedback','per_client_feedback','per_issues_arrival','per_issues_during',
-      'per_issues_resolved','per_parts','per_notes','per_staff_notes','per_qty_boh','per_qty_foh','per_qty_fohboh'];
+      'per_issues_resolved','per_parts','per_notes','per_staff_notes','per_closedown_notes','per_qty_boh','per_qty_foh','per_qty_fohboh'];
     const vals = {};
     ids.forEach(id => { const el = document.getElementById(id); if(el) vals[id] = el.value; });
     localStorage.setItem('bx_postreport', JSON.stringify({ vals, ynState: perYNState }));
@@ -2660,11 +2664,9 @@ function perInitFromPre() {
   const eventName = gv('eventName');
   const venue = gv('venue');
   const date = gv('eventDate');
-  const dateEnd = gv('eventDateEnd');
   if (eventName) { const el = document.getElementById('per_event'); if (el && !el.value) el.value = eventName; }
   if (venue)     { const el = document.getElementById('per_venue'); if (el && !el.value) el.value = venue; }
   if (date)      { const el = document.getElementById('per_date');  if (el && !el.value) el.value = date; }
-  if (dateEnd)   { const el = document.getElementById('per_date_end'); if (el && !el.value) el.value = dateEnd; }
 }
 
 function perInit() {
@@ -2779,7 +2781,7 @@ function perShowSubmitting(title, sub) {
 
 function perResetForm() {
   // Clear all text inputs and textareas
-  ['per_name','per_email','per_event','per_venue','per_date','per_date_end','per_customer_feedback','per_client_feedback',
+  ['per_name','per_email','per_event','per_venue','per_date','per_customer_feedback','per_client_feedback',
    'per_issues_arrival','per_issues_during','per_issues_resolved','per_parts','per_notes',
    'per_location_suggest'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
   // Clear checkboxes and selects
@@ -2872,7 +2874,6 @@ async function perSubmit() {
     event: gv('eventName') || perVal('per_event'),
     venue: gv('venue') || perVal('per_venue'),
     date: date,
-    dateEnd: perVal('per_date_end'),
     technician: name,
     email,
     busy_event: perYNState['busy_event'] || '',
@@ -2889,6 +2890,7 @@ async function perSubmit() {
     escalated: perYNState['per_escalated'] || '',
     parts_used: perPartsUsedString(),
     staff_briefed: perYNState['per_briefed'] || '',
+    closedown_notes: perVal('per_closedown_notes'),
     staff_notes: perVal('per_staff_notes'),
     notes: perVal('per_notes'),
     photos: photoLinks,
@@ -2898,7 +2900,8 @@ async function perSubmit() {
     await fetch(PER_WEBHOOK, { method:'POST', mode:'no-cors', headers:{'Content-Type':'application/json'}, body: JSON.stringify(postPayload) });
     perDeductPartsFromToolkit();
     perResetForm();
-    clearAll(); // wipe pre-event report too now both are done
+    clearAll();
+    addVenueIfNew(postPayload.venue); // wipe pre-event report too now both are done
     if (perDotInterval) { clearInterval(perDotInterval); perDotInterval = null; }
     document.getElementById('perSubmitDotWrap').style.display = 'none';
     document.getElementById('perSubmitTitle').textContent = 'Report submitted';
@@ -3094,7 +3097,59 @@ function tkClearAll() {
   tkSave(data); tkRender();
 }
 
-// Detect device for Add to Home Screen instructions
+// ── VENUE DROPDOWN ────────────────────────────────────
+const VENUES_KEY = 'bx_venues';
+
+function getVenues() {
+  try { return JSON.parse(localStorage.getItem(VENUES_KEY) || '[]'); } catch(e) { return []; }
+}
+
+function saveVenues(list) {
+  try { localStorage.setItem(VENUES_KEY, JSON.stringify(list)); } catch(e) {}
+}
+
+function addVenueIfNew(name) {
+  if (!name || !name.trim()) return;
+  const venues = getVenues();
+  const trimmed = name.trim();
+  if (!venues.includes(trimmed)) {
+    venues.push(trimmed);
+    venues.sort((a,b) => a.localeCompare(b));
+    saveVenues(venues);
+    populateVenueLists();
+  }
+}
+
+function populateVenueLists() {
+  const venues = getVenues();
+  ['venuesList','perVenuesList'].forEach(id => {
+    const dl = document.getElementById(id);
+    if (!dl) return;
+    dl.innerHTML = venues.map(v => `<option value="${v}">`).join('');
+  });
+}
+
+function handleVenueInput(input, fieldId) {
+  // Save local state
+  if (fieldId === 'per_venue') perSaveLocal();
+}
+
+function fetchVenuesFromSheets() {
+  // Fetch known venues from pre-event sheet
+  Promise.all([
+    fetch(PRE_WEBHOOK + '?action=getVenues').then(r => r.json()).catch(() => []),
+    fetch(PER_WEBHOOK + '?action=getVenues').then(r => r.json()).catch(() => []),
+  ]).then(([pre, post]) => {
+    const all = [...new Set([...pre, ...post, ...getVenues()])].sort((a,b) => a.localeCompare(b));
+    saveVenues(all);
+    populateVenueLists();
+  }).catch(() => {});
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  populateVenueLists();
+  fetchVenuesFromSheets();
+});
 (function() {
   const ua = navigator.userAgent;
   const isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
@@ -4037,10 +4092,6 @@ function setToday() {
 function makeMachine(num) { return { num, name:'', product:'', psi:'', tap1:'', tap2:'', notes:'' }; }
 
 function addLocation() {
-  if (locations.length >= 5) {
-    alert('Maximum 5 locations per event.');
-    return;
-  }
   const id = ++locIdCounter;
   locations.push({ id, name:'', internet:'', staffBOH:'', staffFOH:'', staffFOHBOH:'', freshKegs:'', productTemp:'', testPayment:'', notes:'', machines:[makeMachine(1),makeMachine(2),makeMachine(3)] });
   activeTab = id;
@@ -4170,13 +4221,12 @@ function buildEventReport() {
   const name    = gv('eventName');
   const venue   = gv('venue');
   const date    = fmtDate(gv('eventDate'));
-  const dateEnd = gv('eventDateEnd') ? ' – ' + fmtDate(gv('eventDateEnd')) : '';
   const time    = fmtTime(gv('arrivalTime'));
   const notes   = gv('eventNotes');
   let r = `Arrival Info\n-----\n`;
   if (name)  r += `Event: ${name}\n`;
   if (venue) r += `Venue: ${venue}\n`;
-  if (date)  r += `Date/s: ${date}${dateEnd}\n`;
+  if (date)  r += `Date/s: ${date}\n`;
   if (time)  r += `Arrival time: ${time}\n`;
   if (notes) r += `\nNotes:\n${notes}\n`;
   return r;
@@ -4202,7 +4252,7 @@ function closePreview() { document.getElementById('previewModal').classList.remo
 function openClear() { document.getElementById('clearModal').classList.add('open'); }
 function closeClear() { document.getElementById('clearModal').classList.remove('open'); }
 function clearAll() {
-  ['eventName','venue','eventDate','eventDateEnd','arrivalTime','eventNotes'].forEach(id => { const el = document.getElementById(id); if(el) el.value=''; });
+  ['eventName','venue','eventDate','arrivalTime','eventNotes'].forEach(id => { const el = document.getElementById(id); if(el) el.value=''; });
   locations=[]; locIdCounter=0; activeTab='event';
   // Clear arrival photos
   arrivalPhotoFiles = [];
