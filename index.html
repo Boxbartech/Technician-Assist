@@ -318,7 +318,7 @@ header {
   </svg>
   <div class="header-left">
     <h1>Boxbar Technician Assist</h1>
-    <p style="opacity:0.7;font-size:10px;letter-spacing:0.3px">Early Beta v2.5</p>
+    <p style="opacity:0.7;font-size:10px;letter-spacing:0.3px">Early Beta v2.6</p>
   </div>
 </header>
 
@@ -2498,17 +2498,18 @@ async function preSubmitReport() {
   document.getElementById('preSubmitDotWrap').style.display = '';
   pg.style.display = 'flex';
 
-  // Upload arrival photos
+  // Upload arrival photos sequentially to avoid duplicate folder creation
   if (arrivalPhotoFiles.length) {
     document.getElementById('preSubmitSub').innerHTML = `Uploading ${arrivalPhotoFiles.length} photo${arrivalPhotoFiles.length > 1 ? 's' : ''}…<br>Please allow up to 60 seconds`;
     try {
-      await Promise.all(arrivalPhotoFiles.map(async (file) => {
+      for (let pi = 0; pi < arrivalPhotoFiles.length; pi++) {
+        const file = arrivalPhotoFiles[pi];
         const base64 = await new Promise(res => { const r = new FileReader(); r.onload = () => res(r.result.split(',')[1]); r.readAsDataURL(file); });
         await fetch(PRE_WEBHOOK, {
           method:'POST', mode:'no-cors', headers:{'Content-Type':'application/json'},
           body: JSON.stringify({ action:'arrivalPhoto', filename: file.name, mimeType: file.type, data: base64, event: eventName, venue: gv('venue'), date }),
         });
-      }));
+      }
     } catch(e) {}
   }
 
@@ -2846,12 +2847,13 @@ async function perSubmit() {
 
   perShowSubmitting('Submitting');
 
-  // Upload photos if any
+  // Upload photos sequentially to avoid duplicate folder creation
   let photoLinks = '';
   if (perPhotoFiles.length) {
     perShowSubmitting('Submitting', `Uploading ${perPhotoFiles.length} photo${perPhotoFiles.length > 1 ? 's' : ''}…<br>Please wait`);
     try {
-      await Promise.all(perPhotoFiles.map(async (file) => {
+      for (let pi = 0; pi < perPhotoFiles.length; pi++) {
+        const file = perPhotoFiles[pi];
         const base64 = await new Promise(res => {
           const r = new FileReader();
           r.onload = () => res(r.result.split(',')[1]);
@@ -2862,7 +2864,7 @@ async function perSubmit() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ action: 'postPhoto', filename: file.name, mimeType: file.type, data: base64, event, venue, date }),
         });
-      }));
+      }
       photoLinks = `${perPhotoFiles.length} photo(s) uploaded to Drive`;
     } catch(e) {
       photoLinks = 'Photo upload failed';
