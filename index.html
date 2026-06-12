@@ -532,11 +532,11 @@ header {
     <div class="field-row date-row">
       <span class="field-label">Date</span>
       <button class="today-btn" onclick="setToday()">Today</button>
-      <input class="field-input" id="eventDate" type="date">
+      <input class="field-input" id="eventDate" type="text" placeholder="DD/MM/YYYY" inputmode="numeric">
     </div>
     <div class="field-row">
       <span class="field-label">Arrival time</span>
-      <input class="field-input" id="arrivalTime" type="time" placeholder="HH:MM">
+      <input class="field-input" id="arrivalTime" type="text" placeholder="HH:MM" inputmode="numeric">
     </div>
   </div>
 
@@ -637,7 +637,7 @@ header {
     <div class="per-row">
       <label class="per-field-label">Date</label>
       <div style="display:flex;gap:8px;align-items:center">
-        <input id="per_date" onchange="perSaveLocal()" type="date" class="per-input" style="flex:1;color-scheme:dark">
+        <input id="per_date" onchange="perSaveLocal()" oninput="perSaveLocal()" type="text" placeholder="DD/MM/YYYY" inputmode="numeric" class="per-input" style="flex:1">
         <button onclick="perSetToday()" style="background:var(--pink-light);color:var(--pink);border:0.5px solid var(--pink-border);border-radius:10px;padding:11px 14px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;white-space:nowrap;flex-shrink:0">Today</button>
       </div>
     </div>
@@ -2625,7 +2625,8 @@ function perLoadLocal() {
 function perSetToday() {
   const d = new Date();
   const pad = n => String(n).padStart(2,'0');
-  document.getElementById('per_date').value = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+  document.getElementById('per_date').value = `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()}`;
+  perSaveLocal();
 }
 
 function perToggleYN(field, val) {
@@ -4089,7 +4090,7 @@ function buildLocationHTML(loc) {
 function setToday() {
   const d = new Date();
   const pad = n => String(n).padStart(2,'0');
-  document.getElementById('eventDate').value = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+  document.getElementById('eventDate').value = `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()}`;
 }
 
 function makeMachine(num) { return { num, name:'', product:'', psi:'', tap1:'', tap2:'', notes:'' }; }
@@ -4181,9 +4182,14 @@ function setPill(locId, field, val, groupCls) {
 
 function fmtDate(val) {
   if (!val) return '—';
-  const [y,m,d] = val.split('-');
-  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  return `${parseInt(d)} ${months[parseInt(m)-1]} ${y}`;
+  // Handle old YYYY-MM-DD format (from localStorage)
+  if (/^\d{4}-\d{2}-\d{2}$/.test(val.trim())) {
+    const [y,m,d] = val.split('-');
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    return `${parseInt(d)} ${months[parseInt(m)-1]} ${y}`;
+  }
+  // Free text — return as-is
+  return val;
 }
 function fmtTime(val) {
   if (!val) return '—';
