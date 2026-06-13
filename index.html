@@ -318,7 +318,7 @@ header {
   </svg>
   <div class="header-left">
     <h1>Boxbar Technician Assist</h1>
-    <p style="opacity:0.7;font-size:10px;letter-spacing:0.3px">Early Beta v2.8</p>
+    <p style="opacity:0.7;font-size:10px;letter-spacing:0.3px">Early Beta v3.0</p>
   </div>
 </header>
 
@@ -502,14 +502,13 @@ header {
 </header>
 
 <!-- TAB BAR -->
-<div style="margin:10px 12px 6px;display:flex;gap:8px">
-  <button onclick="preSubmitReport()" style="flex:1;padding:12px;background:var(--pink);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;letter-spacing:0.2px;box-shadow:0 2px 8px rgba(233,30,140,0.35)">Submit Pre-Event Report</button>
-  <button onclick="openClear()" style="padding:12px 14px;background:rgba(255,59,48,0.1);color:#ff3b30;border:0.5px solid rgba(255,59,48,0.3);border-radius:8px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;white-space:nowrap">Clear</button>
-</div>
-<div style="margin:0 12px 0;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none">
-  <div id="tabBar" style="display:flex;gap:6px;padding-bottom:2px;min-width:max-content">
-    <!-- tabs rendered by JS -->
+<div style="margin:10px 12px 0;display:flex;align-items:center;gap:8px">
+  <div style="flex:1;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none">
+    <div id="tabBar" style="display:flex;gap:6px;padding-bottom:2px;min-width:max-content">
+      <!-- tabs rendered by JS -->
+    </div>
   </div>
+  <button onclick="openClear()" style="flex-shrink:0;padding:7px 12px;background:rgba(255,59,48,0.1);color:#ff3b30;border:0.5px solid rgba(255,59,48,0.3);border-radius:8px;font-size:12px;font-weight:600;font-family:inherit;cursor:pointer;white-space:nowrap">Clear</button>
 </div>
 
 <!-- ── EVENT TAB ── -->
@@ -575,6 +574,19 @@ header {
     <div class="modal-btns">
       <button class="action-btn btn-ghost" onclick="closeClear()">Cancel</button>
       <button class="action-btn btn-clear" onclick="clearAll()">Yes, clear</button>
+    </div>
+  </div>
+</div>
+
+<!-- SUBMIT CONFIRMATION MODAL -->
+<div class="modal-overlay" id="preSubmitConfirmModal" onclick="if(event.target===this)closePreSubmitConfirm()">
+  <div class="modal-sheet">
+    <h3>Ready to submit?</h3>
+    <p style="margin-bottom:10px">A pre-event report should only be submitted once.</p>
+    <p style="font-size:13px;color:var(--muted);line-height:1.5">Please make sure all location and machine data is filled out, and that you don't have any more locations left to add before continuing.</p>
+    <div class="modal-btns" style="margin-top:16px">
+      <button class="action-btn btn-ghost" onclick="closePreSubmitConfirm()">Go back</button>
+      <button class="action-btn" style="background:var(--pink);color:#fff;border:none" onclick="closePreSubmitConfirm();preSubmitConfirmed()">Submit</button>
     </div>
   </div>
 </div>
@@ -2483,6 +2495,28 @@ function shareEventTeams() {
   window.open('https://teams.microsoft.com/l/chat/0/0?message=' + encodeURIComponent(txt), '_blank');
 }
 
+function preSubmitValidate() {
+  const eventName = gv('eventName');
+  const date = toISODate(gv('eventDate'));
+  const venue = gv('venue');
+  const missing = [];
+  if (!venue)     missing.push('Venue');
+  if (!eventName) missing.push('Event name');
+  if (!date)      missing.push('Date');
+  if (missing.length) {
+    alert('Please fill in the following event details before submitting:\n• ' + missing.join('\n• '));
+    switchTab('event');
+    return;
+  }
+  // Show confirmation modal
+  document.getElementById('preSubmitConfirmModal').classList.add('open');
+}
+function closePreSubmitConfirm() {
+  document.getElementById('preSubmitConfirmModal').classList.remove('open');
+}
+async function preSubmitConfirmed() {
+  preSubmitReport();
+}
 async function preSubmitReport() {
   const eventName = gv('eventName');
   const date = toISODate(gv('eventDate'));
@@ -2520,17 +2554,21 @@ async function preSubmitReport() {
     freshKegs: loc.freshKegs || '',
     internet: loc.internet || '',
     testPayment: loc.testPayment || '',
-    staffTrained: [loc.staffBOH ? `BOH ×${loc.staffBOH}` : '', loc.staffFOH ? `FOH ×${loc.staffFOH}` : '', loc.staffFOHBOH ? `FOH & BOH ×${loc.staffFOHBOH}` : ''].filter(Boolean).join(', '),
+    staffTrained: [
+      loc.staffBOHYN === 'yes' && loc.staffBOHQty   ? `BOH ×${loc.staffBOHQty}` : '',
+      loc.staffFOHYN === 'yes' && loc.staffFOHQty   ? `FOH ×${loc.staffFOHQty}` : '',
+      loc.staffFOHBOHYN === 'yes' && loc.staffFOHBOHQty ? `FOH & BOH ×${loc.staffFOHBOHQty}` : '',
+    ].filter(Boolean).join(', '),
     staffCount: '',
     notes: loc.notes || '',
-    machines: loc.machines.map(m => ({
-      name: m.name || '',
-      product: m.product || '',
-      psi: m.psi || '',
-      tap1: m.tap1 || '',
-      tap2: m.tap2 || '',
-      notes: m.notes || '',
-    })),
+    machines: loc.machines.map(m => {
+      if (loc.machineType === 'Spirit Mixer') {
+        const spiritsStr = (m.spirits||[]).filter(s=>s.name||s.pourTime).map((s,i)=>`Spirit ${i+1}: ${s.name||'—'}${s.pourTime?' — '+s.pourTime:''}`).join('; ');
+        const postMixStr = (m.postMix||[]).filter(p=>p.name||p.pourTime).map((p,i)=>`Post-Mix ${i+1}: ${p.name||'—'}${p.pourTime?' — '+p.pourTime:''}`).join('; ');
+        return { name: m.name||'', product:'Spirit Mixer', psi: `Primary:${m.primaryPsi||''} Secondary:${m.secondaryPsi||''}`, tap1: spiritsStr, tap2: postMixStr, notes: [m.sodaPourTime?`Soda:${m.sodaPourTime}`:'', m.notes||''].filter(Boolean).join(' | ') };
+      }
+      return { name: m.name||'', product: m.product||'', psi: m.psi||'', tap1: m.tap1||'', tap2: m.tap2||'', notes: m.notes||'' };
+    }),
   }));
 
   const payload = {
@@ -3944,15 +3982,111 @@ function renderLocationTabs() {
   });
 }
 
-function buildLocationHTML(loc) {
-  const machines = loc.machines.map((m, mIdx) => `
+function buildStaffRow(locId, key, label, yn, qty) {
+  const isYes = yn === 'yes';
+  const isNo  = yn === 'no';
+  return `
+    <div style="background:var(--card2);border-radius:8px;padding:8px 12px;margin-bottom:6px">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <span style="font-size:13px;font-weight:600;color:var(--text)">${label}</span>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+          <div style="display:flex;gap:6px">
+            <button class="pill ${isYes?'active':''}" onclick="setStaffYN(${locId},'${key}','yes')" style="min-width:44px">Yes</button>
+            <button class="pill ${isNo?'active':''}"  onclick="setStaffYN(${locId},'${key}','no')"  style="min-width:44px">No</button>
+          </div>
+          ${isYes ? `<div style="display:flex;align-items:center;gap:6px">
+            <span style="font-size:12px;color:var(--muted)">Qty</span>
+            <input type="number" min="0" placeholder="0" value="${esc(qty)}"
+              oninput="setLocField(${locId},'${key}Qty',this.value)"
+              style="width:64px;border:0.5px solid var(--border);border-radius:6px;background:var(--card);color:var(--text);font-size:13px;font-family:inherit;padding:5px 6px;text-align:center;outline:none">
+          </div>` : ''}
+        </div>
+      </div>
+    </div>`;
+}
+
+function buildSpiritMixerCard(loc, m, mIdx) {
+  const isGen2 = loc.machineType === 'Gen 2 Three Bank';
+  const gen2Badge = isGen2 ? `<span style="background:var(--pink);color:#fff;font-size:10px;font-weight:700;border-radius:10px;padding:2px 7px;margin-left:4px;flex-shrink:0">Gen 2</span>` : '';
+  const spirits = (m.spirits && m.spirits.length) ? m.spirits : [{name:'',pourTime:''}];
+  const postMix = (m.postMix && m.postMix.length) ? m.postMix : [{name:'',pourTime:''}];
+  const spiritRows = spirits.map((s, sIdx) => `
+    <div style="display:flex;gap:6px;align-items:center;margin-bottom:6px">
+      <input type="text" placeholder="Spirit name" value="${esc(s.name)}"
+        oninput="setSpiritField(${loc.id},${mIdx},${sIdx},'name',this.value,'spirits')"
+        style="flex:1;background:var(--card2);border:0.5px solid var(--border);border-radius:6px;padding:7px 10px;font-size:13px;font-family:inherit;color:var(--text);outline:none">
+      <input type="text" placeholder="Pour time" value="${esc(s.pourTime)}"
+        oninput="setSpiritField(${loc.id},${mIdx},${sIdx},'pourTime',this.value,'spirits')"
+        style="width:80px;background:var(--card2);border:0.5px solid var(--border);border-radius:6px;padding:7px 8px;font-size:13px;font-family:inherit;color:var(--text);outline:none;text-align:center">
+      ${sIdx > 0 ? `<button onclick="removeSpiritRow(${loc.id},${mIdx},${sIdx},'spirits')" style="background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;padding:0 2px;line-height:1">✕</button>` : '<span style="width:20px;flex-shrink:0"></span>'}
+    </div>`).join('');
+  const postMixRows = postMix.map((p, pIdx) => `
+    <div style="display:flex;gap:6px;align-items:center;margin-bottom:6px">
+      <input type="text" placeholder="Post-mix name" value="${esc(p.name)}"
+        oninput="setSpiritField(${loc.id},${mIdx},${pIdx},'name',this.value,'postMix')"
+        style="flex:1;background:var(--card2);border:0.5px solid var(--border);border-radius:6px;padding:7px 10px;font-size:13px;font-family:inherit;color:var(--text);outline:none">
+      <input type="text" placeholder="Pour time" value="${esc(p.pourTime)}"
+        oninput="setSpiritField(${loc.id},${mIdx},${pIdx},'pourTime',this.value,'postMix')"
+        style="width:80px;background:var(--card2);border:0.5px solid var(--border);border-radius:6px;padding:7px 8px;font-size:13px;font-family:inherit;color:var(--text);outline:none;text-align:center">
+      ${pIdx > 0 ? `<button onclick="removeSpiritRow(${loc.id},${mIdx},${pIdx},'postMix')" style="background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;padding:0 2px;line-height:1">✕</button>` : '<span style="width:20px;flex-shrink:0"></span>'}
+    </div>`).join('');
+  return `
     <div class="machine-card">
       <div class="machine-top" style="display:flex;align-items:center;padding:8px 10px;gap:6px;border-bottom:0.5px solid var(--border)">
         ${loc.machines.length > 1 ? `<button class="remove-machine-btn" onclick="removeMachine(${loc.id},${mIdx})" style="flex-shrink:0">✕</button>` : '<span style="width:22px;flex-shrink:0"></span>'}
         <span style="font-size:13px;font-weight:700;color:var(--muted);flex-shrink:0;margin-left:2px">M</span>
-        <input type="text" placeholder="Name / number" value="${esc(m.name)}"
+        <input type="text" placeholder="${mIdx+1}" value="${esc(m.name)}"
           oninput="setMachineField(${loc.id},${mIdx},'name',this.value)"
           style="flex:1;border:none;outline:none;font-size:13px;font-family:inherit;color:var(--text);background:transparent;text-align:right;min-width:0;padding:0 2px">
+        ${gen2Badge}
+      </div>
+      <div class="machine-fields">
+        <div class="field-row">
+          <span class="field-label">Primary PSI <span style="font-size:11px;color:var(--muted)">(Carbonator)</span></span>
+          <input class="field-input" type="number" step="0.5" placeholder="0" value="${esc(m.primaryPsi)}" oninput="setMachineField(${loc.id},${mIdx},'primaryPsi',this.value)">
+        </div>
+        <div class="field-row">
+          <span class="field-label">Secondary PSI <span style="font-size:11px;color:var(--muted)">(Post-mix pumps)</span></span>
+          <input class="field-input" type="number" step="0.5" placeholder="0" value="${esc(m.secondaryPsi)}" oninput="setMachineField(${loc.id},${mIdx},'secondaryPsi',this.value)">
+        </div>
+        <div style="padding:10px 14px;border-top:0.5px solid var(--border)">
+          <div style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px">Spirits</div>
+          ${spiritRows}
+          <button onclick="addSpiritRow(${loc.id},${mIdx},'spirits')" style="background:var(--pink-light);color:var(--pink);border:0.5px solid var(--pink-border);border-radius:6px;padding:5px 10px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;margin-top:2px">＋ Add Spirit</button>
+        </div>
+        <div style="padding:10px 14px;border-top:0.5px solid var(--border)">
+          <div style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px">Post-Mix</div>
+          ${postMixRows}
+          <button onclick="addSpiritRow(${loc.id},${mIdx},'postMix')" style="background:var(--pink-light);color:var(--pink);border:0.5px solid var(--pink-border);border-radius:6px;padding:5px 10px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;margin-top:2px">＋ Add Post-Mix</button>
+        </div>
+        <div class="field-row" style="border-top:0.5px solid var(--border);border-bottom:none">
+          <span class="field-label">Soda pour time</span>
+          <input class="field-input" type="text" placeholder="e.g. 8s" value="${esc(m.sodaPourTime)}" oninput="setMachineField(${loc.id},${mIdx},'sodaPourTime',this.value)">
+        </div>
+        <div class="field-row" style="border-bottom:none">
+          <span class="field-label">Notes</span>
+          <input class="field-input" type="text" placeholder="Any issues…" value="${esc(m.notes)}" oninput="setMachineField(${loc.id},${mIdx},'notes',this.value)">
+        </div>
+      </div>
+    </div>`;
+}
+
+function buildLocationHTML(loc) {
+  const isSpiritMixer = loc.machineType === 'Spirit Mixer';
+  const isGen2 = loc.machineType === 'Gen 2 Three Bank';
+
+  const machines = loc.machines.map((m, mIdx) => {
+    if (isSpiritMixer) return buildSpiritMixerCard(loc, m, mIdx);
+    const gen2Badge = isGen2 ? `<span style="background:var(--pink);color:#fff;font-size:10px;font-weight:700;border-radius:10px;padding:2px 7px;margin-left:4px;flex-shrink:0">Gen 2</span>` : '';
+    return `
+    <div class="machine-card">
+      <div class="machine-top" style="display:flex;align-items:center;padding:8px 10px;gap:6px;border-bottom:0.5px solid var(--border)">
+        ${loc.machines.length > 1 ? `<button class="remove-machine-btn" onclick="removeMachine(${loc.id},${mIdx})" style="flex-shrink:0">✕</button>` : '<span style="width:22px;flex-shrink:0"></span>'}
+        <span style="font-size:13px;font-weight:700;color:var(--muted);flex-shrink:0;margin-left:2px">M</span>
+        <input type="text" placeholder="${mIdx+1}" value="${esc(m.name)}"
+          oninput="setMachineField(${loc.id},${mIdx},'name',this.value)"
+          style="flex:1;border:none;outline:none;font-size:13px;font-family:inherit;color:var(--text);background:transparent;text-align:right;min-width:0;padding:0 2px">
+        ${gen2Badge}
       </div>
       <div class="machine-fields">
         <div class="field-row">
@@ -3976,7 +4110,17 @@ function buildLocationHTML(loc) {
           <input class="field-input" type="text" placeholder="Any issues…" value="${esc(m.notes)}" oninput="setMachineField(${loc.id},${mIdx},'notes',this.value)">
         </div>
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
+
+  // Apply All bar — different for Spirit Mixer
+  const applyBar = isSpiritMixer
+    ? `<button onclick="applySpiritMixerToAll(${loc.id})" style="background:var(--pink-light);color:var(--pink);border:0.5px solid var(--pink-border);border-radius:6px;padding:5px 12px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;white-space:nowrap">Apply spirits &amp; post-mix to all</button>`
+    : `<div style="display:flex;gap:6px;align-items:center">
+        <input id="applyProduct_${loc.id}" type="text" placeholder="Product" style="width:110px;background:var(--card2);border:0.5px solid var(--border);border-radius:6px;padding:5px 8px;font-size:13px;font-family:inherit;color:var(--text);outline:none">
+        <input id="applyPSI_${loc.id}" type="number" step="0.5" placeholder="PSI" style="width:52px;background:var(--card2);border:0.5px solid var(--border);border-radius:6px;padding:5px 6px;font-size:13px;font-family:inherit;color:var(--text);outline:none;text-align:center">
+        <button onclick="applyToAll(${loc.id})" style="background:var(--pink-light);color:var(--pink);border:0.5px solid var(--pink-border);border-radius:6px;padding:5px 10px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;white-space:nowrap">Apply all</button>
+      </div>`;
 
   return `
     <div class="location-wrap">
@@ -3990,7 +4134,7 @@ function buildLocationHTML(loc) {
         <div class="field-row">
           <span class="field-label">Machine type</span>
           <div class="select-wrap">
-            <select onchange="setLocField(${loc.id},'machineType',this.value)" class="field-select">
+            <select onchange="setLocField(${loc.id},'machineType',this.value);renderLocationTabs()" class="field-select">
               <option value="">Select…</option>
               <option value="Gen 1 Three Bank" ${loc.machineType==='Gen 1 Three Bank'?'selected':''}>Gen 1 Three Bank</option>
               <option value="Gen 2 Three Bank" ${loc.machineType==='Gen 2 Three Bank'?'selected':''}>Gen 2 Three Bank</option>
@@ -4003,6 +4147,7 @@ function buildLocationHTML(loc) {
         </div>
       </div>
 
+      ${!isSpiritMixer ? `
       <div class="loc-details">
         <div class="field-row">
           <span class="field-label">Product temp</span>
@@ -4016,6 +4161,9 @@ function buildLocationHTML(loc) {
             <button class="pill ${loc.freshKegs==='No'?'active':''}" data-val="No" onclick="setPill(${loc.id},'freshKegs','No','kegs')">No</button>
           </div>
         </div>
+      </div>` : ''}
+
+      <div class="loc-details" style="${!isSpiritMixer ? 'border-top:none' : ''}">
         <div class="field-row">
           <span class="field-label">Internet</span>
           <div class="select-wrap">
@@ -4035,26 +4183,11 @@ function buildLocationHTML(loc) {
             <button class="pill ${loc.testPayment==='Fail'?'active':''}" data-val="Fail" onclick="setPill(${loc.id},'testPayment','Fail','pay')">Fail</button>
           </div>
         </div>
-        <div class="field-row" style="flex-direction:column;align-items:stretch;gap:8px;padding:10px 14px">
+        <div class="field-row" style="flex-direction:column;align-items:stretch;gap:6px;padding:10px 14px">
           <span class="field-label" style="margin-bottom:2px">Staff trained</span>
-          <div style="display:flex;align-items:center;justify-content:space-between;background:var(--card2);border-radius:8px;padding:8px 12px">
-            <span style="font-size:13px;font-weight:600;color:var(--text)">BOH</span>
-            <input type="number" min="0" placeholder="Qty" value="${esc(loc.staffBOH)}"
-              oninput="setLocField(${loc.id},'staffBOH',this.value)"
-              style="width:64px;border:0.5px solid var(--border);border-radius:6px;background:var(--card);color:var(--text);font-size:13px;font-family:inherit;padding:5px 6px;text-align:center;outline:none">
-          </div>
-          <div style="display:flex;align-items:center;justify-content:space-between;background:var(--card2);border-radius:8px;padding:8px 12px">
-            <span style="font-size:13px;font-weight:600;color:var(--text)">FOH</span>
-            <input type="number" min="0" placeholder="Qty" value="${esc(loc.staffFOH)}"
-              oninput="setLocField(${loc.id},'staffFOH',this.value)"
-              style="width:64px;border:0.5px solid var(--border);border-radius:6px;background:var(--card);color:var(--text);font-size:13px;font-family:inherit;padding:5px 6px;text-align:center;outline:none">
-          </div>
-          <div style="display:flex;align-items:center;justify-content:space-between;background:var(--card2);border-radius:8px;padding:8px 12px">
-            <span style="font-size:13px;font-weight:600;color:var(--text)">FOH &amp; BOH</span>
-            <input type="number" min="0" placeholder="Qty" value="${esc(loc.staffFOHBOH)}"
-              oninput="setLocField(${loc.id},'staffFOHBOH',this.value)"
-              style="width:64px;border:0.5px solid var(--border);border-radius:6px;background:var(--card);color:var(--text);font-size:13px;font-family:inherit;padding:5px 6px;text-align:center;outline:none">
-          </div>
+          ${buildStaffRow(loc.id,'staffBOH','BOH',loc.staffBOHYN,loc.staffBOHQty)}
+          ${buildStaffRow(loc.id,'staffFOH','FOH',loc.staffFOHYN,loc.staffFOHQty)}
+          ${buildStaffRow(loc.id,'staffFOHBOH','FOH &amp; BOH',loc.staffFOHBOHYN,loc.staffFOHBOHQty)}
         </div>
         <div style="border-top:0.5px solid var(--border)">
           <textarea class="notes-area" placeholder="Location notes…"
@@ -4065,11 +4198,7 @@ function buildLocationHTML(loc) {
       <div class="machines-wrap">
         <div class="machines-label" style="display:flex;align-items:center;justify-content:space-between">
           <span>Machines</span>
-          <div style="display:flex;gap:6px;align-items:center">
-            <input id="applyProduct_${loc.id}" type="text" placeholder="Product" style="width:110px;background:var(--card2);border:0.5px solid var(--border);border-radius:6px;padding:5px 8px;font-size:13px;font-family:inherit;color:var(--text);outline:none">
-            <input id="applyPSI_${loc.id}" type="number" step="0.5" placeholder="PSI" style="width:52px;background:var(--card2);border:0.5px solid var(--border);border-radius:6px;padding:5px 6px;font-size:13px;font-family:inherit;color:var(--text);outline:none;text-align:center">
-            <button onclick="applyToAll(${loc.id})" style="background:var(--pink-light);color:var(--pink);border:0.5px solid var(--pink-border);border-radius:6px;padding:5px 10px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;white-space:nowrap">Apply all</button>
-          </div>
+          ${applyBar}
         </div>
         ${machines}
         <div class="machines-footer">
@@ -4083,6 +4212,7 @@ function buildLocationHTML(loc) {
           <button class="action-btn btn-copy" onclick="copySingleLoc(${loc.id})">Copy</button>
         </div>
         <button class="action-btn" style="background:#25D366;color:#fff;border:none;width:100%;margin-top:6px" onclick="shareLocWhatsApp(${loc.id})">Share on WhatsApp</button>
+        <button onclick="preSubmitValidate()" style="width:100%;margin-top:8px;padding:14px;background:var(--pink);color:#fff;border:none;border-radius:var(--radius);font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;letter-spacing:0.2px;box-shadow:0 2px 8px rgba(233,30,140,0.35)">Submit Pre-Event Report</button>
       </div>
     </div>`;
 }
@@ -4094,11 +4224,11 @@ function setToday() {
   prerSave();
 }
 
-function makeMachine(num) { return { num, name:'', product:'', psi:'', tap1:'', tap2:'', notes:'' }; }
+function makeMachine(num) { return { num, name:'', product:'', psi:'', tap1:'', tap2:'', notes:'', primaryPsi:'', secondaryPsi:'', spirits:[{name:'',pourTime:''}], postMix:[{name:'',pourTime:''}], sodaPourTime:'' }; }
 
 function addLocation() {
   const id = ++locIdCounter;
-  locations.push({ id, name:'', internet:'', staffBOH:'', staffFOH:'', staffFOHBOH:'', freshKegs:'', productTemp:'', testPayment:'', notes:'', machines:[makeMachine(1),makeMachine(2),makeMachine(3)] });
+  locations.push({ id, name:'', internet:'', staffBOH:'', staffFOH:'', staffFOHBOH:'', staffBOHYN:'', staffFOHYN:'', staffFOHBOHYN:'', freshKegs:'', productTemp:'', testPayment:'', machineType:'', notes:'', machines:[makeMachine(1),makeMachine(2),makeMachine(3)] });
   activeTab = id;
   document.getElementById('tabEvent').style.display = 'none';
   document.getElementById('locationTabContent').style.display = 'block';
@@ -4172,7 +4302,60 @@ function setLocField(id, field, val) {
 }
 function setMachineField(locId, mIdx, field, val) {
   const loc = locations.find(l => l.id === locId);
-  if (loc && loc.machines[mIdx]) { loc.machines[mIdx][field] = val; prerSave(); }
+  if (!loc || !loc.machines[mIdx]) return;
+  loc.machines[mIdx][field] = val;
+  // Spirit Mixer shares gauges — sync PSI across all machines
+  if (loc.machineType === 'Spirit Mixer' && (field === 'primaryPsi' || field === 'secondaryPsi')) {
+    loc.machines.forEach((m, i) => { if (i !== mIdx) m[field] = val; });
+    prerSave();
+    renderLocationTabs();
+    return;
+  }
+  prerSave();
+}
+function setStaffYN(locId, key, yn) {
+  const loc = locations.find(l => l.id === locId);
+  if (!loc) return;
+  loc[key + 'YN'] = yn;
+  prerSave();
+  renderLocationTabs();
+}
+function setSpiritField(locId, mIdx, rowIdx, field, val, section) {
+  const loc = locations.find(l => l.id === locId);
+  if (!loc || !loc.machines[mIdx]) return;
+  const m = loc.machines[mIdx];
+  if (!m[section]) m[section] = [];
+  if (!m[section][rowIdx]) m[section][rowIdx] = {name:'',pourTime:''};
+  m[section][rowIdx][field] = val;
+  prerSave();
+}
+function addSpiritRow(locId, mIdx, section) {
+  const loc = locations.find(l => l.id === locId);
+  if (!loc || !loc.machines[mIdx]) return;
+  const m = loc.machines[mIdx];
+  if (!m[section]) m[section] = [];
+  m[section].push({name:'',pourTime:''});
+  prerSave();
+  renderLocationTabs();
+}
+function removeSpiritRow(locId, mIdx, rowIdx, section) {
+  const loc = locations.find(l => l.id === locId);
+  if (!loc || !loc.machines[mIdx]) return;
+  loc.machines[mIdx][section].splice(rowIdx, 1);
+  prerSave();
+  renderLocationTabs();
+}
+function applySpiritMixerToAll(locId) {
+  const loc = locations.find(l => l.id === locId);
+  if (!loc || loc.machines.length < 2) return;
+  const src = loc.machines[0];
+  loc.machines.forEach((m, i) => {
+    if (i === 0) return;
+    m.spirits = (src.spirits || []).map(s => ({ name: s.name, pourTime: '' }));
+    m.postMix = (src.postMix  || []).map(p => ({ name: p.name, pourTime: '' }));
+  });
+  prerSave();
+  renderLocationTabs();
 }
 function setPill(locId, field, val, groupCls) {
   setLocField(locId, field, val);
@@ -4210,30 +4393,56 @@ function fmtTime(val) {
 }
 
 function buildSingleLocText(loc) {
+  const isSpiritMixer = loc.machineType === 'Spirit Mixer';
+  const isGen2 = loc.machineType === 'Gen 2 Three Bank';
   const locName = loc.name || 'Location';
   let r = `📍 ${locName}\n`;
   if (loc.machineType) r += `Machine Type: ${loc.machineType}\n`;
-  if (loc.productTemp) r += `Product Temp: ${loc.productTemp}°C\n`;
-  if (loc.freshKegs)   r += `Fresh Kegs: ${loc.freshKegs}\n`;
+  if (!isSpiritMixer) {
+    if (loc.productTemp) r += `Product Temp: ${loc.productTemp}°C\n`;
+    if (loc.freshKegs)   r += `Fresh Kegs: ${loc.freshKegs}\n`;
+  }
   if (loc.internet)    r += `Internet: ${loc.internet}\n`;
   if (loc.testPayment) r += `Test Payment: ${loc.testPayment}\n`;
   const staffParts = [
-    loc.staffBOH ? `BOH ×${loc.staffBOH}` : '',
-    loc.staffFOH ? `FOH ×${loc.staffFOH}` : '',
-    loc.staffFOHBOH ? `FOH & BOH ×${loc.staffFOHBOH}` : '',
+    loc.staffBOHYN === 'yes' && loc.staffBOHQty   ? `BOH ×${loc.staffBOHQty}` : '',
+    loc.staffFOHYN === 'yes' && loc.staffFOHQty   ? `FOH ×${loc.staffFOHQty}` : '',
+    loc.staffFOHBOHYN === 'yes' && loc.staffFOHBOHQty ? `FOH & BOH ×${loc.staffFOHBOHQty}` : '',
   ].filter(Boolean);
   if (staffParts.length) r += `Staff Trained: ${staffParts.join(', ')}\n`;
   if (loc.notes) r += `Notes: ${loc.notes}\n`;
-  const machines = loc.machines.filter(m => m.name || m.product || m.psi || m.tap1 || m.tap2);
-  machines.forEach(m => {
-    r += `-----\n`;
-    r += `M${m.name ? ' ' + m.name : ''}\n`;
-    if (m.product) r += `Product: ${m.product}\n`;
-    if (m.psi)     r += `PSI: ${m.psi}\n`;
-    if (m.tap1)    r += `Tap 1: ${m.tap1}\n`;
-    if (m.tap2)    r += `Tap 2: ${m.tap2}\n`;
-    if (m.notes)   r += `Notes: ${m.notes}\n`;
-  });
+
+  if (isSpiritMixer) {
+    loc.machines.forEach((m, mIdx) => {
+      const mNum = m.name || (mIdx + 1);
+      const hasContent = m.primaryPsi || m.secondaryPsi || (m.spirits && m.spirits.some(s => s.name)) || (m.postMix && m.postMix.some(p => p.name));
+      if (!hasContent) return;
+      r += `-----\nM${mNum}\n`;
+      if (m.primaryPsi)   r += `Primary PSI (Carbonator): ${m.primaryPsi}\n`;
+      if (m.secondaryPsi) r += `Secondary PSI (Post-mix pumps): ${m.secondaryPsi}\n`;
+      if (m.spirits && m.spirits.some(s => s.name)) {
+        r += `Spirits:\n`;
+        m.spirits.forEach(s => { if (s.name) r += `  ${s.name}${s.pourTime ? ': ' + s.pourTime : ''}\n`; });
+      }
+      if (m.postMix && m.postMix.some(p => p.name)) {
+        r += `Post-Mix:\n`;
+        m.postMix.forEach(p => { if (p.name) r += `  ${p.name}${p.pourTime ? ': ' + p.pourTime : ''}\n`; });
+      }
+      if (m.sodaPourTime) r += `Soda Pour Time: ${m.sodaPourTime}\n`;
+      if (m.notes)        r += `Notes: ${m.notes}\n`;
+    });
+  } else {
+    loc.machines.forEach((m, mIdx) => {
+      const mNum = m.name || (mIdx + 1);
+      if (!m.name && !m.product && !m.psi && !m.tap1 && !m.tap2) return;
+      r += `-----\nM${mNum}${isGen2 ? ' — Gen 2' : ''}\n`;
+      if (m.product) r += `Product: ${m.product}\n`;
+      if (m.psi)     r += `PSI: ${m.psi}\n`;
+      if (m.tap1)    r += `Tap 1: ${m.tap1}\n`;
+      if (m.tap2)    r += `Tap 2: ${m.tap2}\n`;
+      if (m.notes)   r += `Notes: ${m.notes}\n`;
+    });
+  }
   return r;
 }
 
