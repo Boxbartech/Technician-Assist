@@ -318,7 +318,7 @@ header {
   </svg>
   <div class="header-left">
     <h1>Boxbar Technician Assist</h1>
-    <p style="opacity:0.7;font-size:10px;letter-spacing:0.3px">Early Beta v3.3</p>
+    <p style="opacity:0.7;font-size:10px;letter-spacing:0.3px">Early Beta v3.5</p>
   </div>
 </header>
 
@@ -2464,7 +2464,21 @@ function showPage(id) {
   document.getElementById(id).classList.add('active');
   window.scrollTo(0,0);
   if (id === 'toolkitPage') tkRender();
+  // Push a history state so back button returns to previous app page instead of leaving
+  if (history.state?.appPage !== id) {
+    history.pushState({ appPage: id }, '', '');
+  }
 }
+window.addEventListener('popstate', e => {
+  prerSave();
+  perSaveLocal();
+  const page = e.state?.appPage || 'homePage';
+  ['homePage','reportPage','gasPage','manualPage','componentPage','troubleshootPage','tsL2Page','tsL3Page','tsHtPage','postEventPage','toolkitPage'].forEach(p => {
+    document.getElementById(p).classList.remove('active');
+  });
+  document.getElementById(page).classList.add('active');
+  window.scrollTo(0,0);
+});
 
 /* ── PRE-EVENT SHEET SUBMISSION ──────────────────────── */
 const ARRIVAL_FOLDER = '10yHEoYEKCDXDk_1crnzmzImXG0t-Lqen';
@@ -2563,11 +2577,11 @@ async function preSubmitReport() {
     machines: loc.machines.map((m, mIdx) => {
       const mName = 'M' + (m.name || (mIdx + 1));
       if (loc.machineType === 'Spirit Mixer') {
-        const spiritsStr = (m.spirits||[]).filter(s=>s.name).map(s=>`${s.name}${s.pourTime?' — '+s.pourTime:''}`).join('\n');
-        const postMixStr = (m.postMix||[]).filter(p=>p.name).map(p=>`${p.name}${p.pourTime?' — '+p.pourTime:''}`).join('\n');
+        const spiritsStr = (m.spirits||[]).filter(s=>s.name).map(s=>`${s.name}${s.pourTime?': '+s.pourTime:''}`).join('\n');
+        const postMixStr = (m.postMix||[]).filter(p=>p.name).map(p=>`${p.name}${p.pourTime?': '+p.pourTime:''}`).join('\n');
+        const mixStats = [spiritsStr ? 'Spirits:\n'+spiritsStr : '', postMixStr ? 'Post-Mix:\n'+postMixStr : ''].filter(Boolean).join('\n\n');
         const notesStr = [m.sodaPourTime?`Soda: ${m.sodaPourTime}`:'', m.notes||''].filter(Boolean).join(' | ');
-        return { name: mName, product:'Spirit Mixer', psi: `Primary: ${m.primaryPsi||''} / Secondary: ${m.secondaryPsi||''}`, tap1: spiritsStr, tap2: postMixStr, notes: notesStr };
-      }
+        return { name: mName, product:'Spirit Mixer', psi: `Primary: ${m.primaryPsi||''} / Secondary: ${m.secondaryPsi||''}`, tap1: mixStats, tap2: '', notes: notesStr };      }
       return { name: mName, product: m.product||'', psi: m.psi||'', tap1: m.tap1||'', tap2: m.tap2||'', notes: m.notes||'' };
     }),
   }));
@@ -4132,8 +4146,8 @@ function buildLocationHTML(loc) {
   return `
     <div class="location-wrap">
       <div class="loc-header">
-        <span class="loc-num">📍</span>
-        <input class="loc-name-input" id="locName_${loc.id}" type="text" placeholder="Location name" value="${esc(loc.name)}"
+        <span class="loc-num">Location</span>
+        <input class="loc-name-input" id="locName_${loc.id}" type="text" placeholder="e.g. West Gate" value="${esc(loc.name)}"
           oninput="setLocField(${loc.id},'name',this.value);renderTabBar()">
         <button class="remove-loc-btn" onclick="removeLocation(${loc.id})">✕</button>
       </div>
@@ -4311,11 +4325,16 @@ function setMachineField(locId, mIdx, field, val) {
   const loc = locations.find(l => l.id === locId);
   if (!loc || !loc.machines[mIdx]) return;
   loc.machines[mIdx][field] = val;
-  // Spirit Mixer shares gauges — sync PSI across all machines
+  // Spirit Mixer shares gauges — sync PSI to other machines in-place without re-render (keeps keyboard open)
   if (loc.machineType === 'Spirit Mixer' && (field === 'primaryPsi' || field === 'secondaryPsi')) {
-    loc.machines.forEach((m, i) => { if (i !== mIdx) m[field] = val; });
+    loc.machines.forEach((m, i) => {
+      if (i !== mIdx) {
+        m[field] = val;
+        // Find and update the matching input directly in the DOM
+        document.querySelectorAll(`input[oninput*="setMachineField(${locId},${i},'${field}"]`).forEach(el => { el.value = val; });
+      }
+    });
     prerSave();
-    renderLocationTabs();
     return;
   }
   prerSave();
@@ -4403,7 +4422,7 @@ function buildSingleLocText(loc) {
   const isSpiritMixer = loc.machineType === 'Spirit Mixer';
   const isGen2 = loc.machineType === 'Gen 2 Three Bank';
   const locName = loc.name || 'Location';
-  let r = `📍 ${locName}\n`;
+  let r = `${locName}\n`;
   if (loc.machineType) r += `Machine Type: ${loc.machineType}\n`;
   if (!isSpiritMixer) {
     if (loc.productTemp) r += `Product Temp: ${loc.productTemp}°C\n`;
