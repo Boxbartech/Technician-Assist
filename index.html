@@ -318,7 +318,7 @@ header {
   </svg>
   <div class="header-left">
     <h1>Boxbar Technician Assist</h1>
-    <p style="opacity:0.7;font-size:10px;letter-spacing:0.3px">Early Beta v4.7</p>
+    <p style="opacity:0.7;font-size:10px;letter-spacing:0.3px">Early Beta v4.8</p>
   </div>
 </header>
 
@@ -2554,13 +2554,15 @@ function preSubmitValidateAndShare(whatsAppText, locId) {
     switchTab('event');
     return;
   }
+  // Open WhatsApp NOW while still in the user gesture — mobile browsers block window.open in async callbacks
+  const waWindow = window.open('https://wa.me/?text=' + encodeURIComponent(whatsAppText), '_blank');
   const pg = document.getElementById('preSubmittingPage');
   document.getElementById('preSubmitTitle').textContent = 'Submitting';
-  document.getElementById('preSubmitSub').innerHTML = 'Please wait while we submit…<br>You\'ll be redirected to WhatsApp';
+  document.getElementById('preSubmitSub').innerHTML = 'Submitting in background…<br>WhatsApp is opening';
   document.getElementById('preSubmitDoneBtn').style.display = 'none';
   document.getElementById('preSubmitDotWrap').style.display = '';
   pg.style.display = 'flex';
-  preSubmitReport(whatsAppText, locId);
+  preSubmitReport(locId);
 }
 
 function shareEventTeams() {
@@ -2614,7 +2616,7 @@ function compressImage(file) {
   });
 }
 
-async function preSubmitReport(whatsAppText, locId) {
+async function preSubmitReport(locId) {
   const eventName = gv('eventName');
   const date = toISODate(gv('eventDate'));
   const venue = gv('venue');
@@ -2628,7 +2630,7 @@ async function preSubmitReport(whatsAppText, locId) {
 
   // Upload arrival photos only on event tab submission
   if (locId === null && arrivalPhotoFiles.length) {
-    document.getElementById('preSubmitSub').innerHTML = `Uploading ${arrivalPhotoFiles.length} photo${arrivalPhotoFiles.length > 1 ? 's' : ''}…<br>You'll be redirected to WhatsApp after`;
+    document.getElementById('preSubmitSub').innerHTML = `Uploading ${arrivalPhotoFiles.length} photo${arrivalPhotoFiles.length > 1 ? 's' : ''}…<br>Please wait`;
     try {
       for (let pi = 0; pi < arrivalPhotoFiles.length; pi++) {
         const file = arrivalPhotoFiles[pi];
@@ -2671,10 +2673,10 @@ async function preSubmitReport(whatsAppText, locId) {
       body: JSON.stringify(payload),
     });
     document.getElementById('preSubmitDotWrap').style.display = 'none';
-    document.getElementById('preSubmitTitle').textContent = 'Report submitted';
+    document.getElementById('preSubmitTitle').textContent = 'Submitted ✓';
+    document.getElementById('preSubmitSub').innerHTML = locId === null ? `${eventName}<br>${date}` : 'Location submitted';
     addVenueIfNew(venue);
 
-    // Mark submitted
     if (locId === null) {
       eventSubmitted = true;
       const info = document.getElementById('eventSubmittedInfo');
@@ -2686,22 +2688,14 @@ async function preSubmitReport(whatsAppText, locId) {
     }
     prerSave();
 
-    if (whatsAppText) {
-      document.getElementById('preSubmitSub').innerHTML = 'Redirecting to WhatsApp…';
-      // Open WhatsApp immediately — doing it first avoids mobile popup blockers
-      window.open('https://wa.me/?text=' + encodeURIComponent(whatsAppText), '_blank');
-      setTimeout(() => {
-        pg.style.display = 'none';
-        if (locId === null) {
-          switchTab('event');
-        } else {
-          renderLocationTabs();
-        }
-      }, 600);
-    } else {
-      document.getElementById('preSubmitSub').innerHTML = locId === null ? `${eventName}<br>${date}` : 'Location submitted';
-      document.getElementById('preSubmitDoneBtn').style.display = 'block';
-    }
+    setTimeout(() => {
+      pg.style.display = 'none';
+      if (locId === null) {
+        switchTab('event');
+      } else {
+        renderLocationTabs();
+      }
+    }, 800);
   } catch(e) {
     pg.style.display = 'none';
     alert('Submission failed — check your connection and try again.');
@@ -4311,20 +4305,17 @@ function buildLocationHTML(loc) {
   }).join('');
 
   if (loc.submitted) {
-    const fullForm = buildLocationFullHTML(loc, machinesWithDividers, mainApplyBar, hasSpiritMixerOnly);
     return `
-    <div class="location-wrap" style="position:relative">
-      ${fullForm}
-      <div style="position:absolute;inset:0;background:rgba(17,17,17,0.82);border-radius:var(--radius);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:24px;z-index:10;backdrop-filter:blur(2px)">
+    <div class="location-wrap" style="position:relative;min-height:180px">
+      <div style="position:absolute;inset:0;background:rgba(17,17,17,0.88);border-radius:var(--radius);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:24px;z-index:10;backdrop-filter:blur(3px)">
         <div style="display:flex;align-items:center;gap:10px">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4caf50" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4caf50" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
           <span style="font-size:16px;font-weight:700;color:#fff">Submitted</span>
         </div>
-        <div style="font-size:13px;color:rgba(255,255,255,0.6);text-align:center">${esc(loc.name) || 'Location'} · ${loc.machineType || ''}</div>
-        <div style="display:flex;flex-direction:column;gap:8px;width:100%;max-width:240px">
-          <button onclick="addLocation()" style="width:100%;padding:11px;background:var(--pink);border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer">＋ Add New Location</button>
-          <button onclick="unsubmitLocation(${loc.id})" style="width:100%;padding:11px;background:rgba(255,255,255,0.12);border:0.5px solid rgba(255,255,255,0.2);border-radius:8px;color:#fff;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer">Edit</button>
-          <button onclick="clearReportNewEvent()" style="width:100%;padding:11px;background:rgba(255,59,48,0.15);border:0.5px solid rgba(255,59,48,0.3);border-radius:8px;color:#ff6b6b;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer">Clear — New Event</button>
+        <div style="font-size:13px;color:rgba(255,255,255,0.55);text-align:center">${esc(loc.name) || 'Location'} · ${loc.machineType || ''}</div>
+        <div style="display:flex;flex-direction:column;gap:8px;width:100%;max-width:220px">
+          <button onclick="addLocationFromOverlay()" style="width:100%;padding:11px;background:var(--pink);border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer">＋ Add New Location</button>
+          <button onclick="clearReportNewEvent()" style="width:100%;padding:11px;background:rgba(255,59,48,0.15);border:0.5px solid rgba(255,59,48,0.3);border-radius:8px;color:#ff6b6b;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer">New Event — Clear Report</button>
         </div>
       </div>
     </div>`;
