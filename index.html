@@ -318,7 +318,7 @@ header {
   </svg>
   <div class="header-left">
     <h1>Boxbar Technician Assist</h1>
-    <p style="opacity:0.7;font-size:10px;letter-spacing:0.3px">Early Beta v5.8</p>
+    <p style="opacity:0.7;font-size:10px;letter-spacing:0.3px">Early Beta v5.9</p>
   </div>
 </header>
 
@@ -950,17 +950,21 @@ header {
   <!-- PARTS SECTION -->
   <div id="tkPartsSection" style="display:none">
 
-    <!-- Legend + edit button -->
+    <!-- Legend + buttons -->
     <div style="margin:12px 12px 0;display:flex;align-items:center;justify-content:space-between">
       <div style="display:flex;gap:10px">
         <div style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--muted)"><span style="width:8px;height:8px;border-radius:50%;background:#4caf50;display:inline-block"></span>Good</div>
         <div style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--muted)"><span style="width:8px;height:8px;border-radius:50%;background:#ff9800;display:inline-block"></span>Low</div>
         <div style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--muted)"><span style="width:8px;height:8px;border-radius:50%;background:#f44336;display:inline-block"></span>Empty</div>
       </div>
-      <button id="tkEditBtn" onclick="tkToggleEditMode()"
-        style="background:var(--pink-light);color:var(--pink);border:0.5px solid var(--pink-border);border-radius:6px;padding:6px 12px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer">
-        Manual Add / Subtract
-      </button>
+      <div style="display:flex;gap:6px">
+        <button onclick="tkSyncFromSheet()" title="Refresh from sheet"
+          style="background:var(--card2);border:0.5px solid var(--border);border-radius:6px;padding:6px 10px;font-size:13px;cursor:pointer;line-height:1">↻</button>
+        <button id="tkEditBtn" onclick="tkToggleEditMode()"
+          style="background:var(--pink-light);color:var(--pink);border:0.5px solid var(--pink-border);border-radius:6px;padding:6px 12px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer">
+          Edit
+        </button>
+      </div>
     </div>
 
     <div id="tkPartsList" style="margin:8px 12px 0;display:flex;flex-direction:column;gap:8px"></div>
@@ -2556,7 +2560,11 @@ function showPage(id) {
   });
   document.getElementById(id).classList.add('active');
   window.scrollTo(0,0);
-  if (id === 'toolkitPage') tkRender();
+  if (id === 'toolkitPage') {
+    tkRender();
+    // Auto-sync if we have a tech name
+    if (tkCurrentTech) tkSyncFromSheet();
+  }
   // Push a history state so back button returns to previous app page instead of leaving
   if (history.state?.appPage !== id) {
     history.pushState({ appPage: id }, '', '');
@@ -3221,7 +3229,7 @@ function tkRender() {
   const submitRow = document.getElementById('tkSubmitRow');
   const editBtn = document.getElementById('tkEditBtn');
   if (submitRow) submitRow.style.display = 'none';
-  if (editBtn) editBtn.textContent = 'Manual Add / Subtract';
+  if (editBtn) editBtn.textContent = 'Edit';
 
   // Restore last session if available
   const d = tkLoad();
@@ -3375,7 +3383,7 @@ function tkShowParts() {
 function tkToggleEditMode() {
   tkEditMode = !tkEditMode;
   tkEdits = {};
-  document.getElementById('tkEditBtn').textContent = tkEditMode ? 'Cancel Editing' : 'Manual Add / Subtract';
+  document.getElementById('tkEditBtn').textContent = tkEditMode ? 'Cancel' : 'Edit';
   document.getElementById('tkSubmitRow').style.display = tkEditMode ? 'block' : 'none';
   const partNames = Object.keys(tkPartsData);
   partNames.forEach((part, pi) => {
