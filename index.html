@@ -318,7 +318,7 @@ header {
   </svg>
   <div class="header-left">
     <h1>Boxbar Technician Assist</h1>
-    <p style="opacity:0.7;font-size:10px;letter-spacing:0.3px">Early Beta v5.2</p>
+    <p style="opacity:0.7;font-size:10px;letter-spacing:0.3px">Early Beta v5.3</p>
   </div>
 </header>
 
@@ -677,9 +677,14 @@ header {
   <!-- Event -->
   <div class="section-label">Event</div>
   <div class="per-card" style="margin:0 12px">
-    <div class="per-row">
+    <div class="per-row" style="flex-direction:column;align-items:stretch;gap:6px">
       <label class="per-field-label">Venue</label>
-      <input id="per_venue" type="text" class="per-input" placeholder="Venue name" autocomplete="off" oninput="perSaveLocal()">
+      <div style="position:relative">
+        <input id="per_venue" type="text" class="per-input" placeholder="Search venue…" autocomplete="off"
+          oninput="perSaveLocal();onPerVenueInput(this.value)"
+          onblur="setTimeout(hidePerVenueDropdown,200)">
+        <div id="perVenueDropdown" style="display:none;position:absolute;left:0;right:0;top:100%;background:var(--card2);border:0.5px solid var(--border);border-radius:0 0 10px 10px;overflow:hidden;max-height:180px;overflow-y:auto;z-index:20"></div>
+      </div>
     </div>
     <div class="per-row">
       <label class="per-field-label">Event</label>
@@ -2809,6 +2814,17 @@ function preSubmitDone() {
   document.getElementById('preSubmittingPage').style.display = 'none';
   showPage('homePage');
 }
+// ── FORCE UPDATE ON VERSION CHANGE ──────────────────
+const APP_VERSION = '5.2';
+(function() {
+  const stored = localStorage.getItem('bx_app_version');
+  if (stored !== APP_VERSION) {
+    // Clear stale venue cache so sheet data takes over
+    localStorage.removeItem('bx_venues');
+    localStorage.removeItem('bx_venue_data');
+    localStorage.setItem('bx_app_version', APP_VERSION);
+  }
+})();
 const PRE_WEBHOOK = 'https://script.google.com/macros/s/AKfycbyMwKu27xHtDF_taL-8Wd9gInaAa9HTYe9ylt-Ihz4S6VY9qODsR7dih8tFVs5Y4GuD/exec'; // Pre-event sheet
 const PER_WEBHOOK = 'https://script.google.com/macros/s/AKfycbyRvlQjMnaiYLnzkKoM1tmWFY88J_SoYlJBnX1RKb3BaDbdRyZD-wTpqVsvRON6HU7MMQ/exec'; // Post-event sheet
 const TOOLKIT_WEBHOOK = 'https://script.google.com/macros/s/AKfycbw934e-HRt2x4EaL-aSXIiOjoul3DBeXNa9XjPisrfe8SSc862m0RfP3chb9QWDcky-/exec';
@@ -3448,6 +3464,33 @@ function populateVenueLists() {
   });
 }
 
+function onPerVenueInput(val) {
+  const venues = getVenues();
+  const q = val.trim().toLowerCase();
+  const dropdown = document.getElementById('perVenueDropdown');
+  if (!q) { dropdown.style.display = 'none'; return; }
+  const matches = venues.filter(v => v.toLowerCase().includes(q));
+  if (!matches.length) { dropdown.style.display = 'none'; return; }
+  dropdown.innerHTML = matches.map(v => `
+    <div onmousedown="event.preventDefault();selectPerVenue('${v.replace(/'/g,"\\'")}')"
+      style="padding:10px 14px;font-size:13px;cursor:pointer;border-bottom:0.5px solid var(--border);color:var(--text)">
+      ${v}
+    </div>`).join('');
+  dropdown.style.display = 'block';
+}
+
+function selectPerVenue(name) {
+  const el = document.getElementById('per_venue');
+  if (el) el.value = name;
+  document.getElementById('perVenueDropdown').style.display = 'none';
+  perSaveLocal();
+}
+
+function hidePerVenueDropdown() {
+  const d = document.getElementById('perVenueDropdown');
+  if (d) d.style.display = 'none';
+}
+
 function onVenueInput(val) {
   prerSave();
   const venues = getVenues();
@@ -3603,33 +3646,27 @@ function applyPreviousReportData(prevLocs) {
 }
 
 function fetchVenuesFromSheets() {
-  // Fetch venue names + data from pre-event sheet
   fetch(PRE_WEBHOOK + '?action=getVenueData')
     .then(r => r.json())
     .then(data => {
       if (data && data.venues) {
+        // Sheet is source of truth — replace local list entirely
         const names = data.venues.map(v => v.name).sort((a,b) => a.localeCompare(b));
-        // Merge with existing local venues
-        const existing = getVenues();
-        const all = [...new Set([...names, ...existing])].sort((a,b) => a.localeCompare(b));
-        saveVenues(all);
-        // Save venue data (most recent location info per venue)
-        const vd = getVenueData();
+        saveVenues(names);
+        const vd = {};
         data.venues.forEach(v => { vd[v.name] = { locations: v.locations }; });
         saveVenueData(vd);
         populateVenueLists();
       }
     })
     .catch(() => {
-      // Fallback to old getVenues
-      Promise.all([
-        fetch(PRE_WEBHOOK + '?action=getVenues').then(r => r.json()).catch(() => []),
-        fetch(PER_WEBHOOK + '?action=getVenues').then(r => r.json()).catch(() => []),
-      ]).then(([pre, post]) => {
-        const all = [...new Set([...pre, ...post, ...getVenues()])].sort((a,b) => a.localeCompare(b));
-        saveVenues(all);
-        populateVenueLists();
-      }).catch(() => {});
+      // Fallback: getVenues only, keep existing local
+      fetch(PRE_WEBHOOK + '?action=getVenues').then(r => r.json())
+        .then(pre => {
+          const all = [...new Set([...pre, ...getVenues()])].sort((a,b) => a.localeCompare(b));
+          saveVenues(all);
+          populateVenueLists();
+        }).catch(() => {});
     });
 }
 
@@ -4945,7 +4982,7 @@ function updateEventSubmittedOverlay() {
   const unsubmitted = locations.filter(l => !l.submitted);
   container.innerHTML = unsubmitted.length
     ? `<div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:2px">Go to location</div>` +
-      unsubmitted.map(l => `<button onclick="goToLocFromOverlay(${l.id})" style="width:100%;padding:11px;background:var(--pink);border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;text-align:left">${esc(l.name) || 'Unnamed location'}</button>`).join('')
+      unsubmitted.map((l, i) => `<button onclick="goToLocFromOverlay(${l.id})" style="width:100%;padding:11px;background:var(--pink);border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;text-align:left">${esc(l.name) || 'Location ' + (locations.indexOf(l) + 1)}</button>`).join('')
     : '';
 }
 
