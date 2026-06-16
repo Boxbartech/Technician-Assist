@@ -318,7 +318,7 @@ header {
   </svg>
   <div class="header-left">
     <h1>Boxbar Technician Assist</h1>
-    <p style="opacity:0.7;font-size:10px;letter-spacing:0.3px">Early Beta v4.8</p>
+    <p style="opacity:0.7;font-size:10px;letter-spacing:0.3px">Early Beta v5.2</p>
   </div>
 </header>
 
@@ -520,9 +520,16 @@ header {
 
   <div class="section-label">Event Details</div>
   <div class="group">
-    <div class="field-row">
-      <span class="field-label">Venue</span>
-      <input class="field-input" id="venue" type="text" placeholder="Venue name" autocomplete="off" oninput="prerSave()">
+    <div class="field-row" style="align-items:flex-start;flex-direction:column;gap:0;padding:0">
+      <div style="display:flex;align-items:center;width:100%;padding:10px 14px">
+        <span class="field-label" style="flex-shrink:0">Venue</span>
+        <input class="field-input" id="venue" type="text" placeholder="Search or enter venue…" autocomplete="off"
+          oninput="onVenueInput(this.value)" onfocus="onVenueInput(this.value)" onblur="setTimeout(hideVenueDropdown,200)" style="flex:1">
+      </div>
+      <div id="venueDropdown" style="display:none;width:100%;border-top:0.5px solid var(--border);background:var(--card2);border-radius:0 0 var(--radius) var(--radius);overflow:hidden;max-height:200px;overflow-y:auto"></div>
+      <div id="venueLoadBtn" style="display:none;padding:8px 14px 10px;width:100%">
+        <button onclick="loadPreviousVenueInfo()" style="width:100%;padding:11px;background:var(--pink);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer">Load previous venue machine info</button>
+      </div>
     </div>
     <div class="field-row">
       <span class="field-label">Event</span>
@@ -692,7 +699,17 @@ header {
   <div class="per-card" style="margin:0 12px">
     <div class="per-row">
       <label class="per-field-label">Name</label>
-      <input id="per_name" type="text" class="per-input" placeholder="Your full name" oninput="perSaveLocal()">
+      <div style="position:relative">
+        <select id="per_name" onchange="perSaveLocal();perOnTechSelect(this.value)"
+          style="width:100%;background:var(--card2);border:0.5px solid var(--border);border-radius:8px;padding:10px 12px;font-size:14px;font-family:inherit;color:var(--text);outline:none;appearance:none;cursor:pointer">
+          <option value="">Select your name…</option>
+        </select>
+        <span style="position:absolute;right:12px;top:50%;transform:translateY(-50%);pointer-events:none;color:var(--muted)">›</span>
+      </div>
+    </div>
+    <div class="per-row" id="perNewTechRow" style="display:none">
+      <label class="per-field-label">Full name</label>
+      <input id="per_new_tech_name" type="text" class="per-input" placeholder="Enter your full name" oninput="perSaveLocal()">
     </div>
     <div class="per-row">
       <label class="per-field-label">Email</label>
@@ -899,24 +916,40 @@ header {
 
 <div style="padding:0 0 32px">
 
-  <!-- SPARE PARTS -->
-  <div class="section-label">Spare Parts</div>
-  <div id="tkPartsList" style="margin:0 12px;display:flex;flex-direction:column;gap:6px"></div>
-
-  <!-- CONSUMABLES -->
-  <div class="section-label" style="margin-top:8px">Consumables</div>
-  <div id="tkConsList" style="margin:0 12px;display:flex;flex-direction:column;gap:6px"></div>
-  <div style="margin:8px 12px 0;display:flex;gap:8px;align-items:center">
-    <input id="tkNewCons" type="text" placeholder="Add a consumable…" onkeydown="if(event.key==='Enter')tkAddCons()" style="flex:1;background:var(--card2);border:0.5px solid var(--border);border-radius:10px;padding:10px 13px;font-size:14px;font-family:inherit;color:var(--text);outline:none">
-    <button onclick="tkAddCons()" style="background:var(--pink);color:#fff;border:none;border-radius:10px;padding:10px 16px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;flex-shrink:0">Add</button>
+  <div style="margin:12px 12px 0">
+    <div style="background:var(--card);border:0.5px solid var(--border);border-radius:var(--radius);overflow:hidden">
+      <div style="padding:12px 14px;border-bottom:0.5px solid var(--border)">
+        <label style="font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;display:block;margin-bottom:6px">Technician</label>
+        <div style="position:relative">
+          <select id="tkTechSelect" onchange="tkOnTechSelect(this.value)"
+            style="width:100%;background:var(--card2);border:0.5px solid var(--border);border-radius:8px;padding:10px 12px;font-size:14px;font-family:inherit;color:var(--text);outline:none;appearance:none;cursor:pointer">
+            <option value="">Select your name…</option>
+          </select>
+          <span style="position:absolute;right:12px;top:50%;transform:translateY(-50%);pointer-events:none;color:var(--muted)">›</span>
+        </div>
+      </div>
+      <div id="tkSyncRow" style="display:none;padding:10px 14px;align-items:center;justify-content:space-between">
+        <span id="tkSyncStatus" style="font-size:12px;color:var(--muted)">Last synced: never</span>
+        <button onclick="tkSyncFromSheet()" style="background:var(--pink-light);color:var(--pink);border:0.5px solid var(--pink-border);border-radius:6px;padding:6px 12px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer">Sync</button>
+      </div>
+    </div>
   </div>
 
-  <!-- TOOLS -->
-  <div class="section-label" style="margin-top:8px">Tools</div>
-  <div id="tkToolsList" style="margin:0 12px;display:flex;flex-direction:column;gap:6px"></div>
-  <div style="margin:8px 12px 0;display:flex;gap:8px;align-items:center">
-    <input id="tkNewItem" type="text" placeholder="Add a tool…" onkeydown="if(event.key==='Enter')tkAddItem()" style="flex:1;background:var(--card2);border:0.5px solid var(--border);border-radius:10px;padding:10px 13px;font-size:14px;font-family:inherit;color:var(--text);outline:none">
-    <button onclick="tkAddItem()" style="background:var(--pink);color:#fff;border:none;border-radius:10px;padding:10px 16px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;flex-shrink:0">Add</button>
+  <div id="tkLoadingState" style="display:none;padding:40px 14px;text-align:center">
+    <div style="font-size:13px;color:var(--muted)">Loading toolkit…</div>
+  </div>
+
+  <div id="tkPartsSection" style="display:none">
+    <div id="tkLegend" style="margin:12px 12px 0;display:flex;gap:8px">
+      <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted)"><span style="width:10px;height:10px;border-radius:50%;background:#4caf50;display:inline-block"></span>Full stock</div>
+      <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted)"><span style="width:10px;height:10px;border-radius:50%;background:#ff9800;display:inline-block"></span>≤50% stock</div>
+      <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted)"><span style="width:10px;height:10px;border-radius:50%;background:#f44336;display:inline-block"></span>Empty</div>
+    </div>
+    <div id="tkPartsList" style="margin:8px 12px 0;display:flex;flex-direction:column;gap:8px"></div>
+  </div>
+
+  <div id="tkNoData" style="display:none;padding:40px 14px;text-align:center">
+    <div style="font-size:13px;color:var(--muted);line-height:1.6">No toolkit data found for this technician.<br>Ask your warehouse manager to add you to the sheet.</div>
   </div>
 
 </div>
@@ -2564,28 +2597,6 @@ function preSubmitValidateAndShare(whatsAppText, locId) {
   pg.style.display = 'flex';
   preSubmitReport(locId);
 }
-
-function shareEventTeams() {
-  const txt = buildEventReport();
-  window.open('https://teams.microsoft.com/l/chat/0/0?message=' + encodeURIComponent(txt), '_blank');
-}
-
-function preSubmitValidate() {
-  const eventName = gv('eventName');
-  const date = toISODate(gv('eventDate'));
-  const venue = gv('venue');
-  const missing = [];
-  if (!venue)     missing.push('Venue');
-  if (!eventName) missing.push('Event name');
-  if (!date)      missing.push('Date');
-  if (missing.length) {
-    alert('Please fill in the following event details before submitting:\n• ' + missing.join('\n• '));
-    switchTab('event');
-    return;
-  }
-  // Show confirmation modal
-  document.getElementById('preSubmitConfirmModal').classList.add('open');
-}
 function closePreSubmitConfirm() {
   document.getElementById('preSubmitConfirmModal').classList.remove('open');
 }
@@ -2643,18 +2654,60 @@ async function preSubmitReport(locId) {
     } catch(e) {}
   }
 
-  // Build locations payload — either just this loc, or empty (event-only)
+  // Build locations payload — send ALL submitted locations so the sheet
+  // column stays complete each time a new location is added
   let locData = [];
   if (locId !== null) {
     const loc = locations.find(l => l.id === locId);
     if (loc) {
+      // Collect qty values from DOM before building payload
       ['staffBOH','staffFOH','staffFOHBOH'].forEach(key => {
         const inputs = document.querySelectorAll(`input[oninput*="setLocField(${loc.id},'${key}Qty"]`);
         if (inputs.length) loc[key + 'Qty'] = inputs[0].value;
       });
-      locData = [buildLocPayload(loc)];
+      // Mark this location as submitted
+      loc.submitted = true;
     }
+    // Send all submitted locations (previous + current)
+    locData = locations
+      .filter(l => l.submitted)
+      .map(l => buildLocPayload(l));
   }
+
+  const snapshot = locData.length ? JSON.stringify(
+    locations.filter(l => l.submitted).map(loc => ({
+      name: loc.name || '',
+      machineType: loc.machineType || '',
+      productTemp: loc.productTemp || '',
+      freshKegs: loc.freshKegs || '',
+      internet: loc.internet || '',
+      testPayment: loc.testPayment || '',
+      notes: loc.notes || '',
+      primaryPsi: loc.primaryPsi || '',
+      secondaryPsi: loc.secondaryPsi || '',
+      staffBOHYN: loc.staffBOHYN || '',
+      staffBOHQty: loc.staffBOHQty || '',
+      staffFOHYN: loc.staffFOHYN || '',
+      staffFOHQty: loc.staffFOHQty || '',
+      staffFOHBOHYN: loc.staffFOHBOHYN || '',
+      staffFOHBOHQty: loc.staffFOHBOHQty || '',
+      machines: loc.machines.map((m, mi) => ({
+        // Store name WITHOUT M prefix — the renderer adds M itself
+        name: m.name ? m.name.replace(/^M\s*/i, '') : String(mi + 1),
+        machineType: m.machineType || loc.machineType || '',
+        differentType: m.differentType || false,
+        product: m.product || '',
+        psi: m.psi || '',
+        tap1: m.tap1 || '',
+        tap2: m.tap2 || '',
+        notes: m.notes || '',
+        primaryPsi: m.primaryPsi || '',
+        secondaryPsi: m.secondaryPsi || '',
+        spirits: (m.spirits || []).map(s => ({ name: s.name || '', pourTime: '' })),
+        postMix: (m.postMix || []).map(p => ({ name: p.name || '', pourTime: '' })),
+      })),
+    }))
+  ) : null;
 
   const payload = {
     action: 'preEvent',
@@ -2664,6 +2717,7 @@ async function preSubmitReport(locId) {
     arrivalTime: gv('arrivalTime'),
     eventNotes: gv('eventNotes'),
     locations: locData,
+    snapshot,
   };
 
   try {
@@ -2683,8 +2737,14 @@ async function preSubmitReport(locId) {
       if (info) info.textContent = `${eventName} · ${date}`;
       updateEventSubmittedOverlay();
     } else {
-      const loc = locations.find(l => l.id === locId);
-      if (loc) loc.submitted = true;
+      // Auto-submit event if not already done
+      if (!eventSubmitted) {
+        eventSubmitted = true;
+        const info = document.getElementById('eventSubmittedInfo');
+        if (info) info.textContent = `${eventName} · ${date}`;
+      }
+      updateEventSubmittedOverlay();
+      renderLocationTabs();
     }
     prerSave();
 
@@ -2710,24 +2770,37 @@ function buildLocPayload(loc) {
     freshKegs: loc.freshKegs || '',
     internet: loc.internet || '',
     testPayment: loc.testPayment || '',
-    staffTrained: [
-      loc.staffBOHYN === 'yes' && loc.staffBOHQty   ? `BOH ×${loc.staffBOHQty}` : '',
-      loc.staffFOHYN === 'yes' && loc.staffFOHQty   ? `FOH ×${loc.staffFOHQty}` : '',
-      loc.staffFOHBOHYN === 'yes' && loc.staffFOHBOHQty ? `FOH & BOH ×${loc.staffFOHBOHQty}` : '',
-    ].filter(Boolean).join(', '),
-    staffCount: '',
+    // Raw staff fields for Apps Script formatStaff function
+    staffBOHYN: loc.staffBOHYN || '',
+    staffBOHQty: loc.staffBOHQty || '',
+    staffFOHYN: loc.staffFOHYN || '',
+    staffFOHQty: loc.staffFOHQty || '',
+    staffFOHBOHYN: loc.staffFOHBOHYN || '',
+    staffFOHBOHQty: loc.staffFOHBOHQty || '',
     notes: loc.notes || '',
+    primaryPsi: loc.primaryPsi || '',
+    secondaryPsi: loc.secondaryPsi || '',
     machines: loc.machines.map((m, mIdx) => {
-      const mName = 'M' + (m.name || (mIdx + 1));
       const mType = m.machineType || loc.machineType || '';
+      // Store name WITHOUT M prefix — renderer adds M itself
+      const mName = m.name || String(mIdx + 1);
       if (isSpiritMixerType(mType)) {
-        const spiritsStr = (m.spirits||[]).filter(s=>s.name).map(s=>`${s.name}${s.pourTime?': '+s.pourTime:''}`).join('\n');
-        const postMixStr = (m.postMix||[]).filter(p=>p.name).map(p=>`${p.name}${p.pourTime?': '+p.pourTime:''}`).join('\n');
-        const mixStats = [spiritsStr ? 'Spirits:\n'+spiritsStr : '', postMixStr ? 'Post-Mix:\n'+postMixStr : ''].filter(Boolean).join('\n\n');
-        const notesStr = [m.sodaPourTime?`Soda: ${m.sodaPourTime}`:'', m.notes||''].filter(Boolean).join(' | ');
-        return { name: mName, product:'Spirit Mixer', psi: `Primary: ${m.primaryPsi||''} / Secondary: ${m.secondaryPsi||''}`, tap1: mixStats, tap2: '', notes: notesStr };
+        const spirits = (m.spirits||[]).filter(s=>s.name);
+        const postMix = (m.postMix||[]).filter(p=>p.name);
+        // Add Soda as a separate post-mix entry if it has a time
+        const sodaEntry = m.sodaPourTime ? [{ name: 'Soda', pourTime: m.sodaPourTime }] : [];
+        return {
+          name: mName,
+          machineType: mType,
+          spirits:      spirits.length ? spirits : [],
+          postMix:      [...postMix, ...sodaEntry],
+          primaryPsi:   m.primaryPsi   || loc.primaryPsi   || '',
+          secondaryPsi: m.secondaryPsi || loc.secondaryPsi || '',
+          notes:        m.notes || '',
+          product:'', psi:'', tap1:'', tap2:'',
+        };
       }
-      return { name: mName, product: m.product||'', psi: m.psi||'', tap1: m.tap1||'', tap2: m.tap2||'', notes: m.notes||'' };
+      return { name: mName, machineType: mType, product: m.product||'', psi: m.psi||'', tap1: m.tap1||'', tap2: m.tap2||'', notes: m.notes||'' };
     }),
   };
 }
@@ -2736,8 +2809,9 @@ function preSubmitDone() {
   document.getElementById('preSubmittingPage').style.display = 'none';
   showPage('homePage');
 }
-const PRE_WEBHOOK = 'https://script.google.com/macros/s/AKfycbyh0E2ZmWz4vVYK3j4SaT_g3fBDz2l565L_kmVBb_fekFrwWFGeH_AKlcCYf95vENgp/exec'; // Pre-event sheet
+const PRE_WEBHOOK = 'https://script.google.com/macros/s/AKfycbyMwKu27xHtDF_taL-8Wd9gInaAa9HTYe9ylt-Ihz4S6VY9qODsR7dih8tFVs5Y4GuD/exec'; // Pre-event sheet
 const PER_WEBHOOK = 'https://script.google.com/macros/s/AKfycbyRvlQjMnaiYLnzkKoM1tmWFY88J_SoYlJBnX1RKb3BaDbdRyZD-wTpqVsvRON6HU7MMQ/exec'; // Post-event sheet
+const TOOLKIT_WEBHOOK = 'https://script.google.com/macros/s/AKfycbw934e-HRt2x4EaL-aSXIiOjoul3DBeXNa9XjPisrfe8SSc862m0RfP3chb9QWDcky-/exec';
 const PER_DRIVE_FOLDER = '1nj8_tle6eS7vxsPvn8VDUhjhEc5QEBFI';
 
 const perYNState = {};
@@ -2922,18 +2996,18 @@ function perRenderPartsUsed() {
 
 function perDeductPartsFromToolkit() {
   if (!Object.keys(perPartsUsed).length) return;
+  const sel = document.getElementById('per_name');
+  const techName = sel && sel.value !== '__new__'
+    ? sel.value
+    : (document.getElementById('per_new_tech_name') ? document.getElementById('per_new_tech_name').value.trim() : '');
+  if (techName) tkDeductParts(techName, perPartsUsed);
   const tk = tkLoad();
-  Object.entries(perPartsUsed).forEach(([name, qty]) => {
-    // Check fixed parts
-    if (tk.parts[name] !== undefined) {
-      tk.parts[name] = Math.max(0, (tk.parts[name] || 0) - qty);
-    }
-    // Check consumables
-    const cons = tk.cons || [];
-    const c = cons.find(c => c.name === name);
-    if (c) c.qty = Math.max(0, c.qty - qty);
-  });
-  tkSave(tk);
+  if (tk.parts) {
+    Object.entries(perPartsUsed).forEach(([name, qty]) => {
+      if (tk.parts[name] !== undefined) tk.parts[name] = Math.max(0, (tk.parts[name] || 0) - qty);
+    });
+    tkSave(tk);
+  }
 }
 
 function perPartsUsedString() {
@@ -2998,7 +3072,10 @@ async function perSubmit() {
   const errorEl = document.getElementById('per_error');
   errorEl.style.display = 'none';
 
-  const name = perVal('per_name');
+  const nameRaw = perVal('per_name');
+  const name = nameRaw === '__new__'
+    ? (document.getElementById('per_new_tech_name') ? document.getElementById('per_new_tech_name').value.trim() : '')
+    : nameRaw;
   const email = perVal('per_email');
   const event = perVal('per_event');
   const venue = perVal('per_venue');
@@ -3137,147 +3214,218 @@ const TK_PARTS = [
   ]},
 ];
 
-let tkToolsOpen = false;
+let tkToolsOpen = false;  // no longer used
 
-function tkToggleTools() {}  // no longer used
+const TK_STORAGE_KEY = 'bx_toolkit_v2';
+const TK_TECHS_KEY   = 'bx_toolkit_techs';
+let tkCurrentTech = '';
 
 function tkLoad() {
-  try { return JSON.parse(localStorage.getItem('bx_toolkit') || '{"items":[],"cons":[],"parts":{}}'); }
-  catch { return { items:[], cons:[], parts:{} }; }
+  try { return JSON.parse(localStorage.getItem(TK_STORAGE_KEY) || '{}'); } catch(e) { return {}; }
 }
-function tkSave(data) { try { localStorage.setItem('bx_toolkit', JSON.stringify(data)); } catch(e) {} }
+function tkSave(data) { try { localStorage.setItem(TK_STORAGE_KEY, JSON.stringify(data)); } catch(e) {} }
+function tkGetTechs() {
+  try { return JSON.parse(localStorage.getItem(TK_TECHS_KEY) || '[]'); } catch(e) { return []; }
+}
+function tkSaveTechs(list) { try { localStorage.setItem(TK_TECHS_KEY, JSON.stringify(list)); } catch(e) {} }
 
 function tkRender() {
-  tkRenderParts();
-  tkRenderTools();
-  tkRenderCons();
+  tkLoadTechnicians();
+  const data = tkLoad();
+  if (data.techName) {
+    tkCurrentTech = data.techName;
+    const sel = document.getElementById('tkTechSelect');
+    if (sel) sel.value = data.techName;
+    tkShowParts(data);
+  }
 }
 
-function tkRenderTools() {
-  const data = tkLoad();
-  const el = document.getElementById('tkToolsList');
-  if (!el) return;
-  el.innerHTML = data.items && data.items.length ? data.items.map((item, i) => `
-    <div style="display:flex;align-items:center;gap:10px;background:var(--card);border:0.5px solid var(--border);border-radius:10px;padding:11px 14px">
-      <span style="flex:1;font-size:14px;color:var(--text)">${item.name}</span>
-      <button onclick="tkRemoveItem(${i})" style="background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;padding:0;line-height:1">×</button>
-    </div>`).join('') : '';
+function tkLoadTechnicians() {
+  const sel = document.getElementById('tkTechSelect');
+  if (!sel) return;
+  const cached = tkGetTechs();
+  const opts = (list) => '<option value="">Select your name…</option>' +
+    list.map(t => `<option value="${t}">${t}</option>`).join('') +
+    '<option value="__new__">＋ New Technician</option>';
+  sel.innerHTML = opts(cached);
+  if (tkCurrentTech) sel.value = tkCurrentTech;
+  tkPopulatePostEventDropdown(cached);
+  if (!TOOLKIT_WEBHOOK) return;
+  fetch(TOOLKIT_WEBHOOK + '?action=getTechnicians')
+    .then(r => r.json())
+    .then(data => {
+      if (data && data.technicians) {
+        tkSaveTechs(data.technicians);
+        sel.innerHTML = opts(data.technicians);
+        if (tkCurrentTech) sel.value = tkCurrentTech;
+        tkPopulatePostEventDropdown(data.technicians);
+      }
+    }).catch(() => {});
 }
 
-function tkRenderCons() {
-  const data = tkLoad();
-  const el = document.getElementById('tkConsList');
-  if (!el) return;
-  const cons = data.cons || [];
-  el.innerHTML = cons.length ? cons.map((item, i) => `
-    <div style="display:flex;align-items:center;gap:10px;background:var(--card);border:0.5px solid var(--border);border-radius:10px;padding:11px 14px">
-      <span style="flex:1;font-size:14px;color:var(--text)">${item.name}</span>
-      <div style="display:flex;align-items:center;gap:0;border:0.5px solid var(--border);border-radius:8px;overflow:hidden;background:var(--card2)">
-        <button onclick="tkAdjustCons(${i},-1)" style="width:32px;height:32px;background:none;border:none;color:var(--text);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center">−</button>
-        <span style="width:32px;text-align:center;font-size:14px;font-weight:700;color:${item.qty===0?'var(--muted)':'var(--text)'}">${item.qty}</span>
-        <button onclick="tkAdjustCons(${i},1)" style="width:32px;height:32px;background:none;border:none;color:var(--text);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center">+</button>
-      </div>
-      <button onclick="tkRemoveCons(${i})" style="background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;padding:0;line-height:1">×</button>
-    </div>`).join('') : '';
+function tkPopulatePostEventDropdown(techs) {
+  const sel = document.getElementById('per_name');
+  if (!sel) return;
+  const current = sel.value;
+  sel.innerHTML = '<option value="">Select your name…</option>' +
+    techs.map(t => `<option value="${t}">${t}</option>`).join('') +
+    '<option value="__new__">＋ New Technician</option>';
+  if (current) sel.value = current;
 }
 
-function tkAddCons() {
-  const input = document.getElementById('tkNewCons');
-  const name = input.value.trim();
-  if (!name) return;
-  const data = tkLoad();
-  if (!data.cons) data.cons = [];
-  const existing = data.cons.find(c => c.name.toLowerCase() === name.toLowerCase());
-  if (existing) { existing.qty++; }
-  else { data.cons.push({ name, qty: 0 }); }
-  tkSave(data); tkRenderCons();
-  input.value = '';
+function tkOnTechSelect(val) {
+  if (val === '__new__') {
+    const name = prompt('Enter your full name:');
+    if (!name || !name.trim()) { document.getElementById('tkTechSelect').value = ''; return; }
+    tkCurrentTech = name.trim();
+    alert('"' + tkCurrentTech + '" will be registered. Ask your warehouse manager to add you to the Technicians Toolkits sheet.');
+    document.getElementById('tkTechSelect').value = '';
+    return;
+  }
+  tkCurrentTech = val;
+  if (!val) {
+    document.getElementById('tkPartsSection').style.display = 'none';
+    document.getElementById('tkNoData').style.display = 'none';
+    document.getElementById('tkHeaderSub').textContent = 'Select your name to load';
+    return;
+  }
+  tkSyncFromSheet();
 }
 
-function tkAdjustCons(i, delta) {
-  const data = tkLoad();
-  data.cons[i].qty = Math.max(0, data.cons[i].qty + delta);
-  tkSave(data); tkRenderCons();
+function perOnTechSelect(val) {
+  const newRow = document.getElementById('perNewTechRow');
+  if (newRow) newRow.style.display = val === '__new__' ? '' : 'none';
+  perSaveLocal();
 }
 
-function tkRemoveCons(i) {
-  const data = tkLoad();
-  data.cons.splice(i, 1);
-  tkSave(data); tkRenderCons();
+function tkSyncFromSheet() {
+  if (!tkCurrentTech) return;
+  document.getElementById('tkLoadingState').style.display = 'block';
+  document.getElementById('tkPartsSection').style.display = 'none';
+  document.getElementById('tkNoData').style.display = 'none';
+  document.getElementById('tkHeaderSub').textContent = 'Loading…';
+  if (!TOOLKIT_WEBHOOK) {
+    document.getElementById('tkLoadingState').style.display = 'none';
+    document.getElementById('tkNoData').style.display = 'block';
+    return;
+  }
+  fetch(TOOLKIT_WEBHOOK + '?action=getToolkit&technician=' + encodeURIComponent(tkCurrentTech))
+    .then(r => r.json())
+    .then(data => {
+      document.getElementById('tkLoadingState').style.display = 'none';
+      if (data && data.parts) {
+        const stored = tkLoad();
+        stored.techName = tkCurrentTech;
+        stored.parts = data.parts;
+        stored.standardQty = data.standardQty || {};
+        stored.lastSync = new Date().toLocaleTimeString();
+        tkSave(stored);
+        tkShowParts(stored);
+      } else {
+        document.getElementById('tkNoData').style.display = 'block';
+        document.getElementById('tkHeaderSub').textContent = tkCurrentTech;
+      }
+    }).catch(() => {
+      document.getElementById('tkLoadingState').style.display = 'none';
+      const stored = tkLoad();
+      if (stored.parts && stored.techName === tkCurrentTech) {
+        tkShowParts(stored);
+        document.getElementById('tkHeaderSub').textContent = tkCurrentTech + ' (cached)';
+      } else {
+        document.getElementById('tkNoData').style.display = 'block';
+        document.getElementById('tkHeaderSub').textContent = 'No connection';
+      }
+    });
 }
 
-function tkRenderParts() {
-  const data = tkLoad();
+function tkShowParts(data) {
   const el = document.getElementById('tkPartsList');
   if (!el) return;
+  document.getElementById('tkPartsSection').style.display = 'block';
+  document.getElementById('tkNoData').style.display = 'none';
+  document.getElementById('tkHeaderSub').textContent = tkCurrentTech || 'Toolkit';
+  const syncRow = document.getElementById('tkSyncRow');
+  if (syncRow) {
+    syncRow.style.display = 'flex';
+    const st = document.getElementById('tkSyncStatus');
+    if (st) st.textContent = data.lastSync ? 'Last synced: ' + data.lastSync : 'Not yet synced';
+  }
+  const parts  = data.parts || {};
+  const stdQty = data.standardQty || {};
   let html = '';
   TK_PARTS.forEach(group => {
-    html += `<div style="margin-bottom:4px">
-      <div style="font-size:11px;font-weight:700;letter-spacing:0.6px;text-transform:uppercase;color:var(--muted);padding:10px 2px 6px">${group.group}</div>
-      <div style="background:var(--card);border:0.5px solid var(--border);border-radius:var(--radius);overflow:hidden">`;
+    html += '<div><div style="font-size:11px;font-weight:700;letter-spacing:0.6px;text-transform:uppercase;color:var(--muted);padding:10px 2px 6px">' + group.group + '</div>' +
+      '<div style="background:var(--card);border:0.5px solid var(--border);border-radius:var(--radius);overflow:hidden">';
     group.parts.forEach((part, pi) => {
-      const qty = (data.parts[part] !== undefined) ? data.parts[part] : 0;
+      const qty = parts[part] !== undefined ? Number(parts[part]) : null;
+      const std = stdQty[part] ? Number(stdQty[part]) : 0;
       const isLast = pi === group.parts.length - 1;
-      html += `<div style="display:flex;align-items:center;gap:10px;padding:10px 14px;${isLast?'':'border-bottom:0.5px solid var(--border)'}">
-        <span style="flex:1;font-size:14px;color:var(--text)">${part}</span>
-        <div style="display:flex;align-items:center;gap:0;border:0.5px solid var(--border);border-radius:8px;overflow:hidden;background:var(--card2)">
-          <button onclick="tkSetPart('${part.replace(/'/g,"\\'")}',${qty-1})" style="width:32px;height:32px;background:none;border:none;color:var(--text);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center">−</button>
-          <span style="width:32px;text-align:center;font-size:14px;font-weight:700;color:${qty===0?'var(--muted)':'var(--text)'}">${qty}</span>
-          <button onclick="tkSetPart('${part.replace(/'/g,"\\'")}',${qty+1})" style="width:32px;height:32px;background:none;border:none;color:var(--text);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center">+</button>
-        </div>
-      </div>`;
+      let dotColour = '';
+      if (qty !== null) {
+        dotColour = qty === 0 ? '#f44336' : (std > 0 && qty <= std * 0.5) ? '#ff9800' : '#4caf50';
+      }
+      const dot = dotColour
+        ? '<span style="width:8px;height:8px;border-radius:50%;background:' + dotColour + ';flex-shrink:0;display:inline-block;margin-right:8px"></span>'
+        : '<span style="width:16px;flex-shrink:0;display:inline-block"></span>';
+      const qtyStr = qty !== null ? String(qty) : '—';
+      const qtyColour = qty === 0 ? '#f44336' : qty === null ? 'var(--muted)' : 'var(--text)';
+      html += '<div style="display:flex;align-items:center;padding:11px 14px;' + (isLast ? '' : 'border-bottom:0.5px solid var(--border)') + '">' +
+        dot +
+        '<span style="flex:1;font-size:14px;color:' + (qty === null ? 'var(--muted)' : 'var(--text)') + '">' + part + '</span>' +
+        '<span style="font-size:16px;font-weight:700;color:' + qtyColour + ';min-width:32px;text-align:right">' + qtyStr + '</span>' +
+        (std ? '<span style="font-size:11px;color:var(--muted);margin-left:6px">/ ' + std + '</span>' : '') +
+        '</div>';
     });
-    html += `</div></div>`;
+    html += '</div></div>';
   });
   el.innerHTML = html;
 }
 
-function tkSetPart(name, qty) {
-  const data = tkLoad();
-  if (!data.parts) data.parts = {};
-  data.parts[name] = Math.max(0, qty);
-  tkSave(data); tkRenderParts();
+async function tkDeductParts(techName, partsUsed) {
+  if (!TOOLKIT_WEBHOOK || !techName || !partsUsed || !Object.keys(partsUsed).length) return;
+  try {
+    await fetch(TOOLKIT_WEBHOOK, {
+      method: 'POST', mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'deductParts', technician: techName, parts: partsUsed }),
+    });
+    const stored = tkLoad();
+    if (stored.parts && stored.techName === techName) {
+      Object.entries(partsUsed).forEach(([part, qty]) => {
+        if (stored.parts[part] !== undefined) stored.parts[part] = Math.max(0, (stored.parts[part] || 0) - Number(qty));
+      });
+      tkSave(stored);
+    }
+  } catch(e) {}
 }
 
-function tkAddItem() {
-  const input = document.getElementById('tkNewItem');
-  const name = input.value.trim();
-  if (!name) return;
-  const data = tkLoad();
-  if (!data.items) data.items = [];
-  data.items.push({ name, checked: false });
-  tkSave(data); tkRenderTools();
-  input.value = '';
-}
-
-function tkToggleItem(i) {
-  const data = tkLoad();
-  data.items[i].checked = !data.items[i].checked;
-  tkSave(data); tkRenderTools();
-}
-
-function tkRemoveItem(i) {
-  const data = tkLoad();
-  data.items.splice(i, 1);
-  tkSave(data); tkRenderTools();
-}
-
-function tkClearAll() {
-  if (!confirm('Reset all quantities to zero?')) return;
-  const data = tkLoad();
-  data.parts = {};
-  tkSave(data); tkRender();
-}
+// Stubs so nothing breaks
+function tkRenderParts() {}
+function tkRenderTools() {}
+function tkRenderCons()  {}
+function tkSetPart()     {}
+function tkAddItem()     {}
+function tkAddCons()     {}
+function tkRemoveCons()  {}
+function tkRemoveItem()  {}
 
 // ── VENUE DROPDOWN ────────────────────────────────────
 const VENUES_KEY = 'bx_venues';
+const VENUE_DATA_KEY = 'bx_venue_data'; // { venueName: { locations: [...] } }
+let venueData = {}; // loaded from localStorage + sheet
+let selectedVenueName = ''; // currently selected known venue
 
 function getVenues() {
   try { return JSON.parse(localStorage.getItem(VENUES_KEY) || '[]'); } catch(e) { return []; }
 }
-
 function saveVenues(list) {
   try { localStorage.setItem(VENUES_KEY, JSON.stringify(list)); } catch(e) {}
+}
+function getVenueData() {
+  try { return JSON.parse(localStorage.getItem(VENUE_DATA_KEY) || '{}'); } catch(e) { return {}; }
+}
+function saveVenueData(data) {
+  try { localStorage.setItem(VENUE_DATA_KEY, JSON.stringify(data)); } catch(e) {}
 }
 
 function addVenueIfNew(name) {
@@ -3288,7 +3436,6 @@ function addVenueIfNew(name) {
     venues.push(trimmed);
     venues.sort((a,b) => a.localeCompare(b));
     saveVenues(venues);
-    populateVenueLists();
   }
 }
 
@@ -3301,26 +3448,196 @@ function populateVenueLists() {
   });
 }
 
-function handleVenueInput(input, fieldId) {
-  // Save local state
-  if (fieldId === 'per_venue') perSaveLocal();
+function onVenueInput(val) {
+  prerSave();
+  const venues = getVenues();
+  const q = val.trim().toLowerCase();
+  const dropdown = document.getElementById('venueDropdown');
+  const loadBtn = document.getElementById('venueLoadBtn');
+  selectedVenueName = '';
+  loadBtn.style.display = 'none';
+
+  // Check if typed value exactly matches a known venue
+  const exact = venues.find(v => v.toLowerCase() === q);
+  if (exact) {
+    selectedVenueName = exact;
+    loadBtn.style.display = 'block';
+    dropdown.style.display = 'none';
+    return;
+  }
+
+  // Show filtered dropdown
+  if (!q) { dropdown.style.display = 'none'; return; }
+  const matches = venues.filter(v => v.toLowerCase().includes(q));
+  const showNew = !exact;
+  const items = matches.map(v => `
+    <div onclick="selectVenue('${v.replace(/'/g,"\\'")}');onVenueInput('${v.replace(/'/g,"\\'")}');"
+      style="padding:10px 14px;font-size:13px;cursor:pointer;border-bottom:0.5px solid var(--border);color:var(--text)"
+      onmousedown="event.preventDefault()">
+      ${v}
+    </div>`).join('');
+  const newItem = showNew ? `
+    <div onclick="confirmNewVenue('${val.trim().replace(/'/g,"\\'")}');"
+      style="padding:10px 14px;font-size:13px;cursor:pointer;color:var(--pink);font-weight:600;border-bottom:0.5px solid var(--border)"
+      onmousedown="event.preventDefault()">
+      ＋ Add "${val.trim()}" as new venue
+    </div>` : '';
+  dropdown.innerHTML = items + newItem;
+  dropdown.style.display = (items || newItem) ? 'block' : 'none';
+}
+
+function selectVenue(name) {
+  document.getElementById('venue').value = name;
+  selectedVenueName = name;
+  document.getElementById('venueDropdown').style.display = 'none';
+  document.getElementById('venueLoadBtn').style.display = 'block';
+  prerSave();
+}
+
+function hideVenueDropdown() {
+  const dropdown = document.getElementById('venueDropdown');
+  if (dropdown) dropdown.style.display = 'none';
+}
+
+function confirmNewVenue(name) {
+  hideVenueDropdown();
+  document.getElementById('venue').value = name;
+  selectedVenueName = '';
+  prerSave();
+  alert(`"${name}" will be added as a new venue and will be available to all technicians once submitted.`);
+}
+
+function loadPreviousVenueInfo() {
+  if (!selectedVenueName) return;
+  if (!confirm(`Load machine info from the last submission for "${selectedVenueName}"? This will replace any locations you've already added.`)) return;
+
+  // Show loading state
+  const btn = document.getElementById('venueLoadBtn');
+  if (btn) { btn.textContent = 'Loading…'; btn.disabled = true; }
+
+  // Use getPreviousReport which returns the full raw snapshot with correct machine types
+  fetch(PRE_WEBHOOK + '?action=getPreviousReport&venue=' + encodeURIComponent(selectedVenueName))
+    .then(r => r.json())
+    .then(data => {
+      if (btn) { btn.textContent = 'Load previous report'; btn.disabled = false; }
+      const locs = data && data.locations;
+      if (!locs || !locs.length) {
+        alert('No previous data found for this venue.');
+        return;
+      }
+  // Hide the load button once loaded successfully
+  const loadBtnWrap = document.getElementById('venueLoadBtn');
+  if (loadBtnWrap) loadBtnWrap.style.display = 'none';
+
+  applyPreviousReportData(locs);
+    })
+    .catch(() => {
+      if (btn) { btn.textContent = 'Load previous report'; btn.disabled = false; }
+      // Fallback to cached venue data
+      const vd = getVenueData();
+      const venueInfo = vd[selectedVenueName];
+      if (!venueInfo || !venueInfo.locations || !venueInfo.locations.length) {
+        alert('No previous data found for this venue. Check your connection.');
+        return;
+      }
+      const loadBtnWrap = document.getElementById('venueLoadBtn');
+      if (loadBtnWrap) loadBtnWrap.style.display = 'none';
+      applyPreviousReportData(venueInfo.locations);
+    });
+}
+
+function applyPreviousReportData(prevLocs) {
+  locations = [];
+  locIdCounter = 0;
+  prevLocs.forEach((prevLoc) => {
+    const id = ++locIdCounter;
+    const locType = prevLoc.machineType || '';
+
+    const machines = (prevLoc.machines || []).map((m, mi) => {
+      // Use per-machine type if set, otherwise fall back to location type
+      const mType = (m.machineType && m.machineType.trim()) ? m.machineType : locType;
+      const fresh = makeMachine(mi + 1, mType);
+      fresh.name         = m.name ? String(m.name).replace(/^M\s*/i, '') : '';
+      fresh.machineType  = mType;
+      fresh.differentType = m.differentType || (mType !== locType && !!mType);
+      fresh.notes        = m.notes || '';
+
+      if (isSpiritMixerType(mType)) {
+        fresh.spirits      = (m.spirits  && m.spirits.length)  ? m.spirits.map(s  => ({ name: s.name  || '', pourTime: '' })) : Array(5).fill(null).map(() => ({name:'',pourTime:''}));
+        fresh.postMix      = (m.postMix  && m.postMix.length)  ? m.postMix.map(p  => ({ name: p.name  || '', pourTime: '' })) : Array(3).fill(null).map(() => ({name:'',pourTime:''}));
+        fresh.primaryPsi   = m.primaryPsi   || prevLoc.primaryPsi   || '';
+        fresh.secondaryPsi = m.secondaryPsi || prevLoc.secondaryPsi || '';
+      } else {
+        fresh.product = m.product || '';
+        fresh.psi     = m.psi     || '';
+        fresh.tap1    = '';
+        fresh.tap2    = '';
+      }
+      return fresh;
+    });
+
+    locations.push({
+      id,
+      name:          prevLoc.name        || '',
+      machineType:   locType,
+      machines:      machines.length ? machines : makeMachinesForType(locType),
+      internet:      prevLoc.internet    || '',
+      testPayment:   prevLoc.testPayment || '',
+      productTemp:   prevLoc.productTemp || '',
+      freshKegs:     prevLoc.freshKegs   || '',
+      notes:         prevLoc.notes       || '',
+      primaryPsi:    prevLoc.primaryPsi  || '',
+      secondaryPsi:  prevLoc.secondaryPsi|| '',
+      staffBOH:'', staffFOH:'', staffFOHBOH:'',
+      staffBOHYN:'', staffFOHYN:'', staffFOHBOHYN:'',
+      staffBOHQty:'', staffFOHQty:'', staffFOHBOHQty:'',
+      submitted: false,
+    });
+  });
+
+  activeTab = locations.length ? locations[0].id : 'event';
+  prerSave();
+  renderTabBar();
+  renderLocationTabs();
+  if (locations.length) switchTab(locations[0].id);
 }
 
 function fetchVenuesFromSheets() {
-  // Fetch known venues from pre-event sheet
-  Promise.all([
-    fetch(PRE_WEBHOOK + '?action=getVenues').then(r => r.json()).catch(() => []),
-    fetch(PER_WEBHOOK + '?action=getVenues').then(r => r.json()).catch(() => []),
-  ]).then(([pre, post]) => {
-    const all = [...new Set([...pre, ...post, ...getVenues()])].sort((a,b) => a.localeCompare(b));
-    saveVenues(all);
-    populateVenueLists();
-  }).catch(() => {});
+  // Fetch venue names + data from pre-event sheet
+  fetch(PRE_WEBHOOK + '?action=getVenueData')
+    .then(r => r.json())
+    .then(data => {
+      if (data && data.venues) {
+        const names = data.venues.map(v => v.name).sort((a,b) => a.localeCompare(b));
+        // Merge with existing local venues
+        const existing = getVenues();
+        const all = [...new Set([...names, ...existing])].sort((a,b) => a.localeCompare(b));
+        saveVenues(all);
+        // Save venue data (most recent location info per venue)
+        const vd = getVenueData();
+        data.venues.forEach(v => { vd[v.name] = { locations: v.locations }; });
+        saveVenueData(vd);
+        populateVenueLists();
+      }
+    })
+    .catch(() => {
+      // Fallback to old getVenues
+      Promise.all([
+        fetch(PRE_WEBHOOK + '?action=getVenues').then(r => r.json()).catch(() => []),
+        fetch(PER_WEBHOOK + '?action=getVenues').then(r => r.json()).catch(() => []),
+      ]).then(([pre, post]) => {
+        const all = [...new Set([...pre, ...post, ...getVenues()])].sort((a,b) => a.localeCompare(b));
+        saveVenues(all);
+        populateVenueLists();
+      }).catch(() => {});
+    });
 }
 
 document.addEventListener('DOMContentLoaded', () => {
   prerLoad();
   perLoadLocal();
+  fetchVenuesFromSheets();
+  tkLoadTechnicians();
 });
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible') {
@@ -3385,8 +3702,6 @@ function selectCalcBrand(name) {
   }
   runCalcUnified();
 }
-
-function runCalc() { runCalcUnified(); }
 
 // Close dropdown on outside tap
 document.addEventListener('click', e => {
@@ -4071,7 +4386,16 @@ function prerLoad() {
       const el = document.getElementById(id);
       if (el && data[id] !== undefined) el.value = data[id];
     });
-    if (data.locations) locations = data.locations;
+    if (data.locations) {
+      // Strip any M prefix from machine names saved by older versions
+      locations = data.locations.map(loc => ({
+        ...loc,
+        machines: (loc.machines || []).map(m => ({
+          ...m,
+          name: m.name ? String(m.name).replace(/^M\s*/i, '') : '',
+        })),
+      }));
+    }
     if (data.locIdCounter) locIdCounter = data.locIdCounter;
     if (data.activeTab) activeTab = data.activeTab;
     if (data.eventSubmitted !== undefined) eventSubmitted = data.eventSubmitted;
@@ -4437,13 +4761,31 @@ function machineCountForType(t) {
   if (!t) return 3;
   if (t.includes('Container')) return 6;
   if (t.includes('Wall Install')) return 1;
+  if (t.includes('Spirit Mixer')) return 3;
   return 3; // Three Bank default
 }
 function makeMachinesForType(type) {
   const count = machineCountForType(type);
   return Array.from({length: count}, (_, i) => makeMachine(i+1, type));
 }
-function makeMachine(num, machineType) { return { num, name:'', machineType: machineType||'', product:'', psi:'', tap1:'', tap2:'', notes:'', primaryPsi:'', secondaryPsi:'', spirits:[{name:'',pourTime:''}], postMix:[{name:'',pourTime:''}], sodaPourTime:'' }; }
+function makeMachine(num, machineType) {
+  const isSM = isSpiritMixerType(machineType);
+  return {
+    num,
+    name: '',
+    machineType: machineType || '',
+    product: '',
+    psi: '',
+    tap1: '',
+    tap2: '',
+    notes: '',
+    primaryPsi: '',
+    secondaryPsi: '',
+    sodaPourTime: '',
+    spirits:  isSM ? [{name:'',pourTime:''},{name:'',pourTime:''},{name:'',pourTime:''},{name:'',pourTime:''},{name:'',pourTime:''}] : [{name:'',pourTime:''}],
+    postMix:  isSM ? [{name:'',pourTime:''},{name:'',pourTime:''},{name:'',pourTime:''}] : [{name:'',pourTime:''}],
+  };
+}
 
 function addLocation() {
   const id = ++locIdCounter;
@@ -4487,7 +4829,10 @@ function addMachine(locId) {
   const loc = locations.find(l => l.id === locId);
   if (!loc) return;
   const lastMachine = loc.machines[loc.machines.length - 1];
-  const lastType = lastMachine ? (lastMachine.machineType || loc.machineType || '') : (loc.machineType || '');
+  // Use the last machine's own type if set, otherwise the location type
+  const lastType = lastMachine
+    ? (lastMachine.machineType && lastMachine.machineType.trim() ? lastMachine.machineType : loc.machineType || '')
+    : (loc.machineType || '');
   let nextName = '';
   if (lastMachine && lastMachine.name) {
     const match = lastMachine.name.match(/^([A-Za-z]*)(\d+)$/);
@@ -4495,6 +4840,13 @@ function addMachine(locId) {
   }
   const m = makeMachine(loc.machines.length + 1, lastType);
   m.name = nextName;
+  // If adding to a Spirit Mixer section, carry over spirits/postMix structure
+  if (isSpiritMixerType(lastType) && lastMachine) {
+    m.spirits  = (lastMachine.spirits  || []).map(s => ({ name: s.name  || '', pourTime: '' }));
+    m.postMix  = (lastMachine.postMix  || []).map(p => ({ name: p.name  || '', pourTime: '' }));
+    m.primaryPsi   = lastMachine.primaryPsi   || loc.primaryPsi   || '';
+    m.secondaryPsi = lastMachine.secondaryPsi || loc.secondaryPsi || '';
+  }
   loc.machines.push(m);
   prerSave();
   renderLocationTabs();
@@ -4567,15 +4919,6 @@ function removeMachine(locId, mIdx) {
   renderLocationTabs();
 }
 
-function unsubmitLocation(locId) {
-  const loc = locations.find(l => l.id === locId);
-  if (!loc) return;
-  if (!confirm('This will mark the location as unsubmitted so it can be edited and resubmitted. The previous submission on the sheet will not be removed — are you sure?')) return;
-  loc.submitted = false;
-  prerSave();
-  renderLocationTabs();
-}
-
 function clearReportNewEvent() {
   if (!confirm('Clear everything and start a new event?')) return;
   clearAll();
@@ -4610,13 +4953,6 @@ function goToLocFromOverlay(locId) {
   const overlay = document.getElementById('eventSubmittedOverlay');
   if (overlay) overlay.style.display = 'none';
   switchTab(locId);
-}
-
-function unsubmitEvent() {
-  if (!confirm('Mark the event as unsubmitted? The previous sheet entry will not be removed.')) return;
-  eventSubmitted = false;
-  prerSave();
-  switchTab('event');
 }
 
 function setLocField(id, field, val) {
@@ -4688,9 +5024,14 @@ function applySpiritMixerToAll(locId) {
   loc.machines.forEach(m => {
     if (m === src) return;
     if (!isSpiritMixerType(m.machineType || loc.machineType)) return;
-    m.spirits = (src.spirits || []).map(s => ({ name: s.name, pourTime: '' }));
-    m.postMix = (src.postMix  || []).map(p => ({ name: p.name, pourTime: '' }));
+    m.spirits    = (src.spirits || []).map(s => ({ name: s.name, pourTime: '' }));
+    m.postMix    = (src.postMix  || []).map(p => ({ name: p.name, pourTime: '' }));
+    m.primaryPsi   = src.primaryPsi   || '';
+    m.secondaryPsi = src.secondaryPsi || '';
   });
+  // Also apply PSI at location level (shared across all SM machines)
+  loc.primaryPsi   = src.primaryPsi   || '';
+  loc.secondaryPsi = src.secondaryPsi || '';
   prerSave();
   renderLocationTabs();
 }
@@ -4732,7 +5073,7 @@ function fmtTime(val) {
 function buildSingleLocText(loc) {
   const allSM = loc.machines.every(m => isSpiritMixerType(m.machineType || loc.machineType));
   const locName = loc.name || 'Location';
-  let r = `${locName}\n`;
+  let r = `*${locName}*\n`;
   if (loc.machineType) r += `Machine Type: ${loc.machineType}\n`;
   if (!allSM) {
     if (loc.productTemp) r += `Product Temp: ${loc.productTemp}°C\n`;
@@ -4831,14 +5172,6 @@ function copyText(txt) {
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(txt).then(showToast).catch(()=>fbCopy(txt));
   } else { fbCopy(txt); }
-}
-function copyEventReport() { copyText(buildEventReport()); }
-function copySingleLoc(id) { const loc = locations.find(l => l.id === id); if (loc) copyText(buildSingleLocText(loc)); }
-function shareLocTeams(id) {
-  const loc = locations.find(l => l.id === id);
-  if (!loc) return;
-  const text = buildSingleLocText(loc);
-  window.open('https://teams.microsoft.com/l/chat/0/0?message=' + encodeURIComponent(text), '_blank');
 }
 
 
