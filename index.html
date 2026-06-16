@@ -318,7 +318,7 @@ header {
   </svg>
   <div class="header-left">
     <h1>Boxbar Technician Assist</h1>
-    <p style="opacity:0.7;font-size:10px;letter-spacing:0.3px">Early Beta v5.7</p>
+    <p style="opacity:0.7;font-size:10px;letter-spacing:0.3px">Early Beta v5.8</p>
   </div>
 </header>
 
@@ -2841,9 +2841,9 @@ const APP_VERSION = '5.2';
 (function() {
   const stored = localStorage.getItem('bx_app_version');
   if (stored !== APP_VERSION) {
-    // Clear stale venue cache so sheet data takes over
     localStorage.removeItem('bx_venues');
     localStorage.removeItem('bx_venue_data');
+    localStorage.removeItem('bx_toolkit_v2'); // clear old toolkit cache
     localStorage.setItem('bx_app_version', APP_VERSION);
   }
 })();
@@ -3215,20 +3215,30 @@ function tkGetTechNames() {
 }
 
 function tkRender() {
-  // Called when page opens - restore last session
+  // Clear any stale edit state
+  tkEditMode = false;
+  tkEdits = {};
+  const submitRow = document.getElementById('tkSubmitRow');
+  const editBtn = document.getElementById('tkEditBtn');
+  if (submitRow) submitRow.style.display = 'none';
+  if (editBtn) editBtn.textContent = 'Manual Add / Subtract';
+
+  // Restore last session if available
   const d = tkLoad();
-  if (d.techName) {
+  if (d.techName && d.parts && Object.keys(d.parts).length) {
     tkCurrentTech = d.techName;
+    tkPartsData = d.parts;
+    tkStdData = d.std || {};
     const inp = document.getElementById('tkNameInput');
     if (inp) inp.value = d.techName;
     document.getElementById('tkHeaderSub').textContent = d.techName;
-    if (d.parts) {
-      tkPartsData = d.parts;
-      tkStdData = d.std || {};
-      tkShowParts();
-    }
+    tkShowParts();
+  } else {
+    // Reset to clean state
+    document.getElementById('tkPartsSection').style.display = 'none';
+    document.getElementById('tkNoData').style.display = 'none';
+    document.getElementById('tkLoadingState').style.display = 'none';
   }
-  // Always fetch fresh tech names for dropdown
   tkFetchTechNames();
 }
 
