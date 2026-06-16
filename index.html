@@ -318,7 +318,7 @@ header {
   </svg>
   <div class="header-left">
     <h1>Boxbar Technician Assist</h1>
-    <p style="opacity:0.7;font-size:10px;letter-spacing:0.3px">Early Beta v5.9</p>
+    <p style="opacity:0.7;font-size:10px;letter-spacing:0.3px">Early Beta v6.0</p>
   </div>
 </header>
 
@@ -2857,7 +2857,7 @@ const APP_VERSION = '5.2';
 })();
 const PRE_WEBHOOK = 'https://script.google.com/macros/s/AKfycbyMwKu27xHtDF_taL-8Wd9gInaAa9HTYe9ylt-Ihz4S6VY9qODsR7dih8tFVs5Y4GuD/exec'; // Pre-event sheet
 const PER_WEBHOOK = 'https://script.google.com/macros/s/AKfycbyRvlQjMnaiYLnzkKoM1tmWFY88J_SoYlJBnX1RKb3BaDbdRyZD-wTpqVsvRON6HU7MMQ/exec'; // Post-event sheet
-const TOOLKIT_WEBHOOK = 'https://script.google.com/macros/s/AKfycbyFMpyKsmHBT15XuWMlwd2-Zm7ob5lx_wyiwMBnpvu69pH-PXxT7NNjNbIGK6i3FG7i/exec';
+const TOOLKIT_WEBHOOK = 'https://script.google.com/macros/s/AKfycbzXpzHZnk5-JhDxE4YfKTAKMwOv8OCft2Eom1tCklTidIAFLuCl1fGKhxR_LR_6SuKm/exec';
 const PER_DRIVE_FOLDER = '1nj8_tle6eS7vxsPvn8VDUhjhEc5QEBFI';
 
 const perYNState = {};
@@ -3347,10 +3347,13 @@ function tkShowParts() {
   if (!el) return;
   document.getElementById('tkPartsSection').style.display = 'block';
   document.getElementById('tkNoData').style.display = 'none';
+  document.getElementById('tkLoadingState').style.display = 'none';
   tkEditMode = false;
   tkEdits = {};
-  document.getElementById('tkSubmitRow').style.display = 'none';
-  document.getElementById('tkEditBtn').textContent = 'Manual Add / Subtract';
+  const submitRow = document.getElementById('tkSubmitRow');
+  const editBtn = document.getElementById('tkEditBtn');
+  if (submitRow) { submitRow.style.display = 'none'; submitRow.style.visibility = 'hidden'; }
+  if (editBtn) editBtn.textContent = 'Edit';
 
   const parts = tkPartsData;
   const std = tkStdData;
@@ -3384,7 +3387,11 @@ function tkToggleEditMode() {
   tkEditMode = !tkEditMode;
   tkEdits = {};
   document.getElementById('tkEditBtn').textContent = tkEditMode ? 'Cancel' : 'Edit';
-  document.getElementById('tkSubmitRow').style.display = tkEditMode ? 'block' : 'none';
+  const submitRow = document.getElementById('tkSubmitRow');
+  if (submitRow) {
+    submitRow.style.display = tkEditMode ? 'block' : 'none';
+    submitRow.style.visibility = tkEditMode ? 'visible' : 'hidden';
+  }
   const partNames = Object.keys(tkPartsData);
   partNames.forEach((part, pi) => {
     const qty = document.getElementById('tkQty_' + pi);
