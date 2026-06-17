@@ -248,7 +248,9 @@ header {
 .ts-no-result { text-align:center;padding:40px 20px;color:var(--muted);font-size:14px;line-height:1.6; }
 /* MANUAL PAGES */
 #manualPage { display: none; }
+#maintenancePage { display: none; }
 #manualPage.active { display: block; }
+#maintenancePage.active { display: block; }
 #componentPage { display: none; }
 #componentPage.active { display: block; }
 .manual-row {
@@ -318,7 +320,7 @@ header {
   </svg>
   <div class="header-left">
     <h1>Boxbar Technician Assist</h1>
-    <p style="opacity:0.7;font-size:10px;letter-spacing:0.3px">Early Beta v6.0</p>
+    <p style="opacity:0.7;font-size:10px;letter-spacing:0.3px">Early Beta v6.7</p>
   </div>
 </header>
 
@@ -340,12 +342,12 @@ header {
     <span class="home-big-arr">›</span>
   </button>
 
-  <button class="home-big-btn home-big-btn--dim" style="cursor:default">
+  <button class="home-big-btn" onclick="showPage('maintenancePage');maintInit()">
     <div style="flex:1;min-width:0">
-      <span class="home-big-label" style="color:var(--muted)">Maintenance Report</span>
-      <div class="home-big-desc">Coming soon</div>
+      <span class="home-big-label">Maintenance Report</span>
+      <div class="home-big-desc">Planned preventive maintenance checklist</div>
     </div>
-    <span style="font-size:11px;font-weight:600;color:var(--muted);background:var(--card2);border-radius:6px;padding:3px 7px;flex-shrink:0">Soon</span>
+    <span class="home-big-arr">›</span>
   </button>
 
   <button class="home-big-btn" onclick="showPage('toolkitPage')">
@@ -1118,6 +1120,118 @@ header {
 </div><!-- /gasPage -->
 
 <!-- ══════════════════════════════ MANUAL INDEX PAGE ══════════════════════════════ -->
+<!-- ══════════════════════════════ MAINTENANCE PAGE ══════════════════════════════ -->
+<div id="maintenancePage">
+<header>
+  <svg class="header-logo-small" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <rect x="23" y="5" width="63" height="90" fill="white"/>
+    <rect x="23" y="5" width="63" height="10.8" fill="#E91E8C"/>
+    <rect x="23" y="84.2" width="63" height="10.8" fill="#E91E8C"/>
+    <rect x="23" y="15.8" width="14.8" height="17.1" fill="#E91E8C"/>
+    <rect x="23" y="67.1" width="14.8" height="17.1" fill="#E91E8C"/>
+    <rect x="37.8" y="32.9" width="18.4" height="34.2" fill="#E91E8C"/>
+    <polygon points="63.5,15.8 86,15.8 86,32.9 71.4,32.9 71.4,25.7" fill="#E91E8C"/>
+    <polygon points="71.4,32.9 86,32.9 86,50 63.5,50 71.4,41.5" fill="#E91E8C"/>
+    <polygon points="63.5,50 86,50 86,67.1 71.4,67.1 71.4,58.5" fill="#E91E8C"/>
+    <polygon points="71.4,67.1 86,67.1 86,84.2 63.5,84.2 71.4,76" fill="#E91E8C"/>
+  </svg>
+  <div class="header-left">
+    <h1>Maintenance</h1>
+    <p id="maintHeaderSub">PPM Checklist</p>
+  </div>
+  <button class="back-btn" onclick="showPage('homePage')">‹ Home</button>
+</header>
+
+<!-- TAB BAR -->
+<div style="margin:10px 12px 0;display:flex;align-items:center;gap:6px">
+  <div style="display:flex;gap:6px;flex:1">
+    <button id="maintTabDetails" onclick="maintSwitchTab('details')" style="flex:1;padding:8px 4px;border-radius:8px;font-size:11px;font-weight:700;font-family:inherit;cursor:pointer;border:0.5px solid var(--pink);background:var(--pink);color:#fff;display:flex;align-items:center;justify-content:center;gap:5px">
+      <span style="width:18px;height:18px;border-radius:50%;background:rgba(255,255,255,0.3);display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0">1</span>Details
+    </button>
+    <button id="maintTabInitial" onclick="maintSwitchTab('initial')" style="flex:1;padding:8px 4px;border-radius:8px;font-size:11px;font-weight:700;font-family:inherit;cursor:pointer;border:0.5px solid var(--border);background:var(--card2);color:var(--muted);display:flex;align-items:center;justify-content:center;gap:5px">
+      <span style="width:18px;height:18px;border-radius:50%;background:rgba(233,30,140,0.15);display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--pink);flex-shrink:0">2</span>Initial
+    </button>
+    <button id="maintTabPost" onclick="maintSwitchTab('post')" style="flex:1;padding:8px 4px;border-radius:8px;font-size:11px;font-weight:700;font-family:inherit;cursor:pointer;border:0.5px solid var(--border);background:var(--card2);color:var(--muted);display:flex;align-items:center;justify-content:center;gap:5px">
+      <span style="width:18px;height:18px;border-radius:50%;background:rgba(233,30,140,0.15);display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--pink);flex-shrink:0">3</span>Post
+    </button>
+  </div>
+  <!-- Top-right copy + clear -->
+  <button onclick="maintCopyReport()" title="Copy" style="padding:7px 9px;background:rgba(255,255,255,0.06);border:0.5px solid var(--border);border-radius:8px;cursor:pointer;display:flex;align-items:center">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+  </button>
+  <button onclick="maintClear()" title="Clear" style="padding:7px 9px;background:rgba(255,59,48,0.1);border:0.5px solid rgba(255,59,48,0.3);border-radius:8px;cursor:pointer;color:#ff3b30;font-size:12px;font-weight:700;font-family:inherit">Clear</button>
+</div>
+
+<div style="padding:0 0 120px">
+
+  <!-- VISIT DETAILS TAB -->
+  <div id="maintTabDetailsContent" style="display:block">
+    <div style="margin:12px 12px 0;background:var(--card);border:0.5px solid var(--border);border-radius:var(--radius);overflow:hidden">
+      <div style="padding:10px 14px;background:var(--pink)"><span style="font-size:12px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:0.05em">Visit Details</span></div>
+      <div class="field-row" style="flex-direction:column;align-items:stretch;gap:0;padding:0;position:relative">
+        <div style="display:flex;align-items:center;padding:10px 14px 4px">
+          <span class="field-label" style="flex:1">Site / Venue</span>
+        </div>
+        <div style="position:relative;padding:0 14px 10px">
+          <input class="field-input" id="maint_venue" type="text" placeholder="Search or add venue…" autocomplete="off"
+            oninput="maintSave();maintOnVenueInput(this.value)"
+            onblur="setTimeout(maintHideVenueDropdown,200)"
+            style="width:100%;box-sizing:border-box">
+          <div id="maintVenueDropdown" style="display:none;position:absolute;left:14px;right:14px;top:100%;margin-top:-10px;background:var(--card2);border:0.5px solid var(--border);border-radius:0 0 8px 8px;overflow:hidden;max-height:200px;overflow-y:auto;z-index:50"></div>
+        </div>
+      </div>
+      <div class="field-row"><span class="field-label">Technician</span><input class="field-input" id="maint_tech" type="text" placeholder="Your name" oninput="maintSave()"></div>
+      <div class="field-row date-row"><span class="field-label">Visit Date</span><button class="today-btn" onclick="maintSetToday()">Today</button><input class="field-input" id="maint_date" type="date" oninput="maintSave()" onchange="maintSave()"></div>
+      <div class="field-row" style="border-bottom:none"><span class="field-label">Next PPM Due</span><input class="field-input" id="maint_next_ppm" type="date" oninput="maintSave()" onchange="maintSave()"></div>
+    </div>
+    <div style="margin:12px 12px 0">
+      <button onclick="maintSwitchTab('initial')" style="width:100%;padding:14px;background:var(--pink);color:#fff;border:none;border-radius:var(--radius);font-size:14px;font-weight:700;font-family:inherit;cursor:pointer">Start Initial Assessment →</button>
+    </div>
+  </div>
+
+  <!-- INITIAL ASSESSMENT TAB -->
+  <div id="maintTabInitialContent" style="display:none">
+    <div id="maintChecklistInitial"></div>
+    <div style="margin:12px 12px 0">
+      <button onclick="maintSwitchTab('post');maintRenderPost()" style="width:100%;padding:14px;background:var(--pink);color:#fff;border:none;border-radius:var(--radius);font-size:14px;font-weight:700;font-family:inherit;cursor:pointer">Continue to Post Maintenance →</button>
+    </div>
+  </div>
+
+  <!-- POST MAINTENANCE TAB -->
+  <div id="maintTabPostContent" style="display:none">
+    <div id="maintChecklistPost"></div>
+
+    <!-- VISIT RESULT -->
+    <div style="margin:12px 12px 0;background:var(--card);border:0.5px solid var(--border);border-radius:var(--radius);overflow:hidden">
+      <div style="padding:10px 14px;background:var(--pink)"><span style="font-size:12px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:0.05em">Visit Result</span></div>
+      <div style="display:flex;gap:0;padding:12px 14px">
+        <button id="maintResultClear" onclick="maintSetResult('ALL CLEAR')"
+          style="flex:1;padding:12px;border:0.5px solid var(--border);border-radius:8px 0 0 8px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;background:var(--card2);color:var(--muted)">✓ All Clear</button>
+        <button id="maintResultAction" onclick="maintSetResult('ACTION REQUIRED')"
+          style="flex:1;padding:12px;border:0.5px solid var(--border);border-left:none;border-radius:0 8px 8px 0;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;background:var(--card2);color:var(--muted)">⚠ Action Required</button>
+      </div>
+    </div>
+
+    <!-- ACTIONS REQUIRED (only shown when result = ACTION REQUIRED) -->
+    <div id="maintActionsSection" style="display:none;margin:12px 12px 0">
+      <div style="background:var(--card);border:0.5px solid var(--border);border-radius:var(--radius);overflow:hidden">
+        <div style="padding:10px 14px;background:var(--pink)"><span style="font-size:12px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:0.05em">Actions Required</span></div>
+        <div id="maintActionsList" style="padding:8px 14px;display:flex;flex-direction:column;gap:8px"></div>
+        <div style="padding:8px 14px;border-top:0.5px solid var(--border)">
+          <button onclick="maintAddAction()" style="width:100%;padding:10px;background:var(--pink-light);color:var(--pink);border:0.5px solid var(--pink-border);border-radius:8px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer">＋ Add Action</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUBMIT -->
+    <div style="margin:12px 12px 0">
+      <button onclick="maintSubmit()" style="width:100%;padding:14px;background:var(--pink);color:#fff;border:none;border-radius:var(--radius);font-size:14px;font-weight:700;font-family:inherit;cursor:pointer">Submit Maintenance Report</button>
+    </div>
+  </div>
+
+</div>
+</div><!-- /maintenancePage -->
+
 <div id="manualPage">
 <header>
   <svg class="header-logo-small" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
@@ -2555,7 +2669,7 @@ function goToGas() {
 }
 function goHome() { showPage('homePage'); }
 function showPage(id) {
-  ['homePage','reportPage','gasPage','manualPage','componentPage','troubleshootPage','tsL2Page','tsL3Page','tsHtPage','postEventPage','toolkitPage'].forEach(p => {
+  ['homePage','reportPage','gasPage','manualPage','componentPage','troubleshootPage','tsL2Page','tsL3Page','tsHtPage','postEventPage','toolkitPage','maintenancePage'].forEach(p => {
     document.getElementById(p).classList.remove('active');
   });
   document.getElementById(id).classList.add('active');
@@ -2574,7 +2688,7 @@ window.addEventListener('popstate', e => {
   prerSave();
   perSaveLocal();
   const page = e.state?.appPage || 'homePage';
-  ['homePage','reportPage','gasPage','manualPage','componentPage','troubleshootPage','tsL2Page','tsL3Page','tsHtPage','postEventPage','toolkitPage'].forEach(p => {
+  ['homePage','reportPage','gasPage','manualPage','componentPage','troubleshootPage','tsL2Page','tsL3Page','tsHtPage','postEventPage','toolkitPage','maintenancePage'].forEach(p => {
     document.getElementById(p).classList.remove('active');
   });
   document.getElementById(page).classList.add('active');
@@ -2857,7 +2971,9 @@ const APP_VERSION = '5.2';
 })();
 const PRE_WEBHOOK = 'https://script.google.com/macros/s/AKfycbyMwKu27xHtDF_taL-8Wd9gInaAa9HTYe9ylt-Ihz4S6VY9qODsR7dih8tFVs5Y4GuD/exec'; // Pre-event sheet
 const PER_WEBHOOK = 'https://script.google.com/macros/s/AKfycbyRvlQjMnaiYLnzkKoM1tmWFY88J_SoYlJBnX1RKb3BaDbdRyZD-wTpqVsvRON6HU7MMQ/exec'; // Post-event sheet
-const TOOLKIT_WEBHOOK = 'https://script.google.com/macros/s/AKfycbzXpzHZnk5-JhDxE4YfKTAKMwOv8OCft2Eom1tCklTidIAFLuCl1fGKhxR_LR_6SuKm/exec';
+const TOOLKIT_WEBHOOK = 'https://script.google.com/macros/s/AKfycbw6Q7s_2uMyXgCpBgPuujWc-Im6x7iDyOTq8DdHsoEYSl24kuRquST1GDF4UDRTmDdG/exec';
+const MAINT_WEBHOOK = 'https://script.google.com/macros/s/AKfycbxgTZ_ga5bCyZ4A5vYIoEkNQ0JpO3-l7ty3AkocQpys6t8OUdgtKak9-UqBG6MpxGQj/exec';
+const MAINT_DRIVE_FOLDER = '1l1cr-HvxtKYeQrEyJP8qH0Drz-PrSpyM';
 const PER_DRIVE_FOLDER = '1nj8_tle6eS7vxsPvn8VDUhjhEc5QEBFI';
 
 const perYNState = {};
@@ -3484,6 +3600,523 @@ function tkToggleItem()  {}
 function tkRemoveItem()  {}
 function tkClearAll()    {}
 function tkToggleTools() {}
+
+// ── MAINTENANCE REPORT ───────────────────────────────────────────────────
+const MAINT_SECTIONS = [
+  { key: 'power', title: 'Power Supply', items: [
+    'Cabling is tidy and routed safely with no exposed wires or pinch points',
+    'Power connections are moisture-safe and away from water hazards',
+    'No trip hazards created by cabling runs',
+    'Power supply voltage is correct for the installation',
+  ]},
+  { key: 'internet', title: 'Internet & Connectivity', items: [
+    'Network cabling is tidy, routed safely and secured',
+    'Ethernet cables and connectors are free from damage',
+    'Speed test has been run and result is acceptable',
+    'Device is connected and showing the correct network',
+  ]},
+  { key: 'gas', title: 'Gas', items: [
+    'Gas system is free from leaks along all connections and fittings',
+    'Gas pressures are set correctly at equilibrium for all products',
+    'All gauges are giving an accurate reading',
+  ]},
+  { key: 'couplers', title: 'Couplers', items: [
+    'All coupler handles move smoothly in both directions with no obstruction',
+    'All brass fittings are fully tightened and seated',
+    'Coupler bodies are free from wear, cracks and beer residue',
+    'Coupler seal moves with the spear and retracts fully',
+  ]},
+  { key: 'fob', title: 'FOB Board & Cellar Buoys', items: [
+    'All buoys are clean and free from beer residue or build-up',
+    'Bleed valve operates correctly and releases as expected',
+    'Lever arm moves freely up and down through its full range',
+    'All buoys and gauges are securely mounted to the FOB board',
+  ]},
+  { key: 'cooler', title: 'Cooler', items: [
+    'Set temperature is correct for the product type being served',
+    'Differential setting is within acceptable range',
+    'Water bath is clean and free from contamination',
+    'Water bath level is correct and has been topped up if required',
+  ]},
+  { key: 'python', title: 'Python', items: [
+    'Python is free from damage, cuts and wear along its full length',
+    'No leaks are present along the python run',
+    'All lines that require insulation are fully covered with no exposed sections',
+  ]},
+  { key: 'beerlines', title: 'Beer Lines', items: [
+    'Lines are visually clean and free from discolouration or yeast build-up',
+    'No kinks or pinch points are present along the line run',
+    'All fittings and connections are fully tightened with no loose joints',
+  ]},
+  { key: 'solenoids', title: 'Solenoids', items: [
+    'Solenoid bodies are clean and free from residue',
+    'Plunger surface is flat with no pitting or damage',
+    'Each solenoid opens and closes correctly when prompted via the software',
+  ]},
+  { key: 'actuators', title: 'Actuators', items: [
+    'Up and down functions operate correctly through the full range of movement',
+    'Food-safe grease has been applied to the coil and track on this visit',
+    'Up/Down time is enough for shield to fully raise and lower',
+  ]},
+  { key: 'drainage', title: 'Drainage', items: [
+    'All drainage fittings are clean and free from blockage',
+    'Water runs freely through the drain with no obstruction',
+    'No drainage is leaking into the POS unit or internal compartments',
+  ]},
+  { key: 'cleanliness', title: 'Cleanliness & Hygiene', items: [
+    'Inside of the black box is clean and free from dust, debris and beer residue',
+    'All internal labels are present, legible and up to date',
+    'All wiring is tidy, secured and not fouling any moving parts',
+    'Area behind the machine is clean and free from debris',
+    'Dispense area is clean and free from spillage or residue',
+    'Machine front and signage are clean and presentable',
+  ]},
+  { key: 'software', title: 'Software', items: [
+    'Boxbar app is running the latest version',
+    'No bugs, glitches or error states are present on the display',
+    'Machine is linked to the correct site profile',
+  ]},
+  { key: 'payment', title: 'Payment Testing', items: [
+    'Test transaction has been run and card payment processed correctly',
+    'External payment devices (where fitted) are paired and tested',
+  ]},
+  { key: 'calibration', title: 'Tap Calibration & System Test', items: [
+    'All taps are calibrated correctly',
+    'System has been fully tested and is operating correctly',
+  ]},
+];
+
+const MAINT_KEY = 'bx_maint';
+let maintTab = 'initial';
+let maintState = {};  // { initial: { power: { items: [pass/fail/''], notes:'', photos:[] }, ... }, post: {...}, actions: [], result: '' }
+let maintPhotoFiles = {}; // { 'initial_power': [File,...], 'post_gas': [File,...] }
+
+function maintLoad() {
+  try { return JSON.parse(localStorage.getItem(MAINT_KEY) || '{}'); } catch(e) { return {}; }
+}
+function maintSave() {
+  const d = maintLoad();
+  d.venue    = document.getElementById('maint_venue')?.value || '';
+  d.tech     = document.getElementById('maint_tech')?.value  || '';
+  d.date     = document.getElementById('maint_date')?.value  || '';
+  d.nextPPM  = document.getElementById('maint_next_ppm')?.value || '';
+  d.checklist = maintState;
+  d.result   = maintState.result || '';
+  try { localStorage.setItem(MAINT_KEY, JSON.stringify(d)); } catch(e) {}
+}
+
+function maintInit() {
+  maintTab = 'details';
+  maintPhotoFiles = {};
+  const d = maintLoad();
+  if (d.venue)   document.getElementById('maint_venue').value   = d.venue;
+  if (d.tech)    document.getElementById('maint_tech').value    = d.tech;
+  if (d.date)    document.getElementById('maint_date').value    = d.date;
+  if (d.nextPPM) document.getElementById('maint_next_ppm').value = d.nextPPM;
+  maintState = d.checklist || { initial: {}, post: {}, actions: [], result: '' };
+  if (!maintState.initial) maintState.initial = {};
+  if (!maintState.post)    maintState.post    = {};
+  if (!maintState.actions) maintState.actions = [];
+  if (!maintState.result)  maintState.result  = '';
+  maintRenderChecklist('initial');
+  maintRenderActions();
+  maintUpdateResult(maintState.result);
+  maintSwitchTab('details');
+}
+
+// Render post tab — only shows sections that had at least one fail in initial
+function maintRenderPost() {
+  const el = document.getElementById('maintChecklistPost');
+  if (!el) return;
+  const failedSections = MAINT_SECTIONS.filter(section => {
+    const sState = maintState.initial[section.key];
+    return sState && sState.items && sState.items.some(v => v === 'fail');
+  });
+  if (!failedSections.length) {
+    el.innerHTML = '<div style="margin:12px 12px 0;padding:24px;text-align:center;color:var(--muted);font-size:13px">No failed items from initial assessment — nothing to re-check.</div>';
+    return;
+  }
+  let html = '<div style="margin:12px 12px 0;background:rgba(255,152,0,0.1);border:0.5px solid #ff9800;border-radius:var(--radius);padding:11px 14px"><p style="font-size:13px;color:#e65100;font-weight:600;margin:0">Only items that failed in the initial assessment are shown here.</p></div>';
+  failedSections.forEach(section => {
+    const sKey = section.key;
+    if (!maintState.post[sKey]) maintState.post[sKey] = { items: section.items.map(() => ''), notes: '', itemNotes: {} };
+    const sState = maintState.post[sKey];
+    const initState = maintState.initial[sKey];
+    const photoKey = `post_${sKey}`;
+    html += `<div style="margin:12px 12px 0;background:var(--card);border:0.5px solid var(--border);border-radius:var(--radius);overflow:hidden">
+      <div style="padding:10px 14px;background:rgba(233,30,140,0.08);border-bottom:0.5px solid var(--pink-border)">
+        <span style="font-size:13px;font-weight:700;color:var(--pink)">${section.title}</span>
+      </div>`;
+    section.items.forEach((item, idx) => {
+      if (initState?.items?.[idx] !== 'fail') return; // only show failed items
+      const val = sState.items[idx] || '';
+      html += `<div style="padding:10px 14px;border-bottom:0.5px solid var(--border)">
+        <div style="font-size:13px;color:var(--text);margin-bottom:8px">${item}</div>
+        <div style="display:flex;gap:8px">
+          <button onclick="maintSetItem('post','${sKey}',${idx},'pass')"
+            style="flex:1;padding:8px;border-radius:8px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;border:0.5px solid ${val==='pass'?'#4caf50':'var(--border)'};background:${val==='pass'?'#d9ead3':'var(--card2)'};color:${val==='pass'?'#2e7d32':'var(--muted)'}">✓ Pass</button>
+          <button onclick="maintSetItem('post','${sKey}',${idx},'fail')"
+            style="flex:1;padding:8px;border-radius:8px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;border:0.5px solid ${val==='fail'?'#f44336':'var(--border)'};background:${val==='fail'?'#f4cccc':'var(--card2)'};color:${val==='fail'?'#c62828':'var(--muted)'}">✗ Fail</button>
+        </div>
+        ${val === 'fail' ? `<textarea placeholder="Describe the issue…" oninput="maintSetNoteItem('post','${sKey}',${idx},this.value)"
+          style="width:100%;margin-top:8px;box-sizing:border-box;background:var(--card2);border:0.5px solid var(--border);border-radius:8px;padding:8px 10px;font-size:13px;font-family:inherit;color:var(--text);outline:none;resize:none;min-height:60px">${sState.itemNotes?.[idx]||''}</textarea>` : ''}
+      </div>`;
+    });
+    html += `<div style="padding:10px 14px;border-bottom:0.5px solid var(--border)">
+      <textarea placeholder="Section notes…" oninput="maintSetSectionNotes('post','${sKey}',this.value)"
+        style="width:100%;box-sizing:border-box;background:var(--card2);border:0.5px solid var(--border);border-radius:8px;padding:8px 10px;font-size:13px;font-family:inherit;color:var(--text);outline:none;resize:none;min-height:50px">${sState.notes||''}</textarea>
+    </div>
+    <div style="padding:10px 14px">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;background:var(--card2);border:0.5px solid var(--border);border-radius:8px;padding:10px 12px">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        <span style="font-size:13px;color:var(--muted)">Add Photos</span>
+        <input type="file" accept="image/*" multiple style="display:none" onchange="maintHandlePhotos('${photoKey}',this)">
+      </label>
+      <div id="maintPhotoPreview_${photoKey}" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px"></div>
+    </div></div>`;
+  });
+  el.innerHTML = html;
+}
+
+function maintSetToday() {
+  const d = new Date();
+  const pad = n => String(n).padStart(2,'0');
+  document.getElementById('maint_date').value = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+  maintSave();
+}
+
+function maintSwitchTab(tab) {
+  maintTab = tab;
+  ['details','initial','post'].forEach(t => {
+    const btn = document.getElementById(`maintTab${t.charAt(0).toUpperCase()+t.slice(1)}`);
+    const content = document.getElementById(`maintTabContent`.replace('Content',`${t.charAt(0).toUpperCase()+t.slice(1)}Content`));
+    // easier:
+  });
+  document.getElementById('maintTabDetailsContent').style.display  = tab === 'details'  ? 'block' : 'none';
+  document.getElementById('maintTabInitialContent').style.display  = tab === 'initial'  ? 'block' : 'none';
+  document.getElementById('maintTabPostContent').style.display     = tab === 'post'     ? 'block' : 'none';
+  ['details','initial','post'].forEach(t => {
+    const idMap = {details:'Details', initial:'Initial', post:'Post'};
+    const btn = document.getElementById(`maintTab${idMap[t]}`);
+    if (!btn) return;
+    const active = t === tab;
+    btn.style.background = active ? 'var(--pink)' : 'var(--card2)';
+    btn.style.color      = active ? '#fff'        : 'var(--muted)';
+    btn.style.border     = active ? '0.5px solid var(--pink)' : '0.5px solid var(--border)';
+  });
+}
+
+function maintRenderChecklist(tab) {
+  const el = document.getElementById(`maintChecklist${tab === 'initial' ? 'Initial' : 'Post'}`);
+  if (!el) return;
+  let html = '';
+  MAINT_SECTIONS.forEach(section => {
+    const sKey = section.key;
+    if (!maintState[tab][sKey]) maintState[tab][sKey] = { items: section.items.map(() => ''), notes: '', itemNotes: {}, itemPhotoKeys: {} };
+    const sState = maintState[tab][sKey];
+    const photoKey = `${tab}_${sKey}`;
+    const anyFail = sState.items.some(v => v === 'fail');
+    const allPass = sState.items.every(v => v === 'pass');
+
+    html += `<div style="margin:12px 12px 0;background:var(--card);border:0.5px solid var(--border);border-radius:var(--radius);overflow:hidden">
+      <div style="padding:10px 14px;background:rgba(233,30,140,0.08);border-bottom:0.5px solid var(--pink-border);display:flex;align-items:center;gap:8px">
+        <span style="font-size:13px;font-weight:700;color:var(--pink);flex:1">${section.title}</span>
+        ${anyFail ? '<span style="font-size:11px;background:#f4cccc;color:#c62828;border-radius:4px;padding:2px 7px;font-weight:700;white-space:nowrap">Issues</span>' : ''}
+        <button onclick="maintSetAllItems('${tab}','${sKey}','pass')"
+          style="padding:5px 9px;border-radius:6px;font-size:11px;font-weight:700;font-family:inherit;cursor:pointer;border:0.5px solid #4caf50;background:${allPass?'#d9ead3':'transparent'};color:${allPass?'#2e7d32':'#4caf50'};white-space:nowrap">✓ All</button>
+        <button onclick="maintSetAllItems('${tab}','${sKey}','fail')"
+          style="padding:5px 9px;border-radius:6px;font-size:11px;font-weight:700;font-family:inherit;cursor:pointer;border:0.5px solid #f44336;background:${anyFail && !allPass?'#f4cccc':'transparent'};color:#f44336;white-space:nowrap">✗ All</button>
+      </div>`;
+
+    section.items.forEach((item, idx) => {
+      const val = sState.items[idx] || '';
+      const failPhotoKey = `${tab}_${sKey}_item${idx}`;
+      html += `<div style="padding:10px 14px;border-bottom:0.5px solid var(--border)">
+        <div style="font-size:13px;color:var(--text);margin-bottom:8px">${item}</div>
+        <div style="display:flex;gap:8px">
+          <button onclick="maintSetItem('${tab}','${sKey}',${idx},'pass')"
+            style="flex:1;padding:8px;border-radius:8px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;border:0.5px solid ${val==='pass'?'#4caf50':'var(--border)'};background:${val==='pass'?'#d9ead3':'var(--card2)'};color:${val==='pass'?'#2e7d32':'var(--muted)'}">✓ Pass</button>
+          <button onclick="maintSetItem('${tab}','${sKey}',${idx},'fail')"
+            style="flex:1;padding:8px;border-radius:8px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;border:0.5px solid ${val==='fail'?'#f44336':'var(--border)'};background:${val==='fail'?'#f4cccc':'var(--card2)'};color:${val==='fail'?'#c62828':'var(--muted)'}">✗ Fail</button>
+        </div>
+        ${val === 'fail' ? `
+        <textarea placeholder="Describe the issue… (required)" oninput="maintSetNoteItem('${tab}','${sKey}',${idx},this.value)"
+          style="width:100%;margin-top:8px;box-sizing:border-box;background:var(--card2);border:0.5px solid #f44336;border-radius:8px;padding:8px 10px;font-size:13px;font-family:inherit;color:var(--text);outline:none;resize:none;min-height:60px">${sState.itemNotes?.[idx]||''}</textarea>
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-top:6px;background:rgba(244,67,54,0.06);border:0.5px solid rgba(244,67,54,0.3);border-radius:8px;padding:8px 10px">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f44336" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          <span style="font-size:12px;color:#f44336;font-weight:600">Add Fail Photo (required)</span>
+          <input type="file" accept="image/*" multiple style="display:none" onchange="maintHandlePhotos('${failPhotoKey}',this)">
+        </label>
+        <div id="maintPhotoPreview_${failPhotoKey}" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px"></div>` : ''}
+      </div>`;
+    });
+
+    // Section pass photos + notes
+    html += `<div style="padding:10px 14px;border-bottom:0.5px solid var(--border)">
+      <div style="font-size:12px;color:var(--muted);margin-bottom:6px;font-weight:600">Section Notes</div>
+      <textarea placeholder="General notes for this section…" oninput="maintSetSectionNotes('${tab}','${sKey}',this.value)"
+        style="width:100%;box-sizing:border-box;background:var(--card2);border:0.5px solid var(--border);border-radius:8px;padding:8px 10px;font-size:13px;font-family:inherit;color:var(--text);outline:none;resize:none;min-height:50px">${sState.notes||''}</textarea>
+    </div>
+    <div style="padding:10px 14px">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;background:var(--card2);border:0.5px solid var(--border);border-radius:8px;padding:9px 12px">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        <span style="font-size:12px;color:var(--muted)">Submit Passed Photos</span>
+        <input type="file" accept="image/*" multiple style="display:none" onchange="maintHandlePhotos('${photoKey}',this)">
+      </label>
+      <div id="maintPhotoPreview_${photoKey}" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px"></div>
+    </div>
+    </div>`;
+  });
+  el.innerHTML = html;
+}
+
+function maintOnVenueInput(val) {
+  const dropdown = document.getElementById('maintVenueDropdown');
+  const q = val.trim().toLowerCase();
+  if (!q) { dropdown.style.display = 'none'; return; }
+  const venues = getVenues();
+  const matches = venues.filter(v => v.toLowerCase().includes(q));
+  const exact = venues.find(v => v.toLowerCase() === q);
+  let html = matches.map(v => {
+    const safe = v.replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+    return `<div onmousedown="event.preventDefault();maintSelectVenue('${safe}')" style="padding:10px 14px;font-size:13px;cursor:pointer;border-bottom:0.5px solid var(--border);color:var(--text)">${v}</div>`;
+  }).join('');
+  if (!exact) {
+    const safe = val.trim().replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+    html += `<div onmousedown="event.preventDefault();maintSelectVenue('${safe}');maintConfirmNewVenue('${safe}')" style="padding:10px 14px;font-size:13px;cursor:pointer;color:var(--pink);font-weight:600">＋ Add "${val.trim()}" as new venue</div>`;
+  }
+  dropdown.innerHTML = html;
+  dropdown.style.display = html ? 'block' : 'none';
+}
+
+function maintSelectVenue(name) {
+  const el = document.getElementById('maint_venue');
+  if (el) el.value = name;
+  maintHideVenueDropdown();
+  maintSave();
+}
+
+function maintConfirmNewVenue(name) {
+  alert(`"${name}" will be added as a new venue. A new sheet tab will be created for it.`);
+}
+
+function maintHideVenueDropdown() {
+  const d = document.getElementById('maintVenueDropdown');
+  if (d) d.style.display = 'none';
+}
+
+function maintSetAllItems(tab, sKey, val) {
+  if (!maintState[tab][sKey]) maintState[tab][sKey] = { items: [], notes: '', itemNotes: {} };
+  maintState[tab][sKey].items = MAINT_SECTIONS.find(s => s.key === sKey).items.map(() => val);
+  maintSave();
+  if (tab === 'initial') { maintRenderChecklist('initial'); maintSwitchTab('initial'); }
+  else { maintRenderPost(); maintSwitchTab('post'); }
+}
+
+function maintCopyReport() {
+  const d = maintLoad();
+  let text = `MAINTENANCE REPORT\n`;
+  text += `Venue: ${d.venue || '—'}\nTechnician: ${d.tech || '—'}\nDate: ${d.date || '—'}\nNext PPM: ${d.nextPPM || '—'}\n\n`;
+  text += `INITIAL ASSESSMENT\n`;
+  MAINT_SECTIONS.forEach(section => {
+    const sState = maintState.initial[section.key];
+    if (!sState) return;
+    const fails = section.items.filter((_, i) => sState.items[i] === 'fail');
+    const passes = section.items.filter((_, i) => sState.items[i] === 'pass');
+    text += `\n${section.title}: ${passes.length}/${section.items.length} pass`;
+    if (fails.length) text += `, ${fails.length} fail\n  Issues: ${fails.join('; ')}`;
+    if (sState.notes) text += `\n  Notes: ${sState.notes}`;
+    text += '\n';
+  });
+  text += `\nPOST MAINTENANCE\n`;
+  MAINT_SECTIONS.forEach(section => {
+    const sState = maintState.post[section.key];
+    const initState = maintState.initial[section.key];
+    if (!sState || !initState?.items?.some(v => v === 'fail')) return;
+    text += `\n${section.title}:\n`;
+    section.items.forEach((item, i) => {
+      if (initState.items[i] !== 'fail') return;
+      text += `  ${item}: ${sState.items[i] || 'not checked'}\n`;
+      if (sState.itemNotes?.[i]) text += `    Note: ${sState.itemNotes[i]}\n`;
+    });
+  });
+  text += `\nResult: ${maintState.result || '—'}\n`;
+  if (maintState.actions?.length) {
+    text += `\nActions:\n`;
+    maintState.actions.forEach((a, i) => { text += `  ${i+1}. ${a.desc} [${a.priority}] — by ${a.targetDate || '—'}\n`; });
+  }
+  copyText(text);
+}
+
+function maintSetItem(tab, sKey, idx, val) {
+  if (!maintState[tab][sKey]) maintState[tab][sKey] = { items: [], notes: '', itemNotes: {} };
+  maintState[tab][sKey].items[idx] = maintState[tab][sKey].items[idx] === val ? '' : val;
+  maintSave();
+  if (tab === 'initial') { maintRenderChecklist('initial'); maintSwitchTab('initial'); }
+  else { maintRenderPost(); maintSwitchTab('post'); }
+}
+
+function maintSetNoteItem(tab, sKey, idx, val) {
+  if (!maintState[tab][sKey].itemNotes) maintState[tab][sKey].itemNotes = {};
+  maintState[tab][sKey].itemNotes[idx] = val;
+  maintSave();
+}
+
+function maintSetSectionNotes(tab, sKey, val) {
+  if (!maintState[tab][sKey]) maintState[tab][sKey] = { items: [], notes: '' };
+  maintState[tab][sKey].notes = val;
+  maintSave();
+}
+
+function maintHandlePhotos(photoKey, input) {
+  const files = Array.from(input.files);
+  if (!maintPhotoFiles[photoKey]) maintPhotoFiles[photoKey] = [];
+  maintPhotoFiles[photoKey] = maintPhotoFiles[photoKey].concat(files);
+  const preview = document.getElementById(`maintPhotoPreview_${photoKey}`);
+  if (!preview) return;
+  files.forEach(f => {
+    const img = document.createElement('img');
+    img.src = URL.createObjectURL(f);
+    img.style.cssText = 'width:64px;height:64px;object-fit:cover;border-radius:6px;border:0.5px solid var(--border)';
+    preview.appendChild(img);
+  });
+}
+
+function maintAddAction() {
+  maintState.actions.push({ desc: '', priority: '', targetDate: '', resolved: false });
+  maintSave();
+  maintRenderActions();
+}
+
+function maintRenderActions() {
+  const el = document.getElementById('maintActionsList');
+  if (!el) return;
+  if (!maintState.actions.length) { el.innerHTML = '<div style="font-size:13px;color:var(--muted);padding:4px 0">No actions added yet.</div>'; return; }
+  el.innerHTML = maintState.actions.map((a, i) => `
+    <div style="background:var(--card2);border:0.5px solid var(--border);border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:8px">
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="font-size:12px;font-weight:700;color:var(--muted)">#${i+1}</span>
+        <input type="text" placeholder="Describe the action required…" value="${esc(a.desc)}"
+          oninput="maintState.actions[${i}].desc=this.value;maintSave()"
+          style="flex:1;background:var(--card);border:0.5px solid var(--border);border-radius:6px;padding:7px 10px;font-size:13px;font-family:inherit;color:var(--text);outline:none">
+        <button onclick="maintRemoveAction(${i})" style="background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer">✕</button>
+      </div>
+      <div style="display:flex;gap:6px">
+        <select oninput="maintState.actions[${i}].priority=this.value;maintSave()"
+          style="flex:1;background:var(--card);border:0.5px solid var(--border);border-radius:6px;padding:7px 8px;font-size:12px;font-family:inherit;color:var(--text);outline:none">
+          <option value="" ${!a.priority?'selected':''}>Priority…</option>
+          <option value="High" ${a.priority==='High'?'selected':''}>High</option>
+          <option value="Medium" ${a.priority==='Medium'?'selected':''}>Medium</option>
+          <option value="Low" ${a.priority==='Low'?'selected':''}>Low</option>
+        </select>
+        <input type="date" value="${a.targetDate||''}" oninput="maintState.actions[${i}].targetDate=this.value;maintSave()"
+          style="flex:1;background:var(--card);border:0.5px solid var(--border);border-radius:6px;padding:7px 8px;font-size:12px;font-family:inherit;color:var(--text);outline:none">
+      </div>
+    </div>`).join('');
+}
+
+function maintRemoveAction(i) {
+  maintState.actions.splice(i, 1);
+  maintSave();
+  maintRenderActions();
+}
+
+function maintSetResult(val) {
+  maintState.result = val;
+  maintSave();
+  maintUpdateResult(val);
+  const actionsSection = document.getElementById('maintActionsSection');
+  if (actionsSection) actionsSection.style.display = val === 'ACTION REQUIRED' ? 'block' : 'none';
+  if (val === 'ACTION REQUIRED') maintRenderActions();
+}
+
+function maintUpdateResult(val) {
+  const clearBtn  = document.getElementById('maintResultClear');
+  const actionBtn = document.getElementById('maintResultAction');
+  if (!clearBtn || !actionBtn) return;
+  clearBtn.style.background  = val === 'ALL CLEAR'        ? '#d9ead3' : 'var(--card2)';
+  clearBtn.style.color       = val === 'ALL CLEAR'        ? '#2e7d32' : 'var(--muted)';
+  clearBtn.style.border      = val === 'ALL CLEAR'        ? '0.5px solid #4caf50' : '0.5px solid var(--border)';
+  actionBtn.style.background = val === 'ACTION REQUIRED'  ? '#f4cccc' : 'var(--card2)';
+  actionBtn.style.color      = val === 'ACTION REQUIRED'  ? '#c62828' : 'var(--muted)';
+  actionBtn.style.border     = val === 'ACTION REQUIRED'  ? '0.5px solid #f44336' : '0.5px solid var(--border)';
+}
+
+async function maintSubmit() {
+  const venue   = document.getElementById('maint_venue')?.value.trim();
+  const tech    = document.getElementById('maint_tech')?.value.trim();
+  const date    = document.getElementById('maint_date')?.value.trim();
+  if (!venue || !tech || !date) { alert('Please fill in Venue, Technician and Date before submitting.'); return; }
+  if (!MAINT_WEBHOOK) { alert('Maintenance webhook not yet configured.'); return; }
+
+  const pg = document.getElementById('preSubmittingPage');
+  document.getElementById('preSubmitTitle').textContent = 'Submitting';
+  document.getElementById('preSubmitSub').innerHTML = 'Uploading maintenance report…<br>Please wait';
+  document.getElementById('preSubmitDoneBtn').style.display = 'none';
+  document.getElementById('preSubmitDotWrap').style.display = '';
+  pg.style.display = 'flex';
+
+  try {
+    const allPhotoKeys = Object.keys(maintPhotoFiles);
+    for (let ki = 0; ki < allPhotoKeys.length; ki++) {
+      const photoKey = allPhotoKeys[ki];
+      const files = maintPhotoFiles[photoKey];
+      if (!files || !files.length) continue;
+      const parts = photoKey.split('_');
+      const tab = parts[0];
+      const folderType = tab === 'initial' ? 'Pre-Maintenance Photos' : 'Post-Maintenance Photos';
+      // Per-item fail photos have format: tab_sKey_itemN — section pass photos are tab_sKey
+      const isFailPhoto = parts.length >= 3 && parts[parts.length - 1].startsWith('item');
+      const photoSubfolder = isFailPhoto ? 'Fail Photos' : 'Pass Photos';
+      const sKey = isFailPhoto ? parts.slice(1, -1).join('_') : parts.slice(1).join('_');
+      for (let fi = 0; fi < files.length; fi++) {
+        const { base64, mimeType, filename } = await compressImage(files[fi]);
+        await fetch(MAINT_WEBHOOK, {
+          method: 'POST', mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'uploadPhoto', venue, date, folderType, photoSubfolder, section: sKey, filename, mimeType, data: base64 }),
+        });
+      }
+    }
+
+    // Submit report
+    const payload = {
+      action   : 'maintReport',
+      venue, tech, date,
+      nextPPM  : document.getElementById('maint_next_ppm')?.value || '',
+      initial  : maintState.initial,
+      post     : maintState.post,
+      actions  : maintState.actions,
+      result   : maintState.result,
+    };
+    await fetch(MAINT_WEBHOOK, {
+      method: 'POST', mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+
+    document.getElementById('preSubmitDotWrap').style.display = 'none';
+    document.getElementById('preSubmitTitle').textContent = 'Report Submitted';
+    document.getElementById('preSubmitSub').innerHTML = `${venue}<br>${date}`;
+    document.getElementById('preSubmitDoneBtn').style.display = 'block';
+    document.getElementById('preSubmitDoneBtn').onclick = () => {
+      pg.style.display = 'none';
+      showPage('homePage');
+      maintClear();
+    };
+  } catch(err) {
+    pg.style.display = 'none';
+    alert('Submission failed — check connection and try again.');
+  }
+}
+
+function maintClear() {
+  if (!confirm('Clear this maintenance report?')) return;
+  maintState = { initial: {}, post: {}, actions: [], result: '' };
+  maintPhotoFiles = {};
+  try { localStorage.removeItem(MAINT_KEY); } catch(e) {}
+  maintInit();
+}
 
 // ── VENUE DROPDOWN ────────────────────────────────────
 const VENUES_KEY = 'bx_venues';
