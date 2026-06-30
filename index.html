@@ -249,8 +249,10 @@ header {
 /* MANUAL PAGES */
 #manualPage { display: none; }
 #maintenancePage { display: none; }
+#draftsPage { display: none; }
 #manualPage.active { display: block; }
 #maintenancePage.active { display: block; }
+#draftsPage.active { display: block; }
 #componentPage { display: none; }
 #componentPage.active { display: block; }
 .manual-row {
@@ -320,11 +322,19 @@ header {
   </svg>
   <div class="header-left">
     <h1>Boxbar Technician Assist</h1>
-    <p style="opacity:0.7;font-size:10px;letter-spacing:0.3px">Early Beta v6.7</p>
+    <p style="opacity:0.7;font-size:10px;letter-spacing:0.3px">Early Beta v6.9</p>
   </div>
 </header>
 
 <div style="padding:16px 16px;display:flex;flex-direction:column;gap:16px">
+
+  <button class="home-big-btn" id="draftsHomeBtn" onclick="showPage('draftsPage');draftsRender()" style="display:none;border-color:var(--pink-border);background:var(--pink-light)">
+    <div style="flex:1;min-width:0">
+      <span class="home-big-label" style="color:var(--pink)">Drafts</span>
+      <div class="home-big-desc" style="color:var(--pink)" id="draftsHomeDesc">Resume an unfinished report</div>
+    </div>
+    <span class="home-big-arr" style="color:var(--pink)">›</span>
+  </button>
 
   <button class="home-big-btn" onclick="goToReport()">
     <div style="flex:1;min-width:0">
@@ -1120,6 +1130,30 @@ header {
 </div><!-- /gasPage -->
 
 <!-- ══════════════════════════════ MANUAL INDEX PAGE ══════════════════════════════ -->
+<!-- ══════════════════════════════ DRAFTS PAGE ══════════════════════════════ -->
+<div id="draftsPage">
+<header>
+  <svg class="header-logo-small" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <rect x="23" y="5" width="63" height="90" fill="white"/>
+    <rect x="23" y="5" width="63" height="10.8" fill="#E91E8C"/>
+    <rect x="23" y="84.2" width="63" height="10.8" fill="#E91E8C"/>
+    <rect x="23" y="15.8" width="14.8" height="17.1" fill="#E91E8C"/>
+    <rect x="23" y="67.1" width="14.8" height="17.1" fill="#E91E8C"/>
+    <rect x="37.8" y="32.9" width="18.4" height="34.2" fill="#E91E8C"/>
+    <polygon points="63.5,15.8 86,15.8 86,32.9 71.4,32.9 71.4,25.7" fill="#E91E8C"/>
+    <polygon points="71.4,32.9 86,32.9 86,50 63.5,50 71.4,41.5" fill="#E91E8C"/>
+    <polygon points="63.5,50 86,50 86,67.1 71.4,67.1 71.4,58.5" fill="#E91E8C"/>
+    <polygon points="71.4,67.1 86,67.1 86,84.2 63.5,84.2 71.4,76" fill="#E91E8C"/>
+  </svg>
+  <div class="header-left">
+    <h1>Drafts</h1>
+    <p>Unfinished reports on this device</p>
+  </div>
+  <button class="back-btn" onclick="showPage('homePage')">‹ Home</button>
+</header>
+<div style="padding:12px 12px 32px" id="draftsList"></div>
+</div><!-- /draftsPage -->
+
 <!-- ══════════════════════════════ MAINTENANCE PAGE ══════════════════════════════ -->
 <div id="maintenancePage">
 <header>
@@ -2669,7 +2703,7 @@ function goToGas() {
 }
 function goHome() { showPage('homePage'); }
 function showPage(id) {
-  ['homePage','reportPage','gasPage','manualPage','componentPage','troubleshootPage','tsL2Page','tsL3Page','tsHtPage','postEventPage','toolkitPage','maintenancePage'].forEach(p => {
+  ['homePage','reportPage','gasPage','manualPage','componentPage','troubleshootPage','tsL2Page','tsL3Page','tsHtPage','postEventPage','toolkitPage','maintenancePage','draftsPage'].forEach(p => {
     document.getElementById(p).classList.remove('active');
   });
   document.getElementById(id).classList.add('active');
@@ -2688,7 +2722,7 @@ window.addEventListener('popstate', e => {
   prerSave();
   perSaveLocal();
   const page = e.state?.appPage || 'homePage';
-  ['homePage','reportPage','gasPage','manualPage','componentPage','troubleshootPage','tsL2Page','tsL3Page','tsHtPage','postEventPage','toolkitPage','maintenancePage'].forEach(p => {
+  ['homePage','reportPage','gasPage','manualPage','componentPage','troubleshootPage','tsL2Page','tsL3Page','tsHtPage','postEventPage','toolkitPage','maintenancePage','draftsPage'].forEach(p => {
     document.getElementById(p).classList.remove('active');
   });
   document.getElementById(page).classList.add('active');
@@ -2972,7 +3006,7 @@ const APP_VERSION = '5.2';
 const PRE_WEBHOOK = 'https://script.google.com/macros/s/AKfycbyMwKu27xHtDF_taL-8Wd9gInaAa9HTYe9ylt-Ihz4S6VY9qODsR7dih8tFVs5Y4GuD/exec'; // Pre-event sheet
 const PER_WEBHOOK = 'https://script.google.com/macros/s/AKfycbyRvlQjMnaiYLnzkKoM1tmWFY88J_SoYlJBnX1RKb3BaDbdRyZD-wTpqVsvRON6HU7MMQ/exec'; // Post-event sheet
 const TOOLKIT_WEBHOOK = 'https://script.google.com/macros/s/AKfycbw6Q7s_2uMyXgCpBgPuujWc-Im6x7iDyOTq8DdHsoEYSl24kuRquST1GDF4UDRTmDdG/exec';
-const MAINT_WEBHOOK = 'https://script.google.com/macros/s/AKfycbxgTZ_ga5bCyZ4A5vYIoEkNQ0JpO3-l7ty3AkocQpys6t8OUdgtKak9-UqBG6MpxGQj/exec';
+const MAINT_WEBHOOK = 'https://script.google.com/macros/s/AKfycbwclhsNGD5viX7xJ7BHMNiyRRKKnDV6YBq95duiO9FmfvHK7HDBLoF4wtGh56rPMW1q/exec';
 const MAINT_DRIVE_FOLDER = '1l1cr-HvxtKYeQrEyJP8qH0Drz-PrSpyM';
 const PER_DRIVE_FOLDER = '1nj8_tle6eS7vxsPvn8VDUhjhEc5QEBFI';
 
@@ -4397,12 +4431,152 @@ document.addEventListener('DOMContentLoaded', () => {
   fetchVenuesFromSheets();
   tkLoadTechnicians();
 });
+// Only reload from storage when backgrounding/returning — never silently overwrite
+// in-memory data with stale storage while the page stays visible and active.
+let lastSaveTime = Date.now();
 document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'visible') {
-    prerLoad();
-    perLoadLocal();
+  if (document.visibilityState === 'hidden') {
+    // About to background — force a save of everything right now
+    prerSave();
+    perSaveLocal();
+    if (typeof maintSave === 'function') maintSave();
+    lastSaveTime = Date.now();
+  } else if (document.visibilityState === 'visible') {
+    // Returning — only reload if more than a couple seconds have passed,
+    // which means this is a genuine resume (not a flicker) and it's safe
+    // to trust storage as the source of truth for a fresh page.
+    if (Date.now() - lastSaveTime > 1500) {
+      prerLoad();
+      perLoadLocal();
+    }
   }
 });
+// Belt-and-braces: also save on pagehide (fires reliably on iOS Safari/PWA
+// even when visibilitychange is suppressed) and on a periodic interval so
+// no keystroke is ever more than a few seconds from being persisted.
+window.addEventListener('pagehide', () => {
+  prerSave();
+  perSaveLocal();
+  if (typeof maintSave === 'function') maintSave();
+});
+window.addEventListener('beforeunload', () => {
+  prerSave();
+  perSaveLocal();
+  if (typeof maintSave === 'function') maintSave();
+});
+setInterval(() => {
+  prerSave();
+  perSaveLocal();
+  if (typeof maintSave === 'function') maintSave();
+}, 4000);
+
+// ── DRAFTS ──────────────────────────────────────────────────────────────
+// A "draft" exists when a report has meaningful content in localStorage
+// that hasn't been submitted or explicitly cleared. We never auto-clear
+// these — only an explicit Submit or Clear Report action removes them.
+function draftsDetect() {
+  const drafts = [];
+
+  // Pre-event draft
+  try {
+    const raw = localStorage.getItem('bx_prereport');
+    if (raw) {
+      const d = JSON.parse(raw);
+      const hasContent = (d.eventName || d.venue || d.eventDate || (d.locations && d.locations.length));
+      if (hasContent) {
+        drafts.push({
+          type: 'pre',
+          title: d.eventName || 'Pre Event Report',
+          sub: [d.venue, d.eventDate].filter(Boolean).join(' · ') || 'No details yet',
+          icon: '📋',
+        });
+      }
+    }
+  } catch(e) {}
+
+  // Post-event draft
+  try {
+    const raw = localStorage.getItem('bx_postreport');
+    if (raw) {
+      const d = JSON.parse(raw);
+      const v = d.vals || {};
+      const hasContent = (v.per_event || v.per_venue || v.per_name);
+      if (hasContent) {
+        drafts.push({
+          type: 'post',
+          title: v.per_event || 'Post Event Report',
+          sub: [v.per_venue, v.per_date].filter(Boolean).join(' · ') || 'No details yet',
+          icon: '✅',
+        });
+      }
+    }
+  } catch(e) {}
+
+  // Maintenance draft
+  try {
+    const raw = localStorage.getItem(MAINT_KEY);
+    if (raw) {
+      const d = JSON.parse(raw);
+      const hasContent = (d.venue || d.tech || d.date);
+      if (hasContent) {
+        drafts.push({
+          type: 'maint',
+          title: d.venue || 'Maintenance Report',
+          sub: [d.tech, d.date].filter(Boolean).join(' · ') || 'No details yet',
+          icon: '🔧',
+        });
+      }
+    }
+  } catch(e) {}
+
+  return drafts;
+}
+
+function draftsUpdateHomeBadge() {
+  const drafts = draftsDetect();
+  const btn = document.getElementById('draftsHomeBtn');
+  const desc = document.getElementById('draftsHomeDesc');
+  if (!btn) return;
+  if (drafts.length) {
+    btn.style.display = 'flex';
+    desc.textContent = drafts.length === 1
+      ? `1 unfinished report — ${drafts[0].title}`
+      : `${drafts.length} unfinished reports`;
+  } else {
+    btn.style.display = 'none';
+  }
+}
+
+function draftsRender() {
+  const drafts = draftsDetect();
+  const el = document.getElementById('draftsList');
+  if (!el) return;
+  if (!drafts.length) {
+    el.innerHTML = `<div style="padding:48px 14px;text-align:center;color:var(--muted);font-size:14px;line-height:1.6">No unfinished reports.<br>Drafts appear here automatically as you fill in a report.</div>`;
+    return;
+  }
+  const typeOpen = { pre: "goToReport()", post: "showPage('postEventPage');perInitFromPre()", maint: "showPage('maintenancePage');maintInit()" };
+  el.innerHTML = drafts.map(d => `
+    <div style="background:var(--card);border:0.5px solid var(--border);border-radius:var(--radius);margin-bottom:10px;overflow:hidden">
+      <div onclick="${typeOpen[d.type]}" style="padding:14px;cursor:pointer;display:flex;align-items:center;gap:12px">
+        <span style="font-size:22px;flex-shrink:0">${d.icon}</span>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:15px;font-weight:600;color:var(--text)">${esc(d.title)}</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:2px">${esc(d.sub)}</div>
+        </div>
+        <span style="color:var(--muted);font-size:18px;flex-shrink:0">›</span>
+      </div>
+    </div>`).join('');
+}
+
+// Refresh the home badge every time we land on the home page
+const _origShowPage = showPage;
+showPage = function(id) {
+  _origShowPage(id);
+  if (id === 'homePage') draftsUpdateHomeBadge();
+};
+document.addEventListener('DOMContentLoaded', draftsUpdateHomeBadge);
+
 (function() {
   const ua = navigator.userAgent;
   const isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
