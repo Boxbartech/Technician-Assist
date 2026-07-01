@@ -322,7 +322,7 @@ header {
   </svg>
   <div class="header-left">
     <h1>Boxbar Technician Assist</h1>
-    <p style="opacity:0.7;font-size:10px;letter-spacing:0.3px">Early Beta v6.9</p>
+    <p style="opacity:0.7;font-size:10px;letter-spacing:0.3px">Early Beta v6.10</p>
   </div>
 </header>
 
@@ -3038,7 +3038,15 @@ function perSaveLocal() {
       'per_customer_feedback','per_client_feedback','per_issues_arrival','per_issues_during',
       'per_issues_resolved','per_parts','per_notes','per_staff_notes','per_closedown_notes','per_qty_boh','per_qty_foh','per_qty_fohboh'];
     const vals = {};
-    ids.forEach(id => { const el = document.getElementById(id); if(el) vals[id] = el.value; });
+    let anyPresent = false;
+    ids.forEach(id => { const el = document.getElementById(id); if(el) { vals[id] = el.value; anyPresent = true; } });
+    // If none of the post-event fields are in the DOM, don't overwrite the existing draft
+    if (!anyPresent) return;
+    const hasContent = Object.values(vals).some(v => v && v.trim());
+    if (!hasContent) {
+      const existing = localStorage.getItem('bx_postreport');
+      if (existing) return; // keep existing draft
+    }
     localStorage.setItem('bx_postreport', JSON.stringify({ vals, ynState: perYNState }));
   } catch(e) {}
 }
@@ -3729,13 +3737,22 @@ function maintLoad() {
   try { return JSON.parse(localStorage.getItem(MAINT_KEY) || '{}'); } catch(e) { return {}; }
 }
 function maintSave() {
+  // If the maintenance page fields aren't in the DOM, don't overwrite the existing draft
+  const venueEl = document.getElementById('maint_venue');
+  if (!venueEl) return;
   const d = maintLoad();
-  d.venue    = document.getElementById('maint_venue')?.value || '';
+  d.venue    = venueEl.value || '';
   d.tech     = document.getElementById('maint_tech')?.value  || '';
   d.date     = document.getElementById('maint_date')?.value  || '';
   d.nextPPM  = document.getElementById('maint_next_ppm')?.value || '';
   d.checklist = maintState;
   d.result   = maintState.result || '';
+  // Don't blank an existing draft if nothing has changed
+  const hasContent = d.venue || d.tech || d.date;
+  if (!hasContent) {
+    const existing = localStorage.getItem(MAINT_KEY);
+    if (existing) return;
+  }
   try { localStorage.setItem(MAINT_KEY, JSON.stringify(d)); } catch(e) {}
 }
 
@@ -4547,26 +4564,101 @@ function draftsUpdateHomeBadge() {
   }
 }
 
+function draftDelete(type) {
+  const keys = { pre: 'bx_prereport', post: 'bx_postreport', maint: MAINT_KEY };
+  if (!confirm('Delete this draft? This cannot be undone.')) return;
+  try { localStorage.removeItem(keys[type]); } catch(e) {}
+  // Also reset in-memory state so it doesn't get re-saved
+  if (type === 'pre') {
+    locations = []; locIdCounter = 0; activeTab = 'event'; eventSubmitted = false;
+  }
+  if (type === 'post') {
+    Object.keys(perYNState).forEach(k => delete perYNState[k]);
+    perPartsUsed = {};
+  }
+  if (type === 'maint') {
+    maintState = { initial: {}, post: {}, actions: [], result: '' };
+  }
+  draftsRender();
+  draftsUpdateHomeBadge();
+}
+
+function draftStartNew(type) {
+  const keys = { pre: 'bx_prereport', post: 'bx_postreport', maint: MAINT_KEY };
+  if (!confirm('Start a fresh report? The current draft will be deleted.')) return;
+  try { localStorage.removeItem(keys[type]); } catch(e) {}
+  if (type === 'pre') {
+    locations = []; locIdCounter = 0; activeTab = 'event'; eventSubmitted = false;
+    showPage('reportPage'); prerLoad(); renderTabBar(); renderLocationTabs(); switchTab('event');
+  } else if (type === 'post') {
+    Object.keys(perYNState).forEach(k => delete perYNState[k]);
+    perPartsUsed = {};
+    showPage('postEventPage'); perInit();
+  } else if (type === 'maint') {
+    maintState = { initial: {}, post: {}, actions: [], result: '' };
+    maintPhotoFiles = {};
+    showPage('maintenancePage'); maintInit();
+  }
+}
+
 function draftsRender() {
   const drafts = draftsDetect();
   const el = document.getElementById('draftsList');
   if (!el) return;
+
+  const typeOpen = {
+    pre:   "goToReport()",
+    post:  "showPage('postEventPage');perInitFromPre()",
+    maint: "showPage('maintenancePage');maintInit()",
+  };
+  const typeLabel = { pre: 'Pre Event Report', post: 'Post Event Report', maint: 'Maintenance Report' };
+
+  let html = '';
+
   if (!drafts.length) {
-    el.innerHTML = `<div style="padding:48px 14px;text-align:center;color:var(--muted);font-size:14px;line-height:1.6">No unfinished reports.<br>Drafts appear here automatically as you fill in a report.</div>`;
-    return;
-  }
-  const typeOpen = { pre: "goToReport()", post: "showPage('postEventPage');perInitFromPre()", maint: "showPage('maintenancePage');maintInit()" };
-  el.innerHTML = drafts.map(d => `
-    <div style="background:var(--card);border:0.5px solid var(--border);border-radius:var(--radius);margin-bottom:10px;overflow:hidden">
-      <div onclick="${typeOpen[d.type]}" style="padding:14px;cursor:pointer;display:flex;align-items:center;gap:12px">
-        <span style="font-size:22px;flex-shrink:0">${d.icon}</span>
-        <div style="flex:1;min-width:0">
-          <div style="font-size:15px;font-weight:600;color:var(--text)">${esc(d.title)}</div>
-          <div style="font-size:12px;color:var(--muted);margin-top:2px">${esc(d.sub)}</div>
+    html = `<div style="padding:48px 14px;text-align:center;color:var(--muted);font-size:14px;line-height:1.6">No unfinished reports on this device.<br>Drafts appear here as you fill in a report.</div>`;
+  } else {
+    drafts.forEach(d => {
+      html += `
+      <div style="background:var(--card);border:0.5px solid var(--pink-border);border-radius:var(--radius);margin-bottom:10px;overflow:hidden">
+        <div onclick="${typeOpen[d.type]}" style="padding:14px;cursor:pointer;display:flex;align-items:center;gap:12px">
+          <span style="font-size:22px;flex-shrink:0">${d.icon}</span>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:15px;font-weight:600;color:var(--text)">${esc(d.title)}</div>
+            <div style="font-size:12px;color:var(--muted);margin-top:2px">${esc(d.sub)}</div>
+          </div>
+          <span style="color:var(--pink);font-size:13px;font-weight:700;flex-shrink:0;white-space:nowrap">Resume ›</span>
         </div>
-        <span style="color:var(--muted);font-size:18px;flex-shrink:0">›</span>
-      </div>
-    </div>`).join('');
+        <div style="border-top:0.5px solid var(--border);display:flex">
+          <button onclick="draftStartNew('${d.type}')" style="flex:1;padding:10px;background:none;border:none;border-right:0.5px solid var(--border);color:var(--muted);font-size:12px;font-weight:600;font-family:inherit;cursor:pointer">Start New</button>
+          <button onclick="draftDelete('${d.type}')" style="flex:0 0 auto;padding:10px 16px;background:none;border:none;color:#ff3b30;font-size:12px;font-weight:600;font-family:inherit;cursor:pointer">✕ Delete</button>
+        </div>
+      </div>`;
+    });
+  }
+
+  // Always show "Start new" options for reports that don't have a draft yet
+  const draftTypes = drafts.map(d => d.type);
+  const allTypes = [
+    { type: 'pre', label: 'Pre Event Report', icon: '📋' },
+    { type: 'post', label: 'Post Event Report', icon: '✅' },
+    { type: 'maint', label: 'Maintenance Report', icon: '🔧' },
+  ];
+  const notStarted = allTypes.filter(t => !draftTypes.includes(t.type));
+  if (notStarted.length) {
+    html += `<div style="margin-top:${drafts.length ? '16px' : '0'}">
+      <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px">Start a new report</div>`;
+    notStarted.forEach(t => {
+      html += `<button onclick="draftStartNew('${t.type}')" style="width:100%;display:flex;align-items:center;gap:12px;padding:13px 14px;background:var(--card);border:0.5px solid var(--border);border-radius:var(--radius);margin-bottom:8px;cursor:pointer;font-family:inherit;text-align:left">
+        <span style="font-size:18px">${t.icon}</span>
+        <span style="font-size:14px;font-weight:600;color:var(--text)">${t.label}</span>
+        <span style="margin-left:auto;color:var(--muted);font-size:18px">›</span>
+      </button>`;
+    });
+    html += `</div>`;
+  }
+
+  el.innerHTML = html;
 }
 
 // Refresh the home badge every time we land on the home page
@@ -5298,14 +5390,29 @@ let activeTab = 'event';
 let eventSubmitted = false;
 
 function prerSave() {
+  // Only read from DOM if the report page fields are actually present and populated.
+  // If the page isn't active, the inputs don't exist (or are hidden/reset),
+  // so we must NOT overwrite a good draft with empty strings.
+  const eventNameEl = document.getElementById('eventName');
+  const venueEl     = document.getElementById('venue');
+  if (!eventNameEl && !venueEl) {
+    // DOM fields not present — nothing to save, do not wipe existing draft
+    return;
+  }
   const data = {
-    eventName: (document.getElementById('eventName')||{}).value || '',
-    venue: (document.getElementById('venue')||{}).value || '',
-    eventDate: (document.getElementById('eventDate')||{}).value || '',
-    arrivalTime: (document.getElementById('arrivalTime')||{}).value || '',
-    eventNotes: (document.getElementById('eventNotes')||{}).value || '',
+    eventName: eventNameEl?.value || '',
+    venue: venueEl?.value || '',
+    eventDate: document.getElementById('eventDate')?.value || '',
+    arrivalTime: document.getElementById('arrivalTime')?.value || '',
+    eventNotes: document.getElementById('eventNotes')?.value || '',
     locations, locIdCounter, activeTab, eventSubmitted,
   };
+  // Don't save a completely blank record over an existing draft
+  const hasContent = data.eventName || data.venue || data.eventDate || data.locations?.length;
+  if (!hasContent) {
+    const existing = localStorage.getItem('bx_prereport');
+    if (existing) return; // keep the existing draft, don't blank it
+  }
   try { localStorage.setItem('bx_prereport', JSON.stringify(data)); } catch(e) {}
 }
 
